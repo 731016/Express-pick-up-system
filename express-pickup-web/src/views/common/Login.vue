@@ -1,5 +1,5 @@
 <template>
-    <div class="login-wrap">
+    <div class="login-wrap" v-loading.fullscreen.lock="loading">
         <div class="ms-login">
             <div class="ms-title">快递代取系统登录</div>
             <el-form status-icon :model="param" :rules="rules" ref="param" label-width="0px" class="ms-content">
@@ -24,12 +24,13 @@
 </template>
 
 <script>
-    import {mapMutations} from 'vuex'
+    import {login} from "../../request/user";
 
     export default {
         name: "Login",
         data() {
             return {
+                loading: false,
                 param: {
                     username: '',
                     password: ''
@@ -46,34 +47,31 @@
                     if (valid) {
                         this.checkUserLogin();
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
             },
             checkUserLogin() {
-                // this.$axios.post('http://localhost:8090/api/login', {
-                //     'username': this.param.username,
-                //     'password': this.param.password
-                // }).then((response) => {
-                //     console.log(response)
-                //     let rep = response.data;
-                //     if (response.status === 200 && rep.statusCode === 2000) {
-                //         console.log(rep)
-                //         this.updateUserInfo(rep.data);
-                //         this.$router.push({
-                //             name: 'DashBoard'
-                //         })
-                //     } else {
-                //         this.$message.error('登陆失败！');
-                //     }
-                // }).catch((error) => {
-                //     this.$message.error('连接超时！');
-                //     console.log(error);
-                // })
+                let userInfo = {
+                    "userName": this.param.username,
+                    "passWord": this.param.password
+                }
+                this.loading = true;
+                login(userInfo).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        localStorage.setItem('token', rep.data);
+                        this.$router.push({
+                            name: 'DashBoard'
+                        })
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
             },
-            ...mapMutations({updateUserInfo: 'updateUserInfo'}),
-            toRegister(){
+            toRegister() {
                 this.$router.push({
                     name: 'Register',
                 })
@@ -105,7 +103,7 @@
         left: 50%;
         top: 50%;
         width: 350px;
-        margin: -190px 0 0 -175px;
+        margin: 175px 0 0 -175px;
         border-radius: 5px;
         background: rgba(255, 255, 255, 0.3);
         overflow: hidden;

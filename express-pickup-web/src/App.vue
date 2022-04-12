@@ -1,23 +1,12 @@
 <template>
     <div id="app">
-        <Header v-if="getUserId"></Header>
-        <Contenter></Contenter>
+        <router-view></router-view>
     </div>
 </template>
 
-<script>
-    import Header from "./views/common/Header";
-    import Contenter from "./views/deliveryUser/Contenter";
-    import {mapGetters} from 'vuex';
+<script scoped>
     export default {
         name: 'App',
-        components: {
-            Header,
-            Contenter,
-        },
-        computed:{
-            ...mapGetters({getUserId:'getUserId'})
-        }
     }
 </script>
 

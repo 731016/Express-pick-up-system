@@ -29,7 +29,6 @@
 </template>
 
 <script>
-    import {mapMutations} from 'vuex'
     import {register} from '../../request/user'
 
     export default {
@@ -72,20 +71,18 @@
                 });
             },
             checkUserLogin() {
-                let params = {
-                    "userName": this.username,
-                    "passWord": this.password
-                };
+                let userInfo = {
+                    "userName": this.param.username,
+                    "passWord": this.param.password
+                }
                 this.loading = true;
-                register(params).then(response => {
+                register(userInfo).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.$message.success('注册成功！，即将跳转登录');
                         window.setTimeout(() => {
                             this.loading = false;
-                            this.$router.push({
-                                name: 'Login'
-                            })
+                            this.toLogin();
                         }, 1000);
                     }
                 }).catch(error => {
@@ -93,7 +90,6 @@
                     this.loading = false;
                 })
             },
-            ...mapMutations({updateUserInfo: 'updateUserInfo'}),
             toLogin() {
                 this.$router.push({
                     name: 'Login',
@@ -126,7 +122,7 @@
         left: 50%;
         top: 50%;
         width: 350px;
-        margin: -190px 0 0 -175px;
+        margin: 175px 0 0 -175px;
         border-radius: 5px;
         background: rgba(255, 255, 255, 0.3);
         overflow: hidden;

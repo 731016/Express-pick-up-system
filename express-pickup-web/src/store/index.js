@@ -10,10 +10,11 @@ Vue.use(Vuex);
 const actions = {}
 //准备mutations对象-修改state中的数据
 const mutations = {
-    updateUserInfo(state, value){
+    updateUserInfo(state, value) {
         state.userId = value.userId;
         state.userName = value.userName;
-        state.userRole = value.userRole;
+        state.userRoleId = value.userRoleId;
+        state.userRoleName = value.userRoleName;
     }
 }
 //准备state对象-保存具体的数据
@@ -24,8 +25,8 @@ const getters = {
     getRateCommitTotal() {
         return state.tableData.filter(item => item.rangeInfo.id != '').length;
     },
-    getUserRole() {
-        return state.userRole;
+    getUserRoleId() {
+        return state.userRoleId;
     },
     getUserId() {
         return state.userId;
@@ -33,11 +34,16 @@ const getters = {
     getUserName() {
         return state.userName;
     },
+    getUserRoleName() {
+        return state.userRoleName;
+    }
 }
 const state = {
-    userRole: '',
-    userName: '',
+    identifyCode:'',
     userId: '',
+    userName: '',
+    userRoleId: '',
+    userRoleName: '',
     orderStatusOptions: [
         {
             value: 0,
@@ -73,7 +79,7 @@ const state = {
             label: '支付成功'
         }
     ],
-    tableData: [
+    /*tableData: [
         {
             id: 'qwed-34253-fsgdf-42354',
             orderStep: 2,
@@ -380,7 +386,7 @@ const state = {
                 paymentStatus: '支付成功',
             }
         }
-    ],
+    ],*/
 }
 
 //创建store

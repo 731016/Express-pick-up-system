@@ -2,13 +2,13 @@
     <el-container>
         <el-header>
             <span class="title-text">校园快递代取系统</span>
-            <el-dropdown trigger="click">
+            <el-dropdown trigger="click" v-if="getUserId()">
                 <span class="el-dropdown-link">
-                    {{getUserRole}}:{{getUserName}}<i class="el-icon-arrow-down el-icon--right"></i>
+                    {{getUserRoleName()}}:{{getUserName()}}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>个人中心</el-dropdown-item>
-                    <el-dropdown-item>退出登录</el-dropdown-item>
+                    <el-dropdown-item @click.native="exitLogIn()">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </el-header>
@@ -16,16 +16,41 @@
 </template>
 
 <script>
+    import {logout} from "../../request/user";
+
     export default {
         name: "Header",
-        computed: {
-            getUserRole() {
-                return this.$store.state.userRole;
+        methods: {
+            getUserRoleName() {
+                return this.$store.state.userRoleName;
             },
             getUserName() {
                 return this.$store.state.userName;
+            },
+            getUserId() {
+                return this.$store.state.userId;
+            },
+            exitLogIn() {
+                let userInfo = {
+                    "userId": this.$store.state.userId
+                }
+                logout(userInfo).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        localStorage.removeItem("token");
+                        this.$router.push({
+                            name: 'Login'
+                        })
+                    }
+                }).catch(error => {
+                    this.$message.error(error);
+                })
             }
-
+        },
+        mounted() {
+            this.getUserId();
+            this.getUserName();
+            this.getUserRoleName();
         }
     }
 </script>

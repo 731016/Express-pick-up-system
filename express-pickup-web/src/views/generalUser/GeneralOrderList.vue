@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-show="showUserRoleMenu()">
         <div>
             <el-row :gutter="24">
                 <el-col :span="2">
@@ -47,7 +47,7 @@
                 <el-col :span="4">
                     <div class="grid-content bg-purple">
                         <el-input
-                                v-model="searchConditions.orderNumber"
+                                v-model="searchConditions.id"
                                 clearable>
                         </el-input>
                     </div>
@@ -61,15 +61,27 @@
         </div>
         <div class="alert-title">
             <el-alert
-                    title="完成订单： 订单状态需为 【派送中】 或 【订单异常】 异常订单： 订单状态需为 【派送中】 订单评价： 订单状态需为 【订单完成】 或 【订单异常】"
-                    type="success"
+                    title="撤销订单： 订单状态需为 【等待接单】 删除订单： 订单状态需为 【订单完成】 或 【订单异常】"
+                    type="warning"
                     show-icon>
             </el-alert>
         </div>
+        <div class="order-btn">
+            <el-button type="warning" round size="mini" @click="revokeOrder()">
+                <i class="el-icon-circle-close"></i>
+                撤销订单
+            </el-button>
+            <el-button type="danger" round size="mini" @click="deleteOrder()">
+                <i class="el-icon-delete"></i>
+                删除订单
+            </el-button>
+        </div>
         <div>
             <el-table :cell-style="drawCells"
-                      :data="tableData"
+                      v-loading="loading"
+                      :data="getNotDelData()"
                       ref="tableData"
+                      @selection-change="rowChange()"
                       style="width: 100%"
                       max-height="480">
                 <el-table-column
@@ -77,7 +89,7 @@
                         width="55">
                 </el-table-column>
                 <el-table-column
-                        prop="orderNumber"
+                        prop="id"
                         label="订单号"
                         width="240">
                 </el-table-column>
@@ -92,32 +104,17 @@
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="pickupName"
-                        label="收件人"
+                        prop="paymentInfo.paymentAmount"
+                        label="支付金额"
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="contactNumber"
-                        label="收件电话"
+                        prop="paymentInfo.paymentStatusName"
+                        label="支付状态"
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="shipAddress"
-                        label="收件地址"
-                        width="120">
-                </el-table-column>
-                <el-table-column
-                        prop="trackDeliveryAddress"
-                        label="快递寄达地址"
-                        width="120">
-                </el-table-column>
-                <el-table-column
-                        prop="remark"
-                        label="下单备注"
-                        width="120">
-                </el-table-column>
-                <el-table-column
-                        prop="orderStatus_cnName"
+                        prop="orderStatusName"
                         label="订单状态"
                         width="120">
                 </el-table-column>
@@ -130,23 +127,16 @@
                 <el-table-column
                         fixed="right"
                         label="操作"
-                        width="150">
+                        width="120">
                     <template slot-scope="scope">
                         <span>
-                            <el-button icon="el-icon-search" circle @click="orderSearch(scope.row)" type="text"
+                            <el-button icon="el-icon-search" circle @click="searchInfoDialog(scope.row)" type="text"
                                        size="small"></el-button>
+
                         </span>
-                        <span v-if="showOrderSuccess(scope.row)">
-                            <el-button type="success" icon="el-icon-check" circle size="mini"
-                                       @click="orderSuccess(scope.row)"></el-button>
-                        </span>
-                        <span v-if="showOrderException(scope.row)">
-                            <el-button type="danger" icon="el-icon-close" circle size="mini"
-                                       @click="orderExecption(scope.row)"></el-button>
-                        </span>
-                        <span v-if="showRanging(scope.row)">
-                            <el-button type="primary" icon="el-icon-edit" circle size="mini"
-                                       @click="orderRange(scope.row)"></el-button>
+                        <span v-if="whetherShowReviewsBtn(scope.row)">
+                            <el-button type="primary" icon="el-icon-edit" circle size="small"
+                                       @click="rangeClick(scope.row)"></el-button>
                         </span>
                     </template>
                 </el-table-column>
@@ -155,11 +145,11 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :hide-on-single-page="false"
-                    :current-page="searchConditions.currentPage"
+                    :current-page.sync="searchConditions.currentPage"
                     :page-sizes="[5, 20, 50]"
                     :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getOrderDataTotal">
+                    :total="searchConditions.totalPage">
             </el-pagination>
         </div>
         <el-dialog title="订单详情" :visible.sync="dialogTableVisible"
@@ -171,7 +161,7 @@
                     <el-step title="订单完成"></el-step>
                 </el-steps>
             </div>
-            <div style="text-align: left" v-if="currentdialog.orderStatus == 30">
+            <div style="text-align: left" v-if="currentdialog.orderStatus == 30 ">
                 <el-steps :active="currentdialog.orderStep" finish-status="error" space="33%">
                     <el-step title="等待接单"></el-step>
                     <el-step title="派送中"></el-step>
@@ -185,7 +175,7 @@
                             <i class="el-icon-user "></i>
                             订单号
                         </template>
-                        {{currentdialog.orderNumber}}
+                        {{currentdialog.id}}
                     </el-descriptions-item>
                     <el-descriptions-item>
                         <template slot="label">
@@ -263,21 +253,21 @@
                             <i class="el-icon-tickets "></i>
                             支付状态
                         </template>
-                        {{currentdialog.paymentInfo.paymentStatus}}
+                        {{currentdialog.paymentInfo.paymentStatusName}}
                     </el-descriptions-item>
                     <el-descriptions-item>
                         <template slot="label">
                             <i class="el-icon-tickets "></i>
                             订单状态
                         </template>
-                        {{currentdialog.orderStatus}}
+                        {{currentdialog.orderStatusName}}
                     </el-descriptions-item>
                     <el-descriptions-item>
                         <template slot="label">
                             <i class="el-icon-tickets"></i>
                             配送员
                         </template>
-                        {{currentdialog.deliveryMan}}
+                        {{currentdialog.deliveryManName}}
                     </el-descriptions-item>
                     <el-descriptions-item>
                         <template slot="label">
@@ -297,7 +287,7 @@
             <el-row>
                 <el-col :span="24">
                     <div class="grid-content range-directions">
-                        当前订单已处理完毕，如无误请对用户进行评价。
+                        当前订单已处理完毕，如无误请对配送员进行评价。
                     </div>
                 </el-col>
             </el-row>
@@ -327,38 +317,14 @@
                         <el-input resize="none"
                                   type="textarea"
                                   :rows="4"
-                                  placeholder="给用户一个中肯的评价"
+                                  placeholder="给配送员一个中肯的评价"
                                   v-model="rangeInfo.comment">
                         </el-input>
                     </div>
                 </el-col>
             </el-row>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="evaluate()">评 价</el-button>
-            </div>
-        </el-dialog>
-        <el-dialog title="订单完成" :visible.sync="dialogSuccessVisible" :modal-append-to-body='false'
-                   @close="closeDialog()">
-            <el-input
-                    type="textarea"
-                    :autosize="{ minRows: 3, maxRows: 5}"
-                    v-model="rangeInfo.successRamark">
-            </el-input>
-            <div slot="footer" class="dialog-footer">
-                <el-button type="primary" plain @click="commitSuccessRamark()">确定</el-button>
-                <el-button @click="closeDialog()">取 消</el-button>
-            </div>
-        </el-dialog>
-        <el-dialog title="订单异常" :visible.sync="dialogExceptionVisible" :modal-append-to-body='false'
-                   @close="closeDialog()">
-            <el-input
-                    type="textarea"
-                    :autosize="{ minRows: 3, maxRows: 5}"
-                    v-model="rangeInfo.exceptionReamrk">
-            </el-input>
-            <div slot="footer" class="dialog-footer">
-                <el-button type="primary" plain @click="commitExceptionRamark()">确 定</el-button>
-                <el-button @click="closeDialog()">取 消</el-button>
+                <el-button @click="evaluate(currentdialog.id)">评 价</el-button>
             </div>
         </el-dialog>
     </div>
@@ -366,8 +332,8 @@
 </template>
 
 <script>
-    // import axios from 'axios';
-    import {mapState} from 'vuex'
+    import {selectAllOrder, revokeOrder, deleteOrder} from '../../request/order';
+    import {mapGetters, mapState} from 'vuex';
     import mixin from '../../mixin';
 
     export default {
@@ -375,411 +341,168 @@
         mixins: [mixin],
         data() {
             return {
+                loading: false,
+                //弹出框订单详情数据
                 currentdialog: {},
                 dialogTableVisible: false,
                 dialogRateVisible: false,
-                dialogSuccessVisible: false,
-                dialogExceptionVisible: false,
+                //查询条件
                 searchConditions: {
-                    orderStatus: '',
-                    orderNumber: '',
+                    orderStatus: 0,
+                    id: '',
                     startEndTime: [],
                     //当前页码
                     currentPage: 1,
                     pageSize: 5,
+                    totalPage: 5
                 },
+                revokeIds: [],
+                deleteIds: [],
+                //评价信息
                 rangeInfo: {
-                    orderNumber: '',
                     userRatings: 5,
                     comment: '',
-                    completeEvaluationFlag: 1,
-                    successRamark: '',
-                    exceptionReamrk: ''
+                    completeEvaluationFlag: 1
                 },
-                tableData: [
-                    {
-                        id: 'qwed-34253-fsgdf-42354',
-                        orderStep: 2,
-                        // 订单号
-                        orderNumber: '1111111111',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '156461564496',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送备注
-                        shippingReamrk: '',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 20,
-                        orderStatus_cnName: '派送中',
-                        createTime: '2022/3/12 11:34:34',
-                        rangeInfo: {
-                            id: '',
-                            userRatings: 0,
-                            comment: '',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '1-1234',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 4.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功'
-                        }
-                    },
-                    {
-                        id: 'd223423-edwede-d2wedwe-e2r23f-dwedf',
-                        orderStep: 3,
-                        // 订单号
-                        orderNumber: '22222222222',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '43657876876',
-                        // 配送员
-                        deliveryMan: '规划和',
-                        // 配送备注
-                        shippingReamrk: '已送达',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 40,
-                        orderStatus_cnName: '订单完成',
-                        createTime: '2022/3/14 10:45:33',
-                        rangeInfo: {
-                            id: '2-45345',
-                            userRatings: 4.5,
-                            comment: '服务好',
-                            completeEvaluationFlag: 1
-                        },
-                        paymentInfo: {
-                            id: '2-43242',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 42.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功'
-                        }
-                    },
-                    {
-                        id: '8989797-435-45646-54654-7574',
-                        orderStep: 0,
-                        // 订单号
-                        orderNumber: '333333333333',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送员备注
-                        shippingReamrk: '',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 10,
-                        orderStatus_cnName: '等待接单',
-                        createTime: '2022/3/12 14:00:34',
-                        rangeInfo: {
-                            id: '',
-                            userRatings: 0,
-                            comment: '',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '3-4534',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 4.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功'
-                        }
-                    },
-                    {
-                        id: '75676586755-2432423-234324-2423',
-                        orderStep: 2,
-                        // 订单号
-                        orderNumber: '55555555',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '475678687686',
-                        // 配送员
-                        deliveryMan: '嘎嘎嘎',
-                        // 配送备注
-                        shippingReamrk: '已送达',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 20,
-                        orderStatus_cnName: '派送中',
-                        createTime: '2022/3/14 16:33:00',
-                        rangeInfo: {
-                            id: '',
-                            userRatings: 0,
-                            comment: '',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '4-433',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 42.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功',
-                        }
-                    },
-                    {
-                        id: '45665765765-2432423-234324-5435345',
-                        orderStep: 3,
-                        // 订单号
-                        orderNumber: '444444444',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送备注
-                        shippingReamrk: '已送达',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: -1,
-                        //删除原因
-                        delReason: '手动删除',
-                        // 订单状态
-                        orderStatus: 40,
-                        orderStatus_cnName: '订单完成',
-                        createTime: '2022/3/14 13:00:45',
-                        rangeInfo: {
-                            id: '4-4534',
-                            userRatings: 7.8,
-                            comment: '一款具有口语',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '4-433',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 42.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功',
-                        },
-                    },
-                    {
-                        id: '65654645-435-45646-54654-7574',
-                        orderStep: 3,
-                        // 订单号
-                        orderNumber: '666666666666666',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送备注
-                        shippingReamrk: '',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 30,
-                        orderStatus_cnName: '订单异常',
-                        createTime: '2022/3/12 9:34:56',
-                        rangeInfo: {
-                            id: '',
-                            userRatings: 0,
-                            comment: '',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '3-4534',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 4.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功',
-                        }
-                    }
-                ],
+                tableData: [],
             }
         },
         computed: {
             ...mapState({orderStatusOptions: 'orderStatusOptions'}),
-            getOrderDataTotal() {
-                return this.tableData.length;
-            },
+            ...mapGetters(
+                {getUserRoleId: 'getUserRoleId'},
+                {getUserRoleName: 'getUserRoleName'}),
         },
         methods: {
-            //显示订单完成按钮
-            showOrderSuccess(row){
-                return row.orderStatus == 20 || row.orderStatus == 30;
+            showUserRoleMenu() {
+                let roleId = this.getUserRoleId;
+                let roleName = this.getUserRoleName;
+                return roleId || roleName;
             },
-            //显示订单异常按钮
-            showOrderException(row){
-                return row.orderStatus == 20;
+            updatePage(currentPage, pageSize, totalPage) {
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.pageSize = pageSize;
+                this.searchConditions.totalPage = totalPage;
             },
-            showRanging(row){
-                return (row.orderStatus == 40 || row.orderStatus ==30) && row.rangeInfo.completeEvaluationFlag == 0
+            //撤销订单
+            revokeOrder() {
+                if (this.revokeIds.length <= 0) {
+                    this.$message({
+                        message: '未选择可撤销的订单',
+                        type: 'warning'
+                    });
+                    return false;
+                }
+                this.$confirm('确认撤销订单' + this.revokeIds.join(","), '撤销操作', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.loading = true;
+                    revokeOrder(this.revokeIds).then(response => {
+                        let rep = response.data;
+                        if (response.status === 200 && rep.statusCode === 2000) {
+                            this.$message.warning(rep.message);
+                            this.initData();
+                            this.revokeIds = [];
+                        }
+                        this.loading = false;
+                    }).catch(error => {
+                        this.$message.error(error);
+                        this.loading = false;
+                    });
+                }).catch(() => {
+                    this.$message.info('用户取消操作');
+                });
+            }
+            ,
+            //删除订单
+            deleteOrder() {
+                if (this.deleteIds.length <= 0) {
+                    this.$message({
+                        message: '未选择可删除的订单',
+                        type: 'warning'
+                    });
+                    return false;
+                }
+                this.$confirm('确认删除订单' + this.deleteIds.join(","), '删除操作', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.loading = true;
+                    deleteOrder(this.deleteIds).then(response => {
+                        let rep = response.data;
+                        if (response.status === 200 && rep.statusCode === 2000) {
+                            this.$message.warning(rep.message);
+                            this.initData();
+                        }
+                        this.loading = false;
+                    }).catch(error => {
+                        this.$message.error(error);
+                        this.loading = false;
+                    });
+                    this.deleteIds = [];
+                }).catch(() => {
+                    this.$message.info('用户取消操作');
+                });
             },
             /**
-             *点击查看
+             * 弹出框
              */
-            orderSearch(row) {
+            searchInfoDialog(row) {
                 this.currentdialog = row
                 this.dialogTableVisible = true
             },
             /**
-             * 点击评价
+             * 评价
              */
-            orderRange(row) {
+            rangeClick(row) {
+                this.currentdialog = row;
                 this.dialogRateVisible = true;
-                this.rangeInfo.orderNumber = row.orderNumber;
-            },
-            /**
-             * 提交订单为订单完成
-             */
-            orderSuccess(row) {
-                this.rangeInfo.orderNumber = row.orderNumber;
-                this.dialogSuccessVisible = true;
-            },
-            /**
-             * 提交订单为订单异常
-             */
-            orderExecption(row) {
-                this.rangeInfo.orderNumber = row.orderNumber;
-                this.dialogExceptionVisible = true;
-            },
+            }
+            ,
             /**
              * 查询条件
              */
             getFilterData() {
-                // todo [用户id == 配送员id] + 查询条件
-                console.log('发送ajax')
-                // axios.post('xxx', {
-                //     data: this.searchConditions
-                // }).then(function (response) {
-                //     console.log(response);
-                // }).catch(function (error) {
-                //     console.log(error);
-                // })
+                this.initData();
             },
+            /**
+             * 表格被选中的数据发送变化
+             * 筛选 选择的数据中，要被【撤销】或【删除】的订单
+             */
+            rowChange() {
+                this.revokeIds = [];
+                this.deleteIds = [];
+                let selectedAllData = this.$refs.tableData.selection;
+                let revokeIds = [];
+                let deleteIds = [];
+                selectedAllData.forEach(function (item) {
+                    if (item.orderStatus == 10) {
+                        revokeIds.push(item.id);
+                    } else if (item.orderStatus == 40 || item.orderStatus == 30) {
+                        deleteIds.push(item.id);
+                    }
+                });
+                Object.assign(this.revokeIds, revokeIds);
+                Object.assign(this.deleteIds, deleteIds);
+            },
+            /**
+             * 绘制单元格，判断订单状态
+             */
             drawCells({row, columnIndex}) {
-                if (columnIndex == 9) {
+                //订单状态
+                if (columnIndex == 5) {
+                    let payStatus = row.paymentInfo.paymentStatus;
+                    if (payStatus == 0) {
+                        return 'color:#BD8E3E';
+                    } else {
+                        return 'color:green';
+                    }
+                }
+                //支付状态
+                if (columnIndex == 6) {
                     let orderStatus = row.orderStatus;
                     if (orderStatus == 10) {
                         return 'color:#ccc';
@@ -792,67 +515,53 @@
                     }
                 }
             },
+            /**
+             *关闭弹出框
+             */
             closeDialog() {
-                this.dialogTableVisible = false;
-                this.dialogRateVisible = false;
-                this.dialogSuccessVisible = false;
-                this.dialogExceptionVisible = false;
+                this.dialogTableVisible = false
             },
             /**
              * 评价
              */
-            evaluate() {
+            evaluate(id) {
                 this.dialogRateVisible = false;
-                //todo ajax根据订单id修改
+                //todo ajax根据订单id创建
                 this.tableData.forEach(item => {
-                    if (item.orderNumber == this.rangeInfo.orderNumber) {
-                        Object.assign(item.rangeInfo, this.rangeInfo)
+                    if (item.id == id) {
+                        item.rangeInfo = this.rangeInfo;
                     }
                 })
             },
             /**
-             * 订单完成
+             * 是否显示评价按钮 [订单异常||订单完成]
              */
-            commitSuccessRamark() {
-                // todo ajax 根据订单id更新，参数rangeInfo.successRamark
-                //此处无须查看，不更新数据
-                this.tableData.forEach(item=>{
-                    if (item.orderNumber == this.rangeInfo.orderNumber){
-                        item.orderStatus = 40;
-                        item.orderStatus_cnName = '订单完成'
-                        item.shippingReamrk = this.rangeInfo.exceptionReamrk;
-                    }
-                })
-                this.dialogSuccessVisible = false;
-                this.$message({
-                    message: '操作成功',
-                    type: 'success'
-                });
-                // this.$message.error('处理失败');
+            whetherShowReviewsBtn(row) {
+                return (row.orderStatus == 40 || row.orderStatus == 30) && row.rangeInfo.completeEvaluationFlag == 0;
             },
-            /**
-             * 订单异常
-             */
-            commitExceptionRamark() {
-                // todo ajax 根据订单id更新，参数rangeInfo.exceptionReamrk
-                //此处无须查看，不更新数据
-                this.tableData.forEach(item=>{
-                    if (item.orderNumber == this.rangeInfo.orderNumber){
-                        item.orderStatus = 30;
-                        item.orderStatus_cnName = '订单异常'
-                        item.shippingReamrk = this.rangeInfo.ex;
+            initData() {
+                //查询所有订单状态
+                this.loading = true;
+                selectAllOrder(this.searchConditions).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData = JSON.parse(JSON.stringify(rep.data));
+                        this.updatePage(rep.currentPage, rep.pageSize, rep.totalPage);
                     }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
                 })
-                this.dialogExceptionVisible = false;
-                this.$message({
-                    message: '操作成功',
-                    type: 'success'
-                });
-                // this.$message.error('处理失败');
             },
+            getNotDelData() {
+                if (this.tableData !== null) {
+                    return this.tableData.filter(item => item.isDel === 0);
+                }
+            }
         },
-        created() {
-            this.getFilterData();
+        mounted() {
+            this.initData();
         },
         watch: {
             'searchConditions.pageSize': {

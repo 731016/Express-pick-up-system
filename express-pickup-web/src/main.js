@@ -78,6 +78,7 @@ import {
     Skeleton,
     SkeletonItem,
     Empty,
+    Result,
     Loading,
     MessageBox,
     Message,
@@ -169,15 +170,13 @@ Vue.use(DescriptionsItem);
 Vue.use(Skeleton);
 Vue.use(SkeletonItem);
 Vue.use(Empty);
-Vue.use(VueRouter);
+Vue.use(Result);
 Vue.use(Loading.directive);
+Vue.use(VueRouter);
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
 },
-    router.afterEach(function (to, from) {
-        console.log(to, from)
-    })
 new Vue({
     render: h => h(App),
     store: store,
