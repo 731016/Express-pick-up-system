@@ -42,7 +42,7 @@ public class ResultUtils {
         return new CommonResponse<List<T>>(ActionStatus.REQUESTSUCCESS.getCode(), ActionStatus.REQUESTSUCCESS.getMsg(), dataList);
     }
 
-    public static <T> CommonResponse<List<T>> success(Integer currentSize, Integer pageSize, Integer totalPage, List<T> dataList) {
-        return new CommonResponse(ActionStatus.REQUESTSUCCESS.getCode(), ActionStatus.REQUESTSUCCESS.getMsg(), dataList, currentSize, pageSize, totalPage);
+    public static <T> CommonResponse<List<T>> success(Integer currentSize,Integer totalPage, List<T> dataList) {
+        return new CommonResponse(ActionStatus.REQUESTSUCCESS.getCode(), ActionStatus.REQUESTSUCCESS.getMsg(), dataList, currentSize, totalPage);
     }
 }

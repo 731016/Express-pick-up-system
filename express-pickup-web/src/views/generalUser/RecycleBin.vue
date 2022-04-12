@@ -67,6 +67,7 @@
         </div>
         <div>
             <el-table :cell-style="drawCells"
+                      v-loading="loading"
                       :data="filterData()"
                       ref="tableData"
                       @selection-change="rowChange()"
@@ -135,12 +136,14 @@
 <script>
     import {mapState} from "vuex";
     import mixin from '../../mixin';
+    import {selectDelAndRevokeOrder, recyceOrder} from '../../request/order'
 
     export default {
         name: "RecycleBin",
         mixins: [mixin],
         data() {
             return {
+                loading: false,
                 recycelIds: [],
                 searchConditions: {
                     orderStatus: '',
@@ -148,6 +151,7 @@
                     startEndTime: [],
                     currentPage: 1,
                     pageSize: 5,
+                    totalPage: 5
                 },
                 tableData: [],
             }
@@ -162,24 +166,26 @@
                     });
                     return false;
                 }
-                this.$confirm('确认还原订单' + this.recycelIds.join(","), '还原操作', {
+                this.$confirm('确认还原订单' +this.recycelIds.join("\n"), '还原操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    //todo axios 修改 参数：【订单id】
-                    this.tableData.forEach(item => {
-                        if (this.recycelIds.some(ele => ele == item.id)) {
-                            item.isDel = 0;
+                    this.loading = true;
+                    recyceOrder(this.recycelIds).then(response => {
+                        let rep = response.data;
+                        if (response.status === 200 && rep.statusCode === 2000) {
+                            this.$message.success(rep.message);
+                            this.getFilterData();
+                            this.recycelIds = [];
                         }
-                    })
-                    this.$message({
-                        message: '还原成功',
-                        type: 'success'
+                        this.loading = false;
+                    }).catch(error => {
+                        this.$message.error(error);
+                        this.loading = false;
                     });
-                    this.recycelIds = [];
                 }).catch(() => {
-
+                    this.$message.info('用户取消操作');
                 });
             },
             //手机所有被选中的订单的orderNumber
@@ -227,44 +233,34 @@
              * 查询条件
              */
             getFilterData() {
-                //todo 获取查询条件，发送ajax
-                console.log(this.searchConditions)
-                // axios.post('xxx', {
-                //     data: this.searchConditions
-                // }).then(function (response) {
-                //     console.log(response);
-                // }).catch(function (error) {
-                //     console.log(error);
-                // })
+                this.loading = true;
+                selectDelAndRevokeOrder(this.searchConditions).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
             },
             filterData() {
                 return this.tableData.filter(item => item.isDel == 1 || item.isDel == -1)
             },
             getRecoverDataTotal() {
-                return this.tableData.filter(item => item.isDel == 1 || item.isDel == -1).length
-            }
+                return this.searchConditions.totalPage;
+            },
+            updatePage(currentPage, totalPage) {
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.totalPage = totalPage;
+            },
         },
         computed: {
             ...mapState({orderStatusOptions: 'orderStatusOptions'}),
         },
-        watch: {
-            'searchConditions.pageSize': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("每页大小", newValue);
-                    this.getFilterData();
-                },
-            },
-            'searchConditions.currentPage': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("当前页码", newValue);
-                    this.getFilterData();
-                },
-            }
-        }, mounted() {
+        mounted() {
             this.getFilterData();
         },
     }
@@ -273,7 +269,6 @@
 <style lang="less" scoped>
     .el-row {
         margin-bottom: 20px;
-
         &:last-child {
             margin-bottom: 0;
         }

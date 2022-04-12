@@ -31,7 +31,7 @@
             </el-col>
         </el-row>
         <el-row>
-            <div v-for="item in commitMap" :key="item.id">
+            <div v-for="item in commitList" :key="item.id">
                 <el-col :span="8">
                     <div class="grid-content">
                         <el-tag>
@@ -57,7 +57,7 @@
                 </el-col>
             </div>
         </el-row>
-        <div v-if="commitMap.length != 0">
+        <div v-if="commitList.length != 0">
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
@@ -77,6 +77,7 @@
 
 <script>
     import mixin from '../../mixin';
+    import {evaluateOrder} from "../../request/order";
 
     export default {
         name: "EvaluationCenter",
@@ -87,7 +88,7 @@
                 currentPage: 1,
                 pageSize: 5,
                 value: 6,
-                commitMap: [
+                commitList: [
                       {
                           'orderNumber':'3424543564',
                           'rangeInfo':{
@@ -95,28 +96,30 @@
                               'userRatings':'8.65',
                           }
                       },
-                      {
-                          'orderNumber':'4354356546',
-                          'rangeInfo':{
-                              'comment':'阿三发射点个人',
-                              'userRatings':'5.76',
-                          }
-                      },
-                      {
-                          'orderNumber':'7567465456',
-                          'rangeInfo':{
-                              'comment':'无法哥哥如果',
-                              'userRatings':'9.54',
-                          }
-                      }
                 ]
             }
         },
         methods: {
             getPageComment() {
-                console.log('发送ajax')
+                this.loading = true;
+                evaluateOrder(this.searchConditions).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.commitList = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
                 //todo 根据用户id获取所有的评价信息 Map<orderNumber,rangInfo>
-                this.commentMap = '';
+                this.commentList = '';
+            },
+            updatePage(currentPage, totalPage) {
+                this.currentPage = currentPage;
+                this.totalPage = totalPage;
+                // this.value = value;
             },
         },
         computed: {
@@ -136,6 +139,7 @@
             getFilterData() {
                 return this.tableData.filter(item => item.rangeInfo.completeEvaluationFlag != 0)
             },
+
         },
         mounted() {
             this.getPageComment();
@@ -147,26 +151,8 @@
             //     obj.rangeInfo = item.rangeInfo;
             //     commentByOrderNumber.push(obj);
             // })
-            // this.commitMap = commentByOrderNumber
+            // this.commitList = commentByOrderNumber
         },
-        watch: {
-            'pageSize': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("每页大小", newValue);
-                    this.getPageComment();
-                },
-            },
-            'currentPage': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("当前页码", newValue);
-                    this.getPageComment();
-                },
-            }
-        }
     }
 </script>
 

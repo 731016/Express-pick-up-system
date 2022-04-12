@@ -85,6 +85,7 @@
                             this.toLogin();
                         }, 1000);
                     }
+                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;

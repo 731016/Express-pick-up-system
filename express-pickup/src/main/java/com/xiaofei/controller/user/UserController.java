@@ -34,6 +34,11 @@ public class UserController {
     @ApiOperation("用户注册方法")
     @PostMapping("/register")
     public CommonResponse<String> register(@RequestBody UserInfoEntity userInfoEntity) {
+        String userName = userInfoEntity.getUserName();
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(userName);
+        if (userInfo != null) {
+            return ResultUtils.error(ActionStatus.USERNAMEEXIST.getCode(), ActionStatus.USERNAMEEXIST.getMsg(), "");
+        }
         Boolean insertFlag = userInfoService.insertUserInfo(userInfoEntity);
         String userId = userInfoService.selectOneUserInfo(userInfoEntity.getUserName()).getUserId();
         Boolean addFlag = loginPersistenceService.add(userId, userInfoEntity.getUserName(), CodecUtils.getSalt());

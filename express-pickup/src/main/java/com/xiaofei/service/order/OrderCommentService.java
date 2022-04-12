@@ -19,4 +19,8 @@ public interface OrderCommentService {
      * 收集所有评价的数量和综合评分
      */
     Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list);
+    /**
+     * 插入评价信息
+     */
+    Integer insert(OrderCommentEntity comment);
 }

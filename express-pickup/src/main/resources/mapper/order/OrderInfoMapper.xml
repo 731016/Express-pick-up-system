@@ -23,4 +23,14 @@
             where id = #{item}
         </foreach>
     </update>
+    <update id="recyceOrderStatus" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update order_info
+            <set>
+                isDel=0,
+                delReason=''
+            </set>
+            where id = #{item}
+        </foreach>
+    </update>
 </mapper>

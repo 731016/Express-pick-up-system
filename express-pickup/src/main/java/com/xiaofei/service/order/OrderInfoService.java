@@ -39,9 +39,9 @@ public interface OrderInfoService {
     String insertOrder(OrderInfoEntity orderInfo);
 
     /**
-     * 获取没有被删除或撤销的订单，通过userName
+     * 获取没有被删除或撤销的订单，通过userName,true未被删除，false删除和撤销
      */
-    PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String suerName);
+    PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String userName,Boolean flag);
 
     /**
      * 将实体类转换为前台需要展示对象
@@ -51,9 +51,13 @@ public interface OrderInfoService {
     /**
      * 撤销订单
      */
-    String revokeOrderStatus(List<String> ids);
+    Boolean revokeOrderStatus(List<String> ids);
     /**
      * 删除订单
      */
-    String deleteOrderStatus(List<String> ids);
+    Boolean deleteOrderStatus(List<String> ids);
+    /**
+     * 还原订单
+     */
+    Boolean recyceOrderStatus(List<String> ids);
 }

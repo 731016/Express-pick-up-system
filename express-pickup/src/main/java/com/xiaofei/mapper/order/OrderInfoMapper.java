@@ -21,4 +21,8 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfoEntity> {
      * 删除订单
      */
     Integer deleteOrderStatus(List<String> ids);
+    /**
+     * 还原订单
+     */
+    Integer recyceOrderStatus(List<String> ids);
 }

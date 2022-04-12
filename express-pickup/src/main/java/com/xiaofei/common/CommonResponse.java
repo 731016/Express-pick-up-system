@@ -31,9 +31,7 @@ public class CommonResponse<T> {
     @ApiModelProperty(value = "返回数组")
     private List<T> dataList;
     @ApiModelProperty(value = "当前页码")
-    private Integer currentSize;
-    @ApiModelProperty(value = "每页大小")
-    private Integer pageSize;
+    private Integer currentPage;
     @ApiModelProperty(value = "总页数")
     private Integer totalPage;
 
@@ -49,12 +47,11 @@ public class CommonResponse<T> {
         this.dataList = dataList;
     }
 
-    public CommonResponse(Integer statusCode, String message, List<T> dataList, Integer currentSize, Integer pageSize, Integer totalPage) {
+    public CommonResponse(Integer statusCode, String message, List<T> dataList, Integer currentSize, Integer totalPage) {
         this.statusCode = statusCode;
         this.message = message;
         this.dataList = dataList;
-        this.currentSize = currentSize;
-        this.pageSize = pageSize;
+        this.currentPage = currentSize;
         this.totalPage = totalPage;
     }
 }

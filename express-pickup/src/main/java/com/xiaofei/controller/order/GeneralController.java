@@ -1,6 +1,7 @@
 package com.xiaofei.controller.order;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.common.ResultUtils;
 import com.xiaofei.common.SearchCondition;
@@ -81,7 +82,7 @@ public class GeneralController {
     @PostMapping("/selectAllOrder")
     public CommonResponse<List<OrderInfoVo>> selectOrderBelongGeneral(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
         String name = JwtUtils.getUserNameByToken(token);
-        PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name);
+        PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, true);
         List<OrderInfoEntity> orders = ordersPage.getList();
         List<OrderInfoVo> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
@@ -89,20 +90,61 @@ public class GeneralController {
             List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByUserIds(ids);
             vos = orderInfoService.poToVo(orders, paymentInfoEntities);
         }
-        return ResultUtils.success(ordersPage.getPageNum(), ordersPage.getPageSize(), (int) ordersPage.getTotal(), vos);
+        return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
+    }
+
+    @ApiOperation("查询普通用户，被删除和撤销的订单")
+    @PostMapping("/selectDelAndRevokeOrder")
+    public CommonResponse<List<OrderInfoVo>> selectDelAndRevokeOrder(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
+        String name = JwtUtils.getUserNameByToken(token);
+        PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, false);
+        List<OrderInfoEntity> orders = ordersPage.getList();
+        List<OrderInfoVo> vos = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(orders)) {
+            List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
+            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByUserIds(ids);
+            vos = orderInfoService.poToVo(orders, paymentInfoEntities);
+        }
+        return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
     }
 
     @ApiOperation("普通用户撤销订单")
     @PostMapping("/revokeOrder")
     public CommonResponse<String> revokeOrder(@RequestBody List<String> ids) {
-        String result = orderInfoService.revokeOrderStatus(ids);
-        return ResultUtils.success(result, "");
+        Boolean updateFlag = orderInfoService.revokeOrderStatus(ids);
+        if (updateFlag) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
     }
 
     @ApiOperation("普通用户删除订单")
     @PostMapping("/deleteOrder")
     public CommonResponse<String> deleteOrder(@RequestBody List<String> ids) {
-        String result = orderInfoService.deleteOrderStatus(ids);
-        return ResultUtils.success(result, "");
+        Boolean updateFlag = orderInfoService.deleteOrderStatus(ids);
+        if (updateFlag) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
     }
+
+    @ApiOperation("普通用户还原订单")
+    @PostMapping("/recyceOrder")
+    public CommonResponse<String> recyceOrder(@RequestBody List<String> ids) {
+        Boolean updateFlag = orderInfoService.recyceOrderStatus(ids);
+        if (updateFlag) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
+    }
+
+    @ApiOperation("普通用户评价订单")
+    @PostMapping("/evaluateOrder")
+    public CommonResponse<String> evaluateOrder(@RequestBody List<String> ids) {
+        //todo 根据订单id，生成评价表信息
+//        String result = orderInfoService.recyceOrderStatus(ids);
+//        return ResultUtils.success(result, "");
+        return null;
+    }
+
 }

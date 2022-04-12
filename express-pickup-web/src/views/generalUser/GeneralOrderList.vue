@@ -145,7 +145,7 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :hide-on-single-page="false"
-                    :current-page.sync="searchConditions.currentPage"
+                    :current-page="searchConditions.currentPage"
                     :page-sizes="[5, 20, 50]"
                     :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
@@ -332,7 +332,7 @@
 </template>
 
 <script>
-    import {selectAllOrder, revokeOrder, deleteOrder} from '../../request/order';
+    import {selectAllOrder, revokeOrder, deleteOrder,evaluateOrder} from '../../request/order';
     import {mapGetters, mapState} from 'vuex';
     import mixin from '../../mixin';
 
@@ -351,9 +351,8 @@
                     orderStatus: 0,
                     id: '',
                     startEndTime: [],
-                    //当前页码
                     currentPage: 1,
-                    pageSize: 5,
+                    pageSize:5,
                     totalPage: 5
                 },
                 revokeIds: [],
@@ -379,9 +378,8 @@
                 let roleName = this.getUserRoleName;
                 return roleId || roleName;
             },
-            updatePage(currentPage, pageSize, totalPage) {
+            updatePage(currentPage, totalPage) {
                 this.searchConditions.currentPage = currentPage;
-                this.searchConditions.pageSize = pageSize;
                 this.searchConditions.totalPage = totalPage;
             },
             //撤销订单
@@ -393,7 +391,7 @@
                     });
                     return false;
                 }
-                this.$confirm('确认撤销订单' + this.revokeIds.join(","), '撤销操作', {
+                this.$confirm('确认撤销订单' + this.revokeIds.join("\n"), '撤销操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -402,7 +400,7 @@
                     revokeOrder(this.revokeIds).then(response => {
                         let rep = response.data;
                         if (response.status === 200 && rep.statusCode === 2000) {
-                            this.$message.warning(rep.message);
+                            this.$message.success(rep.message);
                             this.initData();
                             this.revokeIds = [];
                         }
@@ -425,7 +423,7 @@
                     });
                     return false;
                 }
-                this.$confirm('确认删除订单' + this.deleteIds.join(","), '删除操作', {
+                this.$confirm('确认删除订单' + this.deleteIds.join("\n"), '删除操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -434,7 +432,7 @@
                     deleteOrder(this.deleteIds).then(response => {
                         let rep = response.data;
                         if (response.status === 200 && rep.statusCode === 2000) {
-                            this.$message.warning(rep.message);
+                            this.$message.success(rep.message);
                             this.initData();
                         }
                         this.loading = false;
@@ -526,12 +524,18 @@
              */
             evaluate(id) {
                 this.dialogRateVisible = false;
-                //todo ajax根据订单id创建
-                this.tableData.forEach(item => {
-                    if (item.id == id) {
-                        item.rangeInfo = this.rangeInfo;
+                this.loading = true;
+                evaluateOrder(id).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.warning(rep.message);
+                        this.initData();
                     }
-                })
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             /**
              * 是否显示评价按钮 [订单异常||订单完成]
@@ -545,8 +549,8 @@
                 selectAllOrder(this.searchConditions).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.tableData = JSON.parse(JSON.stringify(rep.data));
-                        this.updatePage(rep.currentPage, rep.pageSize, rep.totalPage);
+                        this.tableData = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;
                 }).catch(error => {
@@ -563,24 +567,22 @@
         mounted() {
             this.initData();
         },
-        watch: {
-            'searchConditions.pageSize': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("每页大小", newValue);
-                    this.getFilterData();
-                },
-            },
-            'searchConditions.currentPage': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("当前页码", newValue);
-                    this.getFilterData();
-                },
-            }
-        }
+        // watch: {
+        //     'searchConditions.pageSize': {
+        //         immediate: false, //初始化时加载handler
+        //         deep: true,
+        //         handler() {
+        //             this.getFilterData();
+        //         },
+        //     },
+        //     'searchConditions.currentPage': {
+        //         immediate: false, //初始化时加载handler
+        //         deep: true,
+        //         handler() {
+        //             this.getFilterData();
+        //         },
+        //     }
+        // }
     }
 </script>
 

@@ -44,11 +44,13 @@ export default {
             //每页大小，当前页码
             console.log(`每页 ${val} 条`);
             this.searchConditions.pageSize = val;
+            this.getFilterData();
         }
         ,
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
             this.searchConditions.currentPage = val;
+            this.getFilterData();
         },
         supplementZero(time) {
             if (time < 10) {
@@ -72,6 +74,6 @@ export default {
             dateMap.set('minute', this.supplementZero(minute));
             dateMap.set('second', this.supplementZero(second));
             return dateMap.get('year') + '-' + dateMap.get('month') + '-' + dateMap.get('day') + ' ' + dateMap.get('hour') + ':' + dateMap.get('minute') + ':' + dateMap.get('second');
-        }
+        },
     },
 }

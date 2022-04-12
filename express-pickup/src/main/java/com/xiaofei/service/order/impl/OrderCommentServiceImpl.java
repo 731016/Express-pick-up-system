@@ -62,4 +62,17 @@ public class OrderCommentServiceImpl implements OrderCommentService {
         }
         return map;
     }
+
+    /**
+     * 插入评价信息
+     *
+     * @param comment
+     */
+    @Override
+    public Integer insert(OrderCommentEntity comment) {
+        OrderCommentEntity entity = new OrderCommentEntity();
+//        entity.setOrderId();
+//        orderCommentMapper.insert();
+        return null;
+    }
 }

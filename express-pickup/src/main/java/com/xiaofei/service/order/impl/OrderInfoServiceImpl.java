@@ -110,17 +110,22 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     /**
-     * 获取没有被删除或撤销的订单
+     * 获取【没有被删除或撤销】或者被删除或撤销的订单
      */
     @Override
-    public PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String userName) {
+    public PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String userName, Boolean flag) {
         QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("userName", userName);
         UserInfoEntity entity = userInfoMapper.selectOne(wrapper);
-        PageHelper.startPage(search.getCurrentPage(), search.getPageSize());
+        Integer curPage = search.getCurrentPage() == 0 ? 1 : search.getCurrentPage();
+        PageHelper.startPage(curPage, search.getPageSize());
         QueryWrapper<OrderInfoEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", entity.getUserId());
-        queryWrapper.eq("isDel",0);
+        if (flag) {
+            queryWrapper.eq("isDel", 0);
+        } else {
+            queryWrapper.in("isDel", 1, -1);
+        }
         //订单号
         if (StringUtils.isNotEmpty(search.getId())) {
             queryWrapper.like("id", search.getId());
@@ -212,12 +217,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String revokeOrderStatus(List<String> ids) {
+    public Boolean revokeOrderStatus(List<String> ids) {
         Integer revokeNumber = orderInfoMapper.revokeOrderStatus(ids);
-        if (revokeNumber != ids.size()) {
-            return "成功" + revokeNumber + "个，失败" + (ids.size() - revokeNumber) + "个";
+        if (revokeNumber > 0) {
+            return true;
         }
-        return "成功" + revokeNumber + "个，失败" + (ids.size() - revokeNumber) + "个";
+        return false;
     }
 
     /**
@@ -227,11 +232,26 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String deleteOrderStatus(List<String> ids) {
+    public Boolean deleteOrderStatus(List<String> ids) {
         Integer delNumber = orderInfoMapper.deleteOrderStatus(ids);
-        if (delNumber != ids.size()) {
-            return "成功" + delNumber + "个，失败" + (ids.size() - delNumber) + "个";
+        if (delNumber > 0) {
+            return true;
         }
-        return "成功" + delNumber + "个，失败" + (ids.size() - delNumber) + "个";
+        return false;
+    }
+
+    /**
+     * 还原订单
+     *
+     * @param ids
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean recyceOrderStatus(List<String> ids) {
+        Integer recyceNumber = orderInfoMapper.recyceOrderStatus(ids);
+        if (recyceNumber > 0) {
+            return true;
+        }
+        return false;
     }
 }

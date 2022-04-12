@@ -31,10 +31,7 @@
                 return this.$store.state.userId;
             },
             exitLogIn() {
-                let userInfo = {
-                    "userId": this.$store.state.userId
-                }
-                logout(userInfo).then(response => {
+                logout().then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.removeItem("token");
