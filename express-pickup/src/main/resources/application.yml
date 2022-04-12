@@ -5,7 +5,7 @@ spring:
     name: express-pickup #应用名称
   datasource:
     #    数据源
-    url: jdbc:mysql://119.3.104.52:3306/expressPickup?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://119.3.104.52:3306/expressPickup?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: MySQL8.0
@@ -19,7 +19,7 @@ spring:
       exclude: static/**,public/**,WEB-INF/**
 mybatis-plus:
   #  xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
-  mapper-locations: classpath*:mapper/*.xml
+  mapper-locations: classpath*:mapper/**/*.xml
   # 别名包路径
   type-aliases-package: com.xiaofei.expresspickup.entity
   global-config:
@@ -51,3 +51,9 @@ jwt:
   remember-time: 1296000
   # 设置小于某个时间, 自动更新 Token
   validate-time: 300
+  pagehelper:
+    auto-dialect: mysql
+    reasonable: true
+    support-methods-arguments: true
+    page-size-zero: true
+    params: count=countSql
