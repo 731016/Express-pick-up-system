@@ -332,7 +332,7 @@
 </template>
 
 <script>
-    import {selectAllOrder, revokeOrder, deleteOrder,evaluateOrder} from '../../request/order';
+    import {selectAllOrder, revokeOrder, deleteOrder, evaluateOrder} from '../../request/order';
     import {mapGetters, mapState} from 'vuex';
     import mixin from '../../mixin';
 
@@ -352,16 +352,15 @@
                     id: '',
                     startEndTime: [],
                     currentPage: 1,
-                    pageSize:5,
+                    pageSize: 5,
                     totalPage: 5
                 },
                 revokeIds: [],
                 deleteIds: [],
                 //评价信息
                 rangeInfo: {
-                    userRatings: 5,
+                    userRating: 0,
                     comment: '',
-                    completeEvaluationFlag: 1
                 },
                 tableData: [],
             }
@@ -525,10 +524,12 @@
             evaluate(id) {
                 this.dialogRateVisible = false;
                 this.loading = true;
-                evaluateOrder(id).then(response => {
+                let comment = this.rangeInfo;
+                comment.orderId = id;
+                evaluateOrder(comment).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.$message.warning(rep.message);
+                        this.$message.success(rep.message);
                         this.initData();
                     }
                     this.loading = false;
@@ -541,7 +542,7 @@
              * 是否显示评价按钮 [订单异常||订单完成]
              */
             whetherShowReviewsBtn(row) {
-                return (row.orderStatus == 40 || row.orderStatus == 30) && row.rangeInfo.completeEvaluationFlag == 0;
+                return (row.orderStatus == 40 || row.orderStatus == 30) && row.rangeInfo.userRating == 0;
             },
             initData() {
                 //查询所有订单状态

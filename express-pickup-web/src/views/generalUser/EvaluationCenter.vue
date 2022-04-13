@@ -36,7 +36,7 @@
                     <div class="grid-content">
                         <el-tag>
                             来自订单
-                            <span style="color: #BC7568">{{item.orderNumber}}</span>
+                            <span style="color: #BC7568">{{item.orderId}}</span>
                             的评价：
                         </el-tag>
                     </div>
@@ -44,14 +44,14 @@
                 <el-col :span="12">
                     <div class="grid-content">
                         <el-tag type="success" class="el-tag-text">
-                            {{item.rangeInfo.comment}}
+                            {{item.comment}}
                         </el-tag>
                     </div>
                 </el-col>
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.rangeInfo.userRatings}}
+                            {{item.userRating}}
                         </el-tag>
                     </div>
                 </el-col>
@@ -66,7 +66,7 @@
                     :page-sizes="[20, 50, 100]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getRateCommitTotal">
+                    :total="totalPage">
             </el-pagination>
         </div>
         <div v-else>
@@ -87,18 +87,18 @@
                 //当前页码
                 currentPage: 1,
                 pageSize: 5,
-                value: 6,
+                value: 0,
+                totalPage: 0,
                 commitList: [
-                      {
-                          'orderNumber':'3424543564',
-                          'rangeInfo':{
-                              'comment':'上的起飞前',
-                              'userRatings':'8.65',
-                          }
-                      },
+                    // {
+                    //     'orderId': '3424543564',
+                    //     'comment': '上的起飞前',
+                    //     'userRating': '8.65',
+                    // }
                 ]
             }
-        },
+        }
+        ,
         methods: {
             getPageComment() {
                 this.loading = true;
@@ -113,21 +113,16 @@
                     this.$message.error(error);
                     this.loading = false;
                 })
-                //todo 根据用户id获取所有的评价信息 Map<orderNumber,rangInfo>
-                this.commentList = '';
-            },
+            }
+            ,
             updatePage(currentPage, totalPage) {
                 this.currentPage = currentPage;
                 this.totalPage = totalPage;
-                // this.value = value;
-            },
-        },
+            }
+            ,
+        }
+        ,
         computed: {
-            //获取评价总数
-            getRateCommitTotal() {
-                // return this.commentMap.filter(item => item.rangeInfo.completeEvaluationFlag != 0).size;
-                return 0;
-            },
             //获取综合评分
             getRating() {
                 let rates = 0;
@@ -135,12 +130,15 @@
                 //     rates += item.userRatings;
                 // })
                 return rates;
-            },
+            }
+            ,
             getFilterData() {
-                return this.tableData.filter(item => item.rangeInfo.completeEvaluationFlag != 0)
-            },
+                return this.tableData.filter(item => item.completeEvaluationFlag != 0)
+            }
+            ,
 
-        },
+        }
+        ,
         mounted() {
             this.getPageComment();
             // let commentByOrderNumber = [];
@@ -152,7 +150,8 @@
             //     commentByOrderNumber.push(obj);
             // })
             // this.commitList = commentByOrderNumber
-        },
+        }
+        ,
     }
 </script>
 

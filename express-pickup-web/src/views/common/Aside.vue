@@ -28,7 +28,7 @@
                     <i class="el-icon-user-solid"></i>
                     <span slot="title">个人中心</span>
                 </el-menu-item>
-                <el-menu-item index="7">
+                <el-menu-item index="7" @click="exitLogIn()">
                     <i class="el-icon-remove"></i>
                     <span slot="title">退出登录</span>
                 </el-menu-item>
@@ -62,7 +62,7 @@
                     <i class="el-icon-user-solid"></i>
                     <span slot="title">个人中心</span>
                 </el-menu-item>
-                <el-menu-item index="7">
+                <el-menu-item index="7" @click="exitLogIn()">
                     <i class="el-icon-remove"></i>
                     <span slot="title">退出登录</span>
                 </el-menu-item>
@@ -109,6 +109,7 @@
     import {selectOneUserInfo} from "../../request/menu";
     import {mapGetters} from 'vuex';
     import {logout} from "../../request/user";
+
     export default {
         name: "Aside",
         data() {
@@ -118,6 +119,7 @@
         },
         methods: {
             exitLogIn() {
+                this.loading = true;
                 logout().then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
@@ -126,8 +128,10 @@
                             name: 'Login'
                         })
                     }
+                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
+                    this.loading = false;
                 })
             },
             toDashBoard() {

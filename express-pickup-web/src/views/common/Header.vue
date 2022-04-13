@@ -7,7 +7,7 @@
                     {{getUserRoleName()}}:{{getUserName()}}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>个人中心</el-dropdown-item>
+                    <el-dropdown-item @click="toPersonalCenter()">个人中心</el-dropdown-item>
                     <el-dropdown-item @click.native="exitLogIn()">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -42,6 +42,21 @@
                 }).catch(error => {
                     this.$message.error(error);
                 })
+            },
+            toPersonalCenter() {
+                if (this.getUserRoleId === 'C') {
+                    this.$router.push({
+                        name: 'PersonalCenter',
+                    })
+                } else if (this.getUserRoleId === 'B') {
+                    this.$router.push({
+                        name: 'DeliveryPersonalCenter',
+                    })
+                } else if (this.getUserRoleId === 'A') {
+                    this.$router.push({
+                        name: 'ManagerPersonalCenter',
+                    })
+                }
             }
         },
         mounted() {
