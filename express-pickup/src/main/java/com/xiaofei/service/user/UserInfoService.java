@@ -21,4 +21,8 @@ public interface UserInfoService {
      * 根据用户名，查询用户信息
      */
     UserInfoEntity selectOneUserInfo(String userName);
+    /**
+     * 更新用户信息
+     */
+    Boolean update(UserInfoEntity userInfoEntity);
 }

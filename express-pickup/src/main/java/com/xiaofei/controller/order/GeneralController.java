@@ -5,9 +5,11 @@ import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.common.ResultUtils;
 import com.xiaofei.common.SearchCondition;
+import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
+import com.xiaofei.service.order.OrderCommentService;
 import com.xiaofei.service.order.OrderInfoService;
 import com.xiaofei.service.order.PaymentInfoService;
 import com.xiaofei.service.user.UserInfoService;
@@ -41,6 +43,8 @@ public class GeneralController {
     private OrderInfoService orderInfoService;
     @Resource
     private PaymentInfoService paymentInfoService;
+    @Resource
+    private OrderCommentService orderCommentService;
 
     @ApiOperation("发布订单")
     @PostMapping("/publishOrder")
@@ -140,11 +144,12 @@ public class GeneralController {
 
     @ApiOperation("普通用户评价订单")
     @PostMapping("/evaluateOrder")
-    public CommonResponse<String> evaluateOrder(@RequestBody List<String> ids) {
-        //todo 根据订单id，生成评价表信息
-//        String result = orderInfoService.recyceOrderStatus(ids);
-//        return ResultUtils.success(result, "");
-        return null;
+    public CommonResponse<String> evaluateOrder(@RequestBody OrderCommentEntity comment) {
+        Boolean insert = orderCommentService.insert(comment);
+        if (insert) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
     }
 
 }

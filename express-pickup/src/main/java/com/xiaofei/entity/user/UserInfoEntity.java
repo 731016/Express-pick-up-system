@@ -64,6 +64,10 @@ public class UserInfoEntity {
      */
     private String schoolName;
     /**
+     * 学号
+     */
+    private String schoolNumber;
+    /**
      * '手机号'
      */
     private String phone;

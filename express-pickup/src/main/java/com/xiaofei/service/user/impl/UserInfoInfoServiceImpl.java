@@ -58,4 +58,18 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
         UserInfoEntity userInfoEntity = userInfoMapper.selectOne(wrapper);
         return userInfoEntity;
     }
+
+    /**
+     * 更新用户信息
+     *
+     * @param userInfoEntity
+     */
+    @Override
+    public Boolean update(UserInfoEntity userInfoEntity) {
+        int update = userInfoMapper.updateById(userInfoEntity);
+        if (update > 0) {
+            return true;
+        }
+        return false;
+    }
 }

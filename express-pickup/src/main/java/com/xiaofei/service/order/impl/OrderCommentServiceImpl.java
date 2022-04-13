@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * TODO 类描述
@@ -51,7 +51,7 @@ public class OrderCommentServiceImpl implements OrderCommentService {
     @Override
     public Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list) {
         Map<String, Double> map = new HashMap<>();
-        if (!CollectionUtils.isEmpty(list)){
+        if (!CollectionUtils.isEmpty(list)) {
             map.put("evaluate", (double) list.size());
             map.put("rate", 0.00);
             Double rateTotal = 0.00;
@@ -69,10 +69,22 @@ public class OrderCommentServiceImpl implements OrderCommentService {
      * @param comment
      */
     @Override
-    public Integer insert(OrderCommentEntity comment) {
-        OrderCommentEntity entity = new OrderCommentEntity();
-//        entity.setOrderId();
-//        orderCommentMapper.insert();
-        return null;
+    public Boolean insert(OrderCommentEntity comment) {
+        Date today = new Date();
+        SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String time = formatDate.format(today);
+        Date timeDate = null;
+        try {
+            timeDate = formatDate.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Timestamp dateTime = new Timestamp(timeDate.getTime());
+        comment.setCommentTime(dateTime);
+        int insert = orderCommentMapper.insert(comment);
+        if (insert > 0) {
+            return true;
+        }
+        return false;
     }
 }

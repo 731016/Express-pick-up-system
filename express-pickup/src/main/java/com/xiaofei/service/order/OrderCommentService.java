@@ -22,5 +22,5 @@ public interface OrderCommentService {
     /**
      * 插入评价信息
      */
-    Integer insert(OrderCommentEntity comment);
+    Boolean insert(OrderCommentEntity comment);
 }

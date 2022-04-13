@@ -1,5 +1,6 @@
 package com.xiaofei.controller.user;
 
+import com.auth0.jwt.JWTVerifier;
 import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.entity.user.UserInfoEntity;
@@ -98,6 +99,33 @@ public class UserController {
         Boolean delFlag = loginPersistenceService.delToken(userInfoEntity.getUserId());
         if (delFlag) {
             return ResultUtils.success("用户登录信息删除成功", null);
+        }
+        return ResultUtils.error("");
+    }
+
+    @ApiOperation("个人中心，查询用户信息")
+    @PostMapping("/queryUserInfo")
+    public CommonResponse<UserInfoEntity> queryUserInfo(@RequestHeader(value = "Authorization") String token) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        String roleName = userRoleService.selectRoleNameByUserRoleId(userInfo.getUserRoleId());
+        userInfo.setUserRoleName(roleName);
+        return ResultUtils.success(userInfo);
+    }
+
+    @ApiOperation("个人中心，修改密码")
+    @PostMapping("/updatePwd")
+    public CommonResponse<String> updatePwd(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        //获取注册时的盐值
+        String salt = loginPersistenceService.querySalt(userInfo.getUserId());
+        //加密后，验证
+        String pwd = CodecUtils.loginEncrypt(userInfoEntity.getPassWord(), salt);
+        userInfo.setPassWord(pwd);
+        Boolean flag = userInfoService.update(userInfoEntity);
+        if (flag) {
+            return ResultUtils.success("");
         }
         return ResultUtils.error("");
     }
