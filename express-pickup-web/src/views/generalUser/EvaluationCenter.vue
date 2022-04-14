@@ -77,7 +77,7 @@
 
 <script>
     import mixin from '../../mixin';
-    import {evaluateOrder} from "../../request/order";
+    import {selectAllComment, queryRate} from "../../request/order";
 
     export default {
         name: "EvaluationCenter",
@@ -102,17 +102,23 @@
         methods: {
             getPageComment() {
                 this.loading = true;
-                evaluateOrder(this.searchConditions).then(response => {
-                    let rep = response.data;
-                    if (response.status === 200 && rep.statusCode === 2000) {
-                        this.commitList = JSON.parse(JSON.stringify(rep.dataList));
-                        this.updatePage(rep.currentPage, rep.totalPage);
-                    }
-                    this.loading = false;
-                }).catch(error => {
-                    this.$message.error(error);
-                    this.loading = false;
-                })
+                this.$axios.all([selectAllComment(), queryRate()])
+                    .then(this.$axios.spread(function (dataList, data) {
+                        console.log(dataList);
+                        console.log(data);
+                    }));
+                this.loading = false;
+                // selectAllComment().then(response => {
+                //     let rep = response.data;
+                //     if (response.status === 200 && rep.statusCode === 2000) {
+                //         this.commitList = JSON.parse(JSON.stringify(rep.dataList));
+                //         this.updatePage(rep.currentPage, rep.totalPage);
+                //     }
+                //     this.loading = false;
+                // }).catch(error => {
+                //     this.$message.error(error);
+                //     this.loading = false;
+                // })
             }
             ,
             updatePage(currentPage, totalPage) {
@@ -126,30 +132,17 @@
             //获取综合评分
             getRating() {
                 let rates = 0;
-                // this.commentMap.filter(item => item.rangeInfo.completeEvaluationFlag != 0).values().forEach(item => {
-                //     rates += item.userRatings;
-                // })
+
                 return rates;
             }
             ,
             getFilterData() {
                 return this.tableData.filter(item => item.completeEvaluationFlag != 0)
-            }
-            ,
-
+            },
         }
         ,
         mounted() {
             this.getPageComment();
-            // let commentByOrderNumber = [];
-            // let commentByEvaluationFlagNotEmpty = this.tableData.filter(item => item.rangeInfo.completeEvaluationFlag != 0);
-            // commentByEvaluationFlagNotEmpty.forEach(item => {
-            //     let obj = new Object();
-            //     obj.orderId = item.id;
-            //     obj.rangeInfo = item.rangeInfo;
-            //     commentByOrderNumber.push(obj);
-            // })
-            // this.commitList = commentByOrderNumber
         }
         ,
     }

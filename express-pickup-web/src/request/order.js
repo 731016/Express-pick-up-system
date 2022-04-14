@@ -13,4 +13,8 @@ export const deleteOrder = params => server('post', '/order/deleteOrder', params
 //还原订单
 export const recyceOrder = params => server('post', '/order/recyceOrder', params);
 //订单评价
-export const evaluateOrder = params => server('get', '/order/evaluateOrder', params);
+export const evaluateOrder = params => server('post', '/order/evaluateOrder', params);
+//获取评价信息
+export const selectAllComment = params => server('post', '/order/selectAllComment', params);
+//获取综合评分
+export const queryRate = params => server('post', '/order/queryRate', params);

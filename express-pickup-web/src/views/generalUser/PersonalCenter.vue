@@ -213,17 +213,17 @@
         </el-dialog>
         <el-dialog title="设置手机号" :visible.sync="dialogPhoneVisible">
             <el-form :model="phone" status-icon :rules="rules" ref="phone" label-width="100px">
-                <el-form-item label="手机号码" prop="inputPhone">
-                    <el-input v-model="phone.inputPhone" autocomplete="off"></el-input>
+                <el-form-item label="手机号码" prop="phone">
+                    <el-input v-model="phone.phone" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="验证码" prop="verificationCode">
-                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>
-                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"
-                               @click="sendVerificationCode()">
-                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>
-                        <span v-else>发送验证码</span>
-                    </el-button>
-                </el-form-item>
+                <!--                <el-form-item label="验证码" prop="verificationCode">-->
+                <!--                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>-->
+                <!--                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"-->
+                <!--                               @click="sendVerificationCode()">-->
+                <!--                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>-->
+                <!--                        <span v-else>发送验证码</span>-->
+                <!--                    </el-button>-->
+                <!--                </el-form-item>-->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="submitForm('phone')">确 定</el-button>
@@ -316,8 +316,8 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
-    import {queryUserInfo, updatePwd} from '../../request/user'
+    // import {mapGetters} from 'vuex'
+    import {queryUserInfo, updatePwd, updatePhoneAjax, updateSexAjax} from '../../request/user'
 
     export default {
         name: "PersonalCenter",
@@ -420,7 +420,7 @@
                 },
                 exchangeUserPwd: '',
                 phone: {
-                    inputPhone: '',
+                    phone: '',
                     verificationCode: ''
                 },
                 sex: '',
@@ -467,7 +467,7 @@
                     oldPwd: [{required: true, message: "请输入密码", trigger: 'blur'}],
                     newPwd: [{validator: checknewPwd, trigger: 'blur'}],
                     passWord: [{validator: checkConfirmPwd, trigger: 'blur'}],
-                    inputPhone: [{validator: checkPhone, trigger: 'blur'}],
+                    phone: [{validator: checkPhone, trigger: 'blur'}],
                     verificationCode: [{validator: checkCode, trigger: 'blur'}],
                     province: [{required: true, message: "请选择省份", trigger: 'blur'}],
                     schoolName: [{required: true, message: "请选择学校", trigger: 'blur'}],
@@ -495,7 +495,19 @@
             },
             commitSex() {
                 //todo ajax更新性别
-                this.userInfo.sex = this.sex;
+                this.loading = true;
+                let sex = {"sex": this.sex};
+                updateSexAjax(sex).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.sex = this.sex;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
                 this.dialogSexVisible = false;
             },
             cancelSex() {
@@ -523,7 +535,6 @@
                         this.dialogSchoolVisible = false
                         this.dialogIdCardVisible = false
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
@@ -533,8 +544,7 @@
                 updatePwd(this.pwd).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.$message.success(response.message);
-                        this.userInfo = rep.data;
+                        this.$message.success(rep.message);
                         this.userInfo.pwd = this.pwd.passWord;
                         setTimeout(() => {
                             this.$message.info('即将重新登录');
@@ -553,8 +563,18 @@
                 this.pwd.passWord = '';
             },
             updatePhone() {
-                //todo ajax
-                this.userInfo.phone = this.phone.inputPhone;
+                this.loading = true;
+                updatePhoneAjax(this.phone).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.phone = this.phone.phone;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             updateSchool() {
                 //todo ajax
@@ -610,17 +630,12 @@
             },
         },
         computed: {
-            ...mapGetters({getUserName: 'getUserName'}),
-            ...mapGetters({getUserRole: 'getUserRole'}),
             filterSchool() {
                 return this.schools.filter(item => item.partCode == this.school.province);
             }
         },
         mounted() {
             this.senAjaxSearchUserInfo();
-            this.sex = this.userInfo.sex;
-            this.userInfo.userName = this.getUserName;
-            this.userInfo.userRoleName = this.getUserRole;
             // todo ajax查询所有省份和大学
         }
     }
