@@ -20,7 +20,8 @@ public enum ActionStatus {
     LOGINERROR(4001, "用户名或密码不正确"),
     TOKENINVALID(4003, "token失效,请重新登录"),
     USERNAMEEXIST(4004,"用户名已存在！"),
-    MENUPULLERROR(6001, "用户菜单拉取失败");
+    MENUPULLERROR(6001, "用户菜单拉取失败"),
+    PWDEXIST(6002,"要修改的密码与原密码相同！");
     /**
      * 状态码
      */

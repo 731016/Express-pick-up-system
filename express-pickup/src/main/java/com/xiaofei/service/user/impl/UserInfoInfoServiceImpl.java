@@ -67,6 +67,7 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
     @Override
     public Boolean update(UserInfoEntity userInfoEntity) {
         int update = userInfoMapper.updateById(userInfoEntity);
+//        userInfoMapper.
         if (update > 0) {
             return true;
         }

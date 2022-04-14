@@ -122,9 +122,40 @@ public class UserController {
         String salt = loginPersistenceService.querySalt(userInfo.getUserId());
         //加密后，验证
         String pwd = CodecUtils.loginEncrypt(userInfoEntity.getPassWord(), salt);
+        //判断修改后的密码是否相同
+        String passWord = userInfo.getPassWord();
+        if (passWord.equals(pwd)){
+            return ResultUtils.error(ActionStatus.PWDEXIST.getCode(),ActionStatus.PWDEXIST.getMsg(),"");
+        }
         userInfo.setPassWord(pwd);
-        Boolean flag = userInfoService.update(userInfoEntity);
+        Boolean flag = userInfoService.update(userInfo);
         if (flag) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
+    }
+
+    @ApiOperation("个人中心，修改手机号")
+    @PostMapping("/updatePhoneAjax")
+    public CommonResponse<String> updatePhoneAjax(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        userInfo.setPhone(userInfoEntity.getPhone());
+        Boolean update = userInfoService.update(userInfo);
+        if (update){
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
+    }
+
+    @ApiOperation("个人中心，修改性别")
+    @PostMapping("/updateSexAjax")
+    public CommonResponse<String> updateSexAjax(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        userInfo.setSex(userInfoEntity.getSex());
+        Boolean update = userInfoService.update(userInfo);
+        if (update){
             return ResultUtils.success("");
         }
         return ResultUtils.error("");

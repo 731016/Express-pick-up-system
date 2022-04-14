@@ -152,4 +152,41 @@ public class GeneralController {
         return ResultUtils.error("");
     }
 
+    @ApiOperation("查询所有评价信息，根据用户id,查找订单id")
+    @PostMapping("/selectAllComment")
+    public CommonResponse<List<OrderCommentEntity>> selectAllComment(@RequestHeader(value = "Authorization") String token) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectOrderByUserId(userInfo.getUserId());
+        List<String> orderIds = new ArrayList<>();
+        for (OrderInfoEntity entity : orderInfoEntityList) {
+            if (StringUtils.isNotEmpty(entity.getId())) {
+                orderIds.add(entity.getId());
+            }
+        }
+        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByUserId(orderIds);
+        return ResultUtils.success(commentEntities);
+
+    }
+
+    @ApiOperation("查询综合评分")
+    @PostMapping("/queryRate")
+    public CommonResponse<Double> queryRate(@RequestHeader(value = "Authorization") String token) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectOrderByUserId(userInfo.getUserId());
+        List<String> orderIds = new ArrayList<>();
+        for (OrderInfoEntity entity : orderInfoEntityList) {
+            if (StringUtils.isNotEmpty(entity.getId())) {
+                orderIds.add(entity.getId());
+            }
+        }
+        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByUserId(orderIds);
+        List<Double> list = commentEntities.stream().map(OrderCommentEntity::getUserRating).collect(Collectors.toList());
+        Double endResult = 0.00;
+        for (Double aDouble : list) {
+            endResult += aDouble;
+        }
+        return ResultUtils.success(endResult);
+    }
 }
