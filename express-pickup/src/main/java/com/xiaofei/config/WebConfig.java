@@ -30,6 +30,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
         List<String> patterns=new ArrayList<>();
         patterns.add("/user/login");
         patterns.add("/user/register");
+        patterns.add("/user/logout");
         //注册拦截器类，添加黑名单(addPathPatterns("/**")),‘/*’只拦截一个层级，'/**'拦截全部
         // 和白名单(excludePathPatterns("List类型参数"))，将不必拦截的路径添加到List列表中
         registry.addInterceptor(interceptor()).addPathPatterns("/**").excludePathPatterns(patterns);

@@ -59,7 +59,7 @@ public class LoginPersistenceServiceImpl implements LoginPersistenceService {
     @Override
     public String querySalt(String userId) {
         QueryWrapper<LoginPersistenceEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("userId",userId);
+        wrapper.eq("userId", userId);
         LoginPersistenceEntity loginPersistenceEntity = loginPersistenceMapper.selectOne(wrapper);
         if (loginPersistenceEntity != null) {
             return loginPersistenceEntity.getSalt();

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @TableName("province")
 public class ProvinceEntity {
     @TableId(value = "id",type = IdType.ASSIGN_UUID)
-    private String id;
+    private Integer id;
     /**
      * 省份名称
      */

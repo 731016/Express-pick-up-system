@@ -14,7 +14,11 @@ public interface OrderCommentService {
     /**
      * 根据订单id，查找评价信息
      */
-    List<OrderCommentEntity> selectAllByUserId(List<String> orderIds);
+    List<OrderCommentEntity> selectAllByOrderId(List<String> orderIds);
+    /**
+     * 查询单个评价信息
+     */
+    OrderCommentEntity selectAllByOrderId(String orderId);
     /**
      * 收集所有评价的数量和综合评分
      */
@@ -23,4 +27,8 @@ public interface OrderCommentService {
      * 插入评价信息
      */
     Boolean insert(OrderCommentEntity comment);
+    /**
+     * 更新评价信息
+     */
+    Boolean update(OrderCommentEntity comment,String orderId);
 }

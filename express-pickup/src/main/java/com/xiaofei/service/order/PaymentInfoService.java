@@ -13,11 +13,15 @@ public interface PaymentInfoService {
     /**
      * 根据用户id，查询支付信息
      */
-    List<PaymentInfoEntity> selectPaymentInfoByUserIds(List<String> orderIds);
+    List<PaymentInfoEntity> selectPaymentInfoByOrderIds(List<String> orderIds);
     /**
      * 过滤未支付订单数量
      */
     Integer filterUnPaidNumber(List<PaymentInfoEntity> list);
+    /**
+     * 过滤支付完成的
+     */
+    Integer filterPaymentSuccess(List<PaymentInfoEntity> list);
     /**
      * 创建订单支付信息
      */

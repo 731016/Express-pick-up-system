@@ -33,4 +33,43 @@
             where id = #{item}
         </foreach>
     </update>
+    <update id="batchAcceptOrder" parameterType="java.util.List">
+        <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+            update order_info
+            <set>
+                orderStatus = 20,
+                deliveryManId = #{bean.deliveryManId}
+            </set>
+            <where>
+                id = #{bean.id}
+            </where>
+        </foreach>
+    </update>
+    <update id="successOrder" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update order_info
+            <set>
+                orderStatus = 40
+            </set>
+            where id = #{item}
+        </foreach>
+    </update>
+    <update id="execptionOrder" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update order_info
+            <set>
+                orderStatus = 30
+            </set>
+            where id = #{item}
+        </foreach>
+    </update>
+<!--    <update id="assignOrder" parameterType="java.util.List">-->
+<!--        <foreach collection="list" item="item" index="index" open="" close="" separator=";">-->
+<!--            update order_info-->
+<!--            <set>-->
+<!--                orderStatus = 40-->
+<!--            </set>-->
+<!--            where id = #{item}-->
+<!--        </foreach>-->
+<!--    </update>-->
 </mapper>

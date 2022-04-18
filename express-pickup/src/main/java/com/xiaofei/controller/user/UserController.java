@@ -3,8 +3,11 @@ package com.xiaofei.controller.user;
 import com.auth0.jwt.JWTVerifier;
 import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
+import com.xiaofei.entity.base.SchoolEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
 import com.xiaofei.common.ResultUtils;
+import com.xiaofei.service.base.ProvinceService;
+import com.xiaofei.service.base.SchoolService;
 import com.xiaofei.service.user.LoginPersistenceService;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.service.user.UserRoleService;
@@ -12,9 +15,12 @@ import com.xiaofei.utils.CodecUtils;
 import com.xiaofei.utils.JwtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 用户注册
@@ -31,6 +37,10 @@ public class UserController {
     private UserRoleService userRoleService;
     @Resource
     private LoginPersistenceService loginPersistenceService;
+    @Resource
+    private SchoolService schoolService;
+    @Resource
+    private ProvinceService provinceService;
 
     @ApiOperation("用户注册方法")
     @PostMapping("/register")
@@ -121,16 +131,25 @@ public class UserController {
         //获取注册时的盐值
         String salt = loginPersistenceService.querySalt(userInfo.getUserId());
         //加密后，验证
+        //验证密码是否正确
+        String oldPwd = CodecUtils.loginEncrypt(userInfoEntity.getOldPwd(), salt);
+        //前台传递后来要修改的密码
         String pwd = CodecUtils.loginEncrypt(userInfoEntity.getPassWord(), salt);
-        //判断修改后的密码是否相同
+        //数据库的密码
         String passWord = userInfo.getPassWord();
-        if (passWord.equals(pwd)){
-            return ResultUtils.error(ActionStatus.PWDEXIST.getCode(),ActionStatus.PWDEXIST.getMsg(),"");
-        }
-        userInfo.setPassWord(pwd);
-        Boolean flag = userInfoService.update(userInfo);
-        if (flag) {
-            return ResultUtils.success("");
+        //先判断原密码是否正确
+        if (StringUtils.equals(oldPwd, passWord)) {
+            //判断修改后的密码是否相同
+            if (passWord.equals(pwd)) {
+                return ResultUtils.error(ActionStatus.PWDEXIST.getCode(), ActionStatus.PWDEXIST.getMsg(), "");
+            }
+            userInfo.setPassWord(pwd);
+            Boolean flag = userInfoService.update(userInfo);
+            if (flag) {
+                return ResultUtils.success("");
+            }
+        } else {
+            return ResultUtils.error(ActionStatus.PWDERROR.getCode(), ActionStatus.PWDERROR.getMsg(), "");
         }
         return ResultUtils.error("");
     }
@@ -142,7 +161,7 @@ public class UserController {
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
         userInfo.setPhone(userInfoEntity.getPhone());
         Boolean update = userInfoService.update(userInfo);
-        if (update){
+        if (update) {
             return ResultUtils.success("");
         }
         return ResultUtils.error("");
@@ -155,9 +174,125 @@ public class UserController {
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
         userInfo.setSex(userInfoEntity.getSex());
         Boolean update = userInfoService.update(userInfo);
-        if (update){
+        if (update) {
             return ResultUtils.success("");
         }
         return ResultUtils.error("");
     }
+
+    @ApiOperation("个人中心，修改学校信息")
+    @PostMapping("/updateSchoolInfo")
+    public CommonResponse<UserInfoEntity> updateSchoolInfo(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        //因为<el-select>value和label，导致提交的值位value的编号
+        userInfo.setSchoolId(userInfoEntity.getSchoolName());
+        //查询名称
+        Integer schoolId = Integer.parseInt(userInfoEntity.getSchoolName());
+        if (schoolId != null) {
+            SchoolEntity entity = schoolService.selectOne(schoolId);
+            userInfo.setSchoolName(entity.getSchoolName());
+        }
+        userInfo.setSchoolNumber(userInfoEntity.getSchoolNumber());
+        Boolean update = userInfoService.update(userInfo);
+        if (update) {
+            return ResultUtils.success(userInfo);
+        }
+        return ResultUtils.error(null);
+    }
+
+    @ApiOperation("个人中心，修改实名信息")
+    @PostMapping("/updateIdCard")
+    public CommonResponse<UserInfoEntity> updateIdCard(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        //收集所有的身份证号，查询是否已绑定
+        Boolean flag = userInfoService.selectAllIdNumber(userInfoEntity.getActualName(), userInfoEntity.getIdNumber());
+        if (flag) {
+            return ResultUtils.success(ActionStatus.IDNUMBEREXIST.getCode(), ActionStatus.IDNUMBEREXIST.getMsg(), null);
+        } else {
+            userInfo.setIdNumber(userInfoEntity.getIdNumber());
+            userInfo.setActualName(userInfoEntity.getActualName());
+            Boolean update = userInfoService.update(userInfo);
+            if (update) {
+                return ResultUtils.success(userInfo);
+            }
+            return ResultUtils.error(null);
+        }
+    }
+
+    @ApiOperation("个人中心，切换用户角色为配送员")
+    @PostMapping("/verifyPwdAndChange")
+    public CommonResponse<String> verifyPwdAndChange(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        String roleName = userRoleService.selectRoleNameByUserRoleId("B");
+        String pwd = CodecUtils.encrypt(userInfoEntity.getPassWord());
+        String passWord = userInfo.getPassWord();
+        if (StringUtils.equals(pwd, passWord)) {
+            UserInfoEntity entity = userInfoService.selectOneUserInfo(userInfo.getUserName());
+            entity.setUserRoleId("B");
+            entity.setUserRoleName(roleName);
+            Boolean update = userInfoService.update(entity);
+            if (update) {
+                return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
+            }
+        }
+        return ResultUtils.error("");
+    }
+
+
+    @ApiOperation("个人中心，切换用户角色为普通用户")
+    @PostMapping("/exchangeRoleToGeneral")
+    public CommonResponse<String> exchangeRoleToGeneral(@RequestHeader(value = "Authorization") String token, @RequestBody UserInfoEntity userInfoEntity) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+        String roleName = userRoleService.selectRoleNameByUserRoleId("C");
+        String pwd = CodecUtils.encrypt(userInfoEntity.getPassWord());
+        String passWord = userInfo.getPassWord();
+        if (StringUtils.equals(pwd, passWord)) {
+            UserInfoEntity entity = userInfoService.selectOneUserInfo(userInfo.getUserName());
+            entity.setUserRoleId("C");
+            entity.setUserRoleName(roleName);
+            Boolean update = userInfoService.update(entity);
+            if (update) {
+                return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
+            }
+        }
+        return ResultUtils.error("");
+    }
+
+    @ApiOperation("个人中心，禁用用户")
+    @PostMapping("/disableUser")
+    public CommonResponse<String> disableUser(@RequestBody List<String> userIds) {
+        List<UserInfoEntity> entities = userInfoService.selectUserByIds(userIds);
+        for (UserInfoEntity entity : entities) {
+            entity.setDisable(1);
+        }
+        Boolean aBoolean = userInfoService.disableUser(entities);
+        if (aBoolean) {
+            return ResultUtils.success("");
+        }
+        return ResultUtils.error("");
+    }
+
+//    @ApiOperation("个人中心，冻结用户")
+//    @PostMapping("/freezeUser")
+//    public CommonResponse<String> freezeUser(@RequestHeader(value = "Authorization") String token) {
+//        String name = JwtUtils.getUserNameByToken(token);
+//        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+//        String roleName = userRoleService.selectRoleNameByUserRoleId("B");
+//        String pwd = CodecUtils.encrypt(userInfoEntity.getPassWord());
+//        String passWord = userInfo.getPassWord();
+//        if (StringUtils.equals(pwd, passWord)) {
+//            UserInfoEntity entity = userInfoService.selectOneUserInfo(userInfo.getUserName());
+//            entity.setUserRoleId("B");
+//            entity.setUserRoleName(roleName);
+//            Boolean update = userInfoService.update(entity);
+//            if (update) {
+//                return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
+//            }
+//        }
+//        return ResultUtils.error("");
+//    }
 }

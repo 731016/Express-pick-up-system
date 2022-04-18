@@ -33,6 +33,8 @@ public class UserInfoEntity {
     /**
      * '密码'
      */
+    @TableField(exist = false)
+    private String oldPwd;
     private String passWord;
     /**
      * '角色' [100,普通用户；101,配送用户；102,管理员]

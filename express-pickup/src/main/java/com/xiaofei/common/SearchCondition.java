@@ -19,6 +19,7 @@ import java.util.List;
 public class SearchCondition {
 
     private Integer orderStatus;
+    private Integer paymentStatus;
     private String id;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private List<Date> startEndTime;

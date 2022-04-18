@@ -1,13 +1,12 @@
 package com.xiaofei.service.order;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.xiaofei.common.SearchCondition;
-import com.xiaofei.entity.dashBoard.DashBoardEntity;
-import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
+import com.xiaofei.entity.user.UserInfoEntity;
 import com.xiaofei.vo.OrderInfoVo;
+import io.swagger.models.auth.In;
 
 import java.util.List;
 import java.util.Map;
@@ -19,14 +18,19 @@ import java.util.Map;
  */
 public interface OrderInfoService {
     /**
-     * 根据用户id，查询订单信息
+     * 根据普通用户，查询订单信息
      */
     List<OrderInfoEntity> selectOrderByUserId(String userId);
 
     /**
+     * 根据配送用户，查询订单信息
+     */
+    List<OrderInfoEntity> selectOrderByDeliveryManId(String deliveryManId);
+
+    /**
      * 从订单信息中汇总仪表板信息
      */
-    List<String> collectOrderIdsByGeneral(List<OrderInfoEntity> orders);
+    List<String> collectOrderIds(List<OrderInfoEntity> orders);
 
     /**
      * 获取等待接单或正在派送的订单数
@@ -41,7 +45,22 @@ public interface OrderInfoService {
     /**
      * 获取没有被删除或撤销的订单，通过userName,true未被删除，false删除和撤销
      */
-    PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String userName,Boolean flag);
+    PageInfo<OrderInfoEntity> selectOrderBelongGeneral(SearchCondition search, String userName, Boolean flag);
+
+    /**
+     * 获取没有被删除或撤销的订单，通过true未被删除，false删除和撤销
+     */
+    PageInfo<OrderInfoEntity> selectOrderBelongDelivery(SearchCondition search, Boolean flag);
+
+    /**
+     *  管理员查询被删除和撤销的订单
+     */
+    PageInfo<OrderInfoEntity> selectAllOrder(SearchCondition search, Boolean flag);
+
+    /**
+     * 查询订单的deliveryManId等于用户id，没有被删除或撤销的订单
+     */
+    PageInfo<OrderInfoEntity> selectOrderBydeliveryManId(SearchCondition search, String deliveryManId);
 
     /**
      * 将实体类转换为前台需要展示对象
@@ -52,12 +71,42 @@ public interface OrderInfoService {
      * 撤销订单
      */
     Boolean revokeOrderStatus(List<String> ids);
+
     /**
      * 删除订单
      */
     Boolean deleteOrderStatus(List<String> ids);
+
     /**
      * 还原订单
      */
     Boolean recyceOrderStatus(List<String> ids);
+
+    /**
+     * 查询订单信息，通过订单id
+     */
+    List<OrderInfoEntity> selectOrderByOrderId(List<String> orderIds);
+
+    /**
+     * 查询订单信息，通过订单id
+     */
+    OrderInfoEntity selectOne(String id);
+
+    /**
+     * 批量更新
+     */
+    Boolean batchAcceptOrder(List<OrderInfoEntity> entities);
+
+    /**
+     * 根据订单状态，查询所有订单
+     */
+    List<OrderInfoEntity> selectAllOrderByOrderStatus(Integer... orderStatus);
+
+    /**
+     * 更新单个对象
+     */
+    Boolean update(OrderInfoEntity entity);
+
+    Boolean successOrder(List<String> orderIds);
+    Boolean execptionOrder(List<String> orderIds);
 }

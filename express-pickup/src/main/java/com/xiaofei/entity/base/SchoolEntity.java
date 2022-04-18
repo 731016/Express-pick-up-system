@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @TableName("school")
 public class SchoolEntity {
     @TableId(value = "id",type = IdType.ASSIGN_UUID)
-    private String id;
+    private Integer id;
     private String schoolName;
     private Integer provinceId;
     private String level;

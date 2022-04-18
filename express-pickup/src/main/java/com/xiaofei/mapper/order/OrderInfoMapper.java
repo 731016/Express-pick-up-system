@@ -2,6 +2,7 @@ package com.xiaofei.mapper.order;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.xiaofei.entity.order.OrderInfoEntity;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -25,4 +26,17 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfoEntity> {
      * 还原订单
      */
     Integer recyceOrderStatus(List<String> ids);
+    /**
+     * 批量更新
+     */
+    Integer batchAcceptOrder(List<OrderInfoEntity> entities);
+    /**
+     * 完成订单
+     */
+    Integer successOrder(List<String> orderIds);
+
+    /**
+     * 异常订单
+     */
+    Integer execptionOrder(List<String> orderIds);
 }

@@ -61,7 +61,7 @@ public class OrderInfoEntity {
     @TableField(exist = false)
     private String deliveryMainName;
     /**
-     * 配送备注
+     * 配送备注,用于记录配送员，修改订单状态时设置
      */
     private String shippingReamrk;
     /**

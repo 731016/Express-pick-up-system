@@ -15,7 +15,7 @@ import java.util.Date;
  * @date 2022/3/31 20:45
  */
 public class JwtUtils {
-    // Token过期时间10分钟
+    // Token过期时间1分钟
     public static final long EXPIRE_TIME = 10 * 60 * 1000;
 
     /* *

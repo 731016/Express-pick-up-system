@@ -17,6 +17,17 @@ spring:
       additional-paths: src/main/java
       # 设置不需要重启的目录
       exclude: static/**,public/**,WEB-INF/**
+  redis:
+    database: 0
+    host: 119.3.104.52
+    port: 6379
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 10
+        max-wait: 300000
+    lettuce:
+      shutdown-timeout: 30000
 mybatis-plus:
   #  xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
   mapper-locations: classpath*:mapper/**/*.xml

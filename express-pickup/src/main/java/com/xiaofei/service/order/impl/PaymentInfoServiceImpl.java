@@ -26,7 +26,7 @@ public class PaymentInfoServiceImpl implements PaymentInfoService {
      * 根据订单id，查询支付信息
      */
     @Override
-    public List<PaymentInfoEntity> selectPaymentInfoByUserIds(List<String> orderIds) {
+    public List<PaymentInfoEntity> selectPaymentInfoByOrderIds(List<String> orderIds) {
         QueryWrapper<PaymentInfoEntity> wrapper = new QueryWrapper<>();
         if (CollectionUtils.isEmpty(orderIds)) {
             return new ArrayList<>();
@@ -56,6 +56,24 @@ public class PaymentInfoServiceImpl implements PaymentInfoService {
             }
         }
         return unPaidNumber;
+    }
+
+    /**
+     * 过滤支付完成的
+     *
+     * @param list
+     */
+    @Override
+    public Integer filterPaymentSuccess(List<PaymentInfoEntity> list) {
+        Integer paymentSuccessNumber = 0;
+        if (!CollectionUtils.isEmpty(list)) {
+            for (PaymentInfoEntity entity : list) {
+                if (entity.getPaymentStatus() == 1) {
+                    paymentSuccessNumber++;
+                }
+            }
+        }
+        return paymentSuccessNumber;
     }
 
     /**

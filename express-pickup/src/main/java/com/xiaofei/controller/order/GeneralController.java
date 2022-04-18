@@ -91,7 +91,7 @@ public class GeneralController {
         List<OrderInfoVo> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
-            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByUserIds(ids);
+            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);
             vos = orderInfoService.poToVo(orders, paymentInfoEntities);
         }
         return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
@@ -106,7 +106,7 @@ public class GeneralController {
         List<OrderInfoVo> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
-            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByUserIds(ids);
+            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);
             vos = orderInfoService.poToVo(orders, paymentInfoEntities);
         }
         return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
@@ -164,7 +164,7 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByUserId(orderIds);
+        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
         return ResultUtils.success(commentEntities);
 
     }
@@ -181,7 +181,7 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByUserId(orderIds);
+        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
         List<Double> list = commentEntities.stream().map(OrderCommentEntity::getUserRating).collect(Collectors.toList());
         Double endResult = 0.00;
         for (Double aDouble : list) {

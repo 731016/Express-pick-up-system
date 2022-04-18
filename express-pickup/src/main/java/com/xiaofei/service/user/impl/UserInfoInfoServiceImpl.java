@@ -6,8 +6,12 @@ import com.xiaofei.mapper.user.UserInfoMapper;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.CodecUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * TODO 类描述
@@ -67,10 +71,88 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
     @Override
     public Boolean update(UserInfoEntity userInfoEntity) {
         int update = userInfoMapper.updateById(userInfoEntity);
-//        userInfoMapper.
         if (update > 0) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 查询所有用户的身份证id
+     */
+    @Override
+    public Boolean selectAllIdNumber(String actualName, String idNumber) {
+        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.isNotNull("idNumber").isNotNull("actualName");
+        List<UserInfoEntity> list = userInfoMapper.selectList(wrapper);
+        Boolean flag = false;
+        for (UserInfoEntity user : list) {
+            if (user.getIdNumber().equals(idNumber)) {
+                flag = true;
+            }
+            if (user.getActualName().equals(actualName)) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+
+    /**
+     * 通过用户id，查询
+     *
+     * @param userId
+     */
+    @Override
+    public UserInfoEntity selectUserById(String userId) {
+        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("userId",userId);
+        UserInfoEntity entity = userInfoMapper.selectOne(wrapper);
+        return entity;
+    }
+
+    /**
+     * 查询多个用户信息，通过id
+     *
+     * @param userIds
+     */
+    @Override
+    public List<UserInfoEntity> selectUserByIds(List<String> userIds) {
+        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.in("userId",userIds);
+        List<UserInfoEntity> entitys = userInfoMapper.selectList(wrapper);
+        if (CollectionUtils.isEmpty(entitys)){
+            return new ArrayList<>();
+        }
+        return entitys;
+    }
+
+    /**
+     * 批量禁用用户
+     *
+     * @param entities
+     */
+    @Override
+    public Boolean disableUser(List<UserInfoEntity> entities) {
+//        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+//        wrapper.in("userId",userIds);
+        Integer integer = userInfoMapper.disableUser(entities);
+        if (integer>0){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 查询所有用户
+     */
+    @Override
+    public List<UserInfoEntity> selectDelivery() {
+        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("userRoleId",101);
+        List<UserInfoEntity> entities = userInfoMapper.selectList(wrapper);
+        if (CollectionUtils.isEmpty(entities)){
+            return new ArrayList<>();
+        }
+        return entities;
     }
 }

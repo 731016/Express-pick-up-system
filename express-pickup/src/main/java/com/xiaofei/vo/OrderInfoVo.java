@@ -36,6 +36,16 @@ public class OrderInfoVo {
     private String orderStatusName;
     private Integer isDel;
     private String delReason;
+    private Integer orderStep;
+    /**
+     * 判断此订单是否已评价的标志
+     * 用户已评价1，配送员已评价2，未评价0
+     * 三个数求和
+     * 1用户已评价
+     * 2配送员已评价
+     * 3用户和配送员都已评价
+     */
+    private Integer commentStatus;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

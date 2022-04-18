@@ -29,7 +29,7 @@ public class OrderCommentServiceImpl implements OrderCommentService {
      * @param orderIds
      */
     @Override
-    public List<OrderCommentEntity> selectAllByUserId(List<String> orderIds) {
+    public List<OrderCommentEntity> selectAllByOrderId(List<String> orderIds) {
         if (CollectionUtils.isEmpty(orderIds)) {
             return new ArrayList<>();
         } else {
@@ -41,6 +41,14 @@ public class OrderCommentServiceImpl implements OrderCommentService {
             }
             return list;
         }
+    }
+
+    @Override
+    public OrderCommentEntity selectAllByOrderId(String orderId) {
+        QueryWrapper<OrderCommentEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("orderId", orderId);
+        OrderCommentEntity entity = orderCommentMapper.selectOne(wrapper);
+        return entity;
     }
 
     /**
@@ -83,6 +91,22 @@ public class OrderCommentServiceImpl implements OrderCommentService {
         comment.setCommentTime(dateTime);
         int insert = orderCommentMapper.insert(comment);
         if (insert > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 更新评价信息
+     *
+     * @param comment
+     */
+    @Override
+    public Boolean update(OrderCommentEntity comment, String orderId) {
+        QueryWrapper<OrderCommentEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("orderId", orderId);
+        int updateById = orderCommentMapper.update(comment, wrapper);
+        if (updateById > 0) {
             return true;
         }
         return false;
