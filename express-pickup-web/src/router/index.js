@@ -1,11 +1,12 @@
 import VueRouter from 'vue-router';
-import DashBoard from "../views/generalUser/DashBoard";
+import GeneralDashBoard from "../views/generalUser/DashBoard";
 import OrderNow from "../views/generalUser/OrderNow";
 import ConfirmOrder from "../views/generalUser/ConfirmOrder";
 import DeliveryOrderList from "../views/deliveryUser/DeliveryOrderList";
 import GeneralOrderList from "../views/generalUser/GeneralOrderList";
 import RecycleBin from "../views/generalUser/RecycleBin";
-import EvaluationCenter from "../views/generalUser/EvaluationCenter";
+import GeneralEvaluation from "../views/generalUser/EvaluationCenter";
+import DeliveryEvaluation from "../views/deliveryUser/EvaluationCenter";
 import PersonalCenter from "../views/generalUser/PersonalCenter";
 import OrderHall from "../views/deliveryUser/OrderHall";
 import DeliveryPersonalCenter from "../views/deliveryUser/DeliveryPersonalCenter";
@@ -17,8 +18,8 @@ import ManagerPersonalCenter from "../views/ManagerUser/ManagerPersonalCenter";
 import Login from "../views/common/Login";
 import Register from "../views/common/Register";
 import Home from "../views/common/Home";
-import GeneralDashBoard from "../views/deliveryUser/DeliveryDashBoard";
 import ResultSuccess from "../views/common/ResultSuccess";
+import DeliveryDashBoard from "../views/deliveryUser/DashBoard";
 
 const router = new VueRouter({
     routes: [
@@ -51,17 +52,17 @@ const router = new VueRouter({
             },
             children: [
                 {
-                    name: "DashBoard",
-                    path: 'DashBoard',
-                    component: DashBoard,
+                    name: "GeneralDashBoard",
+                    path: 'GeneralDashBoard',
+                    component: GeneralDashBoard,
                     meta: {
                         title: "普通用户仪表盘"
                     }
                 },
                 {
-                    name: "GeneralDashBoard",
-                    path: 'GeneralDashBoard',
-                    component: GeneralDashBoard,
+                    name: "DeliveryDashBoard",
+                    path: 'DeliveryDashBoard',
+                    component: DeliveryDashBoard,
                     meta: {
                         title: "配送员仪表盘"
                     }
@@ -113,11 +114,19 @@ const router = new VueRouter({
                         title: "回收中心"
                     }
                 }, {
-                    name: 'EvaluationCenter',
-                    path: 'EvaluationCenter',
-                    component: EvaluationCenter,
+                    name: 'GeneralEvaluation',
+                    path: 'GeneralEvaluation',
+                    component: GeneralEvaluation,
                     meta: {
-                        title: "评价中心"
+                        title: "普通用户评价中心"
+                    }
+                },
+                {
+                    name: 'DeliveryEvaluation',
+                    path: 'DeliveryEvaluation',
+                    component: DeliveryEvaluation,
+                    meta: {
+                        title: "配送员评价中心"
                     }
                 },
                 {

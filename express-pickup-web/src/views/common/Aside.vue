@@ -50,10 +50,6 @@
                     <i class="el-icon-s-order"></i>
                     <span slot="title">派送订单</span>
                 </el-menu-item>
-                <el-menu-item index="4" @click="toRecycleBin()">
-                    <i class="el-icon-delete"></i>
-                    <span slot="title">回收站</span>
-                </el-menu-item>
                 <el-menu-item index="5" @click="toEvaluationCenter()">
                     <i class="el-icon-edit"></i>
                     <span slot="title">评价中心</span>
@@ -88,10 +84,6 @@
                     <i class="el-icon-s-custom"></i>
                     <span slot="title">用户管理</span>
                 </el-menu-item>
-                <el-menu-item index="5" @click="toEvaluationCenter()">
-                    <i class="el-icon-edit"></i>
-                    <span slot="title">评价中心</span>
-                </el-menu-item>
                 <el-menu-item index="6" @click="toPersonalCenter()">
                     <i class="el-icon-user-solid"></i>
                     <span slot="title">个人中心</span>
@@ -114,13 +106,13 @@
         name: "Aside",
         data() {
             return {
-                loading: true
+                loading: false
             }
         },
         methods: {
             exitLogIn() {
                 this.loading = true;
-                logout().then(response => {
+                logout({"userId": this.getUserId}).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.removeItem("token");
@@ -148,7 +140,7 @@
                         break;
                     case 'C':
                         this.$router.push({
-                            name: 'DashBoard',
+                            name: 'GeneralDashBoard',
                         })
                         break;
                 }
@@ -173,10 +165,6 @@
                     this.$router.push({
                         name: 'RecycleBin',
                     })
-                } else if (this.getUserRoleId === 'B') {
-                    this.$router.push({
-                        name: 'RecycleBin',
-                    })
                 } else if (this.getUserRoleId === 'A') {
                     this.$router.push({
                         name: 'ManagerRecycleBin',
@@ -184,9 +172,15 @@
                 }
             },
             toEvaluationCenter() {
-                this.$router.push({
-                    name: 'EvaluationCenter',
-                })
+                if (this.getUserRoleId === 'C'){
+                    this.$router.push({
+                        name: 'GeneralEvaluation',
+                    })
+                }else if(this.getUserRoleId === 'B'){
+                    this.$router.push({
+                        name: 'DeliveryEvaluation',
+                    })
+                }
             },
             toPersonalCenter() {
                 if (this.getUserRoleId === 'C') {

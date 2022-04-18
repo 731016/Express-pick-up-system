@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading.fullscreen.lock="loading">
         <el-row v-if="getRating != 0">
             <el-col :span="24">
                 <div class="grid-content ">
@@ -57,7 +57,7 @@
                 </el-col>
             </div>
         </el-row>
-        <div v-if="commitList.length != 0">
+        <div v-if="commitList?(commitList.length != 0):false">
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
@@ -84,65 +84,60 @@
         mixins: [mixin],
         data() {
             return {
+                loading: false,
                 //当前页码
                 currentPage: 1,
                 pageSize: 5,
                 value: 0,
                 totalPage: 0,
                 commitList: [
-                    // {
-                    //     'orderId': '3424543564',
-                    //     'comment': '上的起飞前',
-                    //     'userRating': '8.65',
-                    // }
                 ]
             }
         }
         ,
         methods: {
-            getPageComment() {
+            initData() {
                 this.loading = true;
-                this.$axios.all([selectAllComment(), queryRate()])
-                    .then(this.$axios.spread(function (dataList, data) {
-                        console.log(dataList);
-                        console.log(data);
-                    }));
-                this.loading = false;
-                // selectAllComment().then(response => {
-                //     let rep = response.data;
-                //     if (response.status === 200 && rep.statusCode === 2000) {
-                //         this.commitList = JSON.parse(JSON.stringify(rep.dataList));
-                //         this.updatePage(rep.currentPage, rep.totalPage);
-                //     }
-                //     this.loading = false;
-                // }).catch(error => {
-                //     this.$message.error(error);
-                //     this.loading = false;
-                // })
+                selectAllComment().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.commitList = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
+                queryRate().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.value = rep.data;
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
             }
             ,
             updatePage(currentPage, totalPage) {
                 this.currentPage = currentPage;
                 this.totalPage = totalPage;
-            }
-            ,
+            },
         }
         ,
         computed: {
             //获取综合评分
             getRating() {
-                let rates = 0;
-
+                let rates = this.value;
                 return rates;
             }
-            ,
-            getFilterData() {
-                return this.tableData.filter(item => item.completeEvaluationFlag != 0)
-            },
         }
         ,
         mounted() {
-            this.getPageComment();
+            this.initData();
         }
         ,
     }

@@ -59,22 +59,22 @@
                         </el-date-picker>
                     </div>
                 </el-col>
+                <!--                <el-col :span="2">-->
+                <!--                    <div class="grid-content">-->
+                <!--                        <span class="search-title">订单号</span>-->
+                <!--                    </div>-->
+                <!--                </el-col>-->
+                <!--                <el-col :span="4">-->
+                <!--                    <div class="grid-content bg-purple">-->
+                <!--                        <el-input-->
+                <!--                                v-model="searchConditions.id"-->
+                <!--                                clearable>-->
+                <!--                        </el-input>-->
+                <!--                    </div>-->
+                <!--                </el-col>-->
                 <el-col :span="2">
                     <div class="grid-content">
-                        <span class="search-title">订单号</span>
-                    </div>
-                </el-col>
-                <el-col :span="4">
-                    <div class="grid-content bg-purple">
-                        <el-input
-                                v-model="searchConditions.orderNumber"
-                                clearable>
-                        </el-input>
-                    </div>
-                </el-col>
-                <el-col :span="2">
-                    <div class="grid-content">
-                        <el-button icon="el-icon-search" circle @click="getFilterData"></el-button>
+                        <el-button icon="el-icon-search" circle @click="initData()"></el-button>
                     </div>
                 </el-col>
             </el-col>
@@ -87,8 +87,9 @@
         </div>
         <div>
             <el-table :cell-style="drawCells"
-                      :data="filterData"
+                      :data="filterData()"
                       ref="tableData"
+                      v-loading="loading"
                       @selection-change="rowChange()"
                       style="width: 100%"
                       max-height="480">
@@ -97,7 +98,7 @@
                         width="55">
                 </el-table-column>
                 <el-table-column
-                        prop="orderNumber"
+                        prop="id"
                         label="订单号"
                         width="240">
                 </el-table-column>
@@ -142,12 +143,12 @@
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="paymentInfo.paymentStatus_cnName"
+                        prop="paymentInfo.paymentStatusName"
                         label="支付状态"
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="orderStatus_cnName"
+                        prop="orderStatusName"
                         label="订单状态"
                         width="120">
                 </el-table-column>
@@ -166,7 +167,7 @@
                     :page-sizes="[5, 20, 50]"
                     :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getRecoverDataTotal">
+                    :total="searchConditions.totalPage">
             </el-pagination>
         </div>
     </div>
@@ -175,130 +176,27 @@
 <script>
     import {mapState} from "vuex";
     import mixin from '../../mixin';
+    import {recyceOrder} from "../../request/order";
+    import {selectAllAndRevokeOrder} from '../../request/managerOrder'
 
     export default {
         name: "ManagerRecycleBin",
         mixins: [mixin],
         data() {
             return {
+                loading: false,
                 recycelIds: [],
                 searchConditions: {
-                    orderStatus: '',
-                    paymentStatus: '',
-                    orderNumber: '',
+                    orderStatus: 0,
+                    paymentStatus: 0,
+                    id: '',
                     startEndTime: [],
                     //当前页码
                     currentPage: 1,
                     pageSize: 5,
+                    totalPage: 5
                 },
-                tableData: [
-                    {
-                        id: '45665765765-2432423-234324-5435345',
-                        orderStep: 3,
-                        // 订单号
-                        orderNumber: '444444444',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送备注
-                        shippingReamrk: '已送达',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: -1,
-                        //删除原因
-                        delReason: '手动删除',
-                        // 订单状态
-                        orderStatus: 40,
-                        orderStatus_cnName: '订单完成',
-                        createTime: '2022/3/14 13:00:45',
-                        rangeInfo: {
-                            id: '4-4534',
-                            userRatings: 7.8,
-                            comment: '一款具有口语',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '4-433',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 42.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功',
-                        },
-                    },
-                    {
-                        id: '65654645-435-45646-54654-7574',
-                        orderStep: 3,
-                        // 订单号
-                        orderNumber: '666666666666666',
-                        // 收件姓名
-                        pickupName: '涂鏊飞',
-                        // 收件短信
-                        contactNumber: '17685585594',
-                        // 寄达地址
-                        trackDeliveryAddress: '武汉市xxx',
-                        // 收件地址
-                        shipAddress: '碧海花园',
-                        // 快递单号
-                        trackNumber: '454375698709-09-90-890',
-                        // 快递公司
-                        trackCompany: 'JD',
-                        trackCompanyName: '京东',
-                        //配送员id
-                        deliveryManId: '4923853458943',
-                        // 配送员
-                        deliveryMan: '色色色',
-                        // 配送备注
-                        shippingReamrk: '',
-                        // 备注
-                        remark: '放到菜鸟驿站',
-                        //是否删除【1撤销，0未删除,-1删除】
-                        isDel: 0,
-                        //删除原因
-                        delReason: '',
-                        // 订单状态
-                        orderStatus: 30,
-                        orderStatus_cnName: '订单异常',
-                        createTime: '2022/3/12 9:34:56',
-                        rangeInfo: {
-                            id: '',
-                            userRatings: 0,
-                            comment: '',
-                            completeEvaluationFlag: 0
-                        },
-                        paymentInfo: {
-                            id: '3-4534',
-                            // 支付方式
-                            paymentMethod: '支付宝',
-                            // 流水号
-                            serialNumber: '3346587897967568689797',
-                            // 支付金额
-                            paymentAmount: 4.0,
-                            // 支付状态
-                            paymentStatus: 1,
-                            paymentStatus_cnName: '支付成功',
-                        }
-                    }
-                ],
+                tableData: [],
             }
         },
         methods: {
@@ -316,19 +214,21 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    //todo axios 修改 参数：【订单id】
-                    this.tableData.forEach(item => {
-                        if (this.recycelIds.some(ele => ele == item.orderNumber)) {
-                            item.isDel = 0;
+                    this.loading = true;
+                    recyceOrder(this.recycelIds).then(response => {
+                        let rep = response.data;
+                        if (response.status === 200 && rep.statusCode === 2000) {
+                            this.$message.success(rep.message);
+                            this.initData();
+                            this.recycelIds = [];
                         }
-                    })
-                    this.$message({
-                        message: '还原成功',
-                        type: 'success'
+                        this.loading = false;
+                    }).catch(error => {
+                        this.$message.error(error);
+                        this.loading = false;
                     });
-                    this.recycelIds = [];
                 }).catch(() => {
-
+                    this.$message.info('用户取消操作');
                 });
             },
             //手机所有被选中的订单的orderNumber
@@ -337,14 +237,13 @@
                 let selectedAllData = this.$refs.tableData.selection;
                 let recycelIds = [];
                 selectedAllData.forEach(function (item) {
-                    recycelIds.push(item.orderNumber);
+                    recycelIds.push(item.id);
                 });
                 Object.assign(this.recycelIds, recycelIds);
             },
             drawCells({row, columnIndex}) {
                 if (columnIndex == 2) {
                     let isDel = row.isDel;
-                    console.log(isDel)
                     if (isDel == 1) {
                         return 'color:blue';
                     } else if (isDel == -1) {
@@ -375,48 +274,34 @@
             /**
              * 查询条件
              */
-            getFilterData() {
-                //todo 获取查询条件，发送ajax
-                console.log(this.searchConditions)
-                console.log('获取查询条件，发送ajax')
-                // axios.post('xxx', {
-                //     data: this.searchConditions
-                // }).then(function (response) {
-                //     console.log(response);
-                // }).catch(function (error) {
-                //     console.log(error);
-                // })
+            initData() {
+                this.loading = true;
+                selectAllAndRevokeOrder(this.searchConditions).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
+            },
+            filterData() {
+                return this.tableData.filter(item => item.isDel == 1 || item.isDel == -1)
+            },
+            updatePage(currentPage, totalPage) {
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.totalPage = totalPage;
             },
         },
         computed: {
             ...mapState({orderStatusOptions: 'orderStatusOptions'}),
             ...mapState({paymentStatusOptions: 'paymentStatusOptions'}),
-            getRecoverDataTotal() {
-                return this.tableData.filter(item => item.isDel == -1).length
-            },
-            filterData() {
-                return this.tableData.filter(item => item.isDel == -1)
-            }
         },
-        watch: {
-            'searchConditions.pageSize': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("每页大小", newValue);
-                    this.getFilterData();
-                },
-            },
-            'searchConditions.currentPage': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("当前页码", newValue);
-                    this.getFilterData();
-                },
-            }
-        }, mounted() {
-            this.getFilterData();
+        mounted() {
+            this.initData();
         },
     }
 </script>

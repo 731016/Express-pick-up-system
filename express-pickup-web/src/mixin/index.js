@@ -42,15 +42,14 @@ export default {
     methods: {
         handleSizeChange(val) {
             //每页大小，当前页码
-            console.log(`每页 ${val} 条`);
             this.searchConditions.pageSize = val;
-            this.getFilterData();
+            this.initData();
         }
         ,
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
             this.searchConditions.currentPage = val;
-            this.getFilterData();
+            this.initData();
         },
         supplementZero(time) {
             if (time < 10) {

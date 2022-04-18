@@ -1,13 +1,13 @@
 <template>
-    <el-container>
+    <el-container v-loading.fullscreen.lock="loading">
         <el-header>
             <span class="title-text">校园快递代取系统</span>
-            <el-dropdown trigger="click" v-if="getUserId()">
+            <el-dropdown trigger="click" v-if="getUserId">
                 <span class="el-dropdown-link">
-                    {{getUserRoleName()}}:{{getUserName()}}<i class="el-icon-arrow-down el-icon--right"></i>
+                    {{getUserRoleName}}:{{getUserName}}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item @click="toPersonalCenter()">个人中心</el-dropdown-item>
+                    <el-dropdown-item @click.native="toPersonalCenter()">个人中心</el-dropdown-item>
                     <el-dropdown-item @click.native="exitLogIn()">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -20,9 +20,14 @@
 
     export default {
         name: "Header",
-        methods: {
-            getUserRoleName() {
-                return this.$store.state.userRoleName;
+        data() {
+            return {
+                loading: false
+            }
+        },
+        computed: {
+            userRoleId() {
+                return this.$store.state.userRoleId
             },
             getUserName() {
                 return this.$store.state.userName;
@@ -30,8 +35,14 @@
             getUserId() {
                 return this.$store.state.userId;
             },
+            getUserRoleName() {
+                return this.$store.state.userRoleName;
+            }
+        },
+        methods: {
             exitLogIn() {
-                logout().then(response => {
+                this.loading = true;
+                logout({"userId": this.getUserId}).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.removeItem("token");
@@ -39,31 +50,28 @@
                             name: 'Login'
                         })
                     }
+                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
+                    this.loading = false;
                 })
             },
             toPersonalCenter() {
-                if (this.getUserRoleId === 'C') {
+                if (this.userRoleId === 'C') {
                     this.$router.push({
                         name: 'PersonalCenter',
                     })
-                } else if (this.getUserRoleId === 'B') {
+                } else if (this.userRoleId === 'B') {
                     this.$router.push({
                         name: 'DeliveryPersonalCenter',
                     })
-                } else if (this.getUserRoleId === 'A') {
+                } else if (this.userRoleId === 'A') {
                     this.$router.push({
                         name: 'ManagerPersonalCenter',
                     })
                 }
             }
         },
-        mounted() {
-            this.getUserId();
-            this.getUserName();
-            this.getUserRoleName();
-        }
     }
 </script>
 

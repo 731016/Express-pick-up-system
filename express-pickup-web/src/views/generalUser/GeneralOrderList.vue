@@ -54,7 +54,7 @@
                 </el-col>
                 <el-col :span="2">
                     <div class="grid-content">
-                        <el-button icon="el-icon-search" circle @click="getFilterData"></el-button>
+                        <el-button icon="el-icon-search" circle @click="initData()"></el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -79,7 +79,7 @@
         <div>
             <el-table :cell-style="drawCells"
                       v-loading="loading"
-                      :data="getNotDelData()"
+                      :data="getNotDelData"
                       ref="tableData"
                       @selection-change="rowChange()"
                       style="width: 100%"
@@ -460,12 +460,6 @@
             }
             ,
             /**
-             * 查询条件
-             */
-            getFilterData() {
-                this.initData();
-            },
-            /**
              * 表格被选中的数据发送变化
              * 筛选 选择的数据中，要被【撤销】或【删除】的订单
              */
@@ -560,7 +554,7 @@
                 })
             },
             getNotDelData() {
-                if (this.tableData !== null) {
+                if (this.tableData) {
                     return this.tableData.filter(item => item.isDel === 0);
                 }
             }
@@ -568,22 +562,6 @@
         mounted() {
             this.initData();
         },
-        // watch: {
-        //     'searchConditions.pageSize': {
-        //         immediate: false, //初始化时加载handler
-        //         deep: true,
-        //         handler() {
-        //             this.getFilterData();
-        //         },
-        //     },
-        //     'searchConditions.currentPage': {
-        //         immediate: false, //初始化时加载handler
-        //         deep: true,
-        //         handler() {
-        //             this.getFilterData();
-        //         },
-        //     }
-        // }
     }
 </script>
 

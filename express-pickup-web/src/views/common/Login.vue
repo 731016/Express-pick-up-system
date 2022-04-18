@@ -9,7 +9,7 @@
                 <el-form-item prop="password">
                     <el-input type="password" placeholder="密码" v-model="param.password"
                               autocomplete="off"
-                              @keyup.enter="submitForm('param')">
+                              @keyup.enter.native="submitForm('param')">
                     </el-input>
                 </el-form-item>
                 <div class="login-btn">
@@ -41,6 +41,11 @@
                 },
             }
         },
+        computed: {
+            getUserId() {
+                return this.$store.state.userId;
+            }
+        },
         methods: {
             submitForm(forName) {
                 this.$refs[forName].validate((valid) => {
@@ -62,7 +67,7 @@
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.setItem('token', rep.data);
                         this.$router.push({
-                            name: 'DashBoard'
+                            name: 'Home'
                         })
                     }
                     this.loading = false;

@@ -54,7 +54,7 @@
                 </el-col>
                 <el-col :span="2">
                     <div class="grid-content">
-                        <el-button icon="el-icon-search" circle @click="getFilterData"></el-button>
+                        <el-button icon="el-icon-search" circle @click="initData()"></el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -127,7 +127,7 @@
                     :page-sizes="[5, 20, 50]"
                     :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getRecoverDataTotal()">
+                    :total="getRecoverDataTotal">
             </el-pagination>
         </div>
     </div>
@@ -176,7 +176,7 @@
                         let rep = response.data;
                         if (response.status === 200 && rep.statusCode === 2000) {
                             this.$message.success(rep.message);
-                            this.getFilterData();
+                            this.initData();
                             this.recycelIds = [];
                         }
                         this.loading = false;
@@ -232,7 +232,7 @@
             /**
              * 查询条件
              */
-            getFilterData() {
+            initData() {
                 this.loading = true;
                 selectDelAndRevokeOrder(this.searchConditions).then(response => {
                     let rep = response.data;
@@ -249,9 +249,6 @@
             filterData() {
                 return this.tableData.filter(item => item.isDel == 1 || item.isDel == -1)
             },
-            getRecoverDataTotal() {
-                return this.searchConditions.totalPage;
-            },
             updatePage(currentPage, totalPage) {
                 this.searchConditions.currentPage = currentPage;
                 this.searchConditions.totalPage = totalPage;
@@ -259,9 +256,12 @@
         },
         computed: {
             ...mapState({orderStatusOptions: 'orderStatusOptions'}),
+            getRecoverDataTotal() {
+                return this.searchConditions.totalPage;
+            },
         },
         mounted() {
-            this.getFilterData();
+            this.initData();
         },
     }
 </script>

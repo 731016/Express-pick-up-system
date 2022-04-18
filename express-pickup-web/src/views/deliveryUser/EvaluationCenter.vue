@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading.fullscreen.lock="loading">
         <el-row v-if="getRating != 0">
             <el-col :span="24">
                 <div class="grid-content ">
@@ -36,7 +36,7 @@
                     <div class="grid-content">
                         <el-tag>
                             来自订单
-                            <span style="color: #BC7568">{{item.orderNumber}}</span>
+                            <span style="color: #BC7568">{{item.orderId}}</span>
                             的评价：
                         </el-tag>
                     </div>
@@ -44,20 +44,20 @@
                 <el-col :span="12">
                     <div class="grid-content">
                         <el-tag type="success" class="el-tag-text">
-                            {{item.rangeInfo.comment}}
+                            {{item.comment}}
                         </el-tag>
                     </div>
                 </el-col>
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.rangeInfo.userRatings}}
+                            {{item.userRatings}}
                         </el-tag>
                     </div>
                 </el-col>
             </div>
         </el-row>
-        <div v-if="commitMap.length != 0">
+        <div v-if="commitMap?(commitMap.length != 0):false">
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
@@ -66,7 +66,7 @@
                     :page-sizes="[20, 50, 100]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getRateCommitTotal">
+                    :total="totalPage">
             </el-pagination>
         </div>
         <div v-else>
@@ -77,96 +77,64 @@
 
 <script>
     import mixin from '../../mixin';
+    import {selectDeliveryComment, queryDeliveryRate} from "../../request/deliveryOrder";
 
     export default {
         name: "EvaluationCenter",
         mixins: [mixin],
         data() {
             return {
+                loading: false,
                 //当前页码
                 currentPage: 1,
                 pageSize: 5,
-                value: 6,
-                commitMap: [
-                      {
-                          'orderNumber':'3424543564',
-                          'rangeInfo':{
-                              'comment':'上的起飞前',
-                              'userRatings':'8.65',
-                          }
-                      },
-                      {
-                          'orderNumber':'4354356546',
-                          'rangeInfo':{
-                              'comment':'阿三发射点个人',
-                              'userRatings':'5.76',
-                          }
-                      },
-                      {
-                          'orderNumber':'7567465456',
-                          'rangeInfo':{
-                              'comment':'无法哥哥如果',
-                              'userRatings':'9.54',
-                          }
-                      }
-                ]
+                value: 0,
+                totalPage: 0,
+                commitMap: []
             }
         },
         methods: {
-            getPageComment() {
-                console.log('发送ajax')
-                //todo 根据用户id获取所有的评价信息 Map<orderNumber,rangInfo>
-                this.commentMap = '';
+            initData() {
+                this.loading = true;
+                selectDeliveryComment().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.commitMap = JSON.parse(JSON.stringify(rep.dataList));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
+                queryDeliveryRate().then(response => {
+                    this.loading = true;
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.value = rep.data;
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
+            },
+            updatePage(currentPage, totalPage) {
+                this.currentPage = currentPage;
+                this.totalPage = totalPage;
             },
         },
         computed: {
-            //获取评价总数
-            getRateCommitTotal() {
-                // return this.commentMap.filter(item => item.rangeInfo.completeEvaluationFlag != 0).size;
-                return 0;
-            },
             //获取综合评分
             getRating() {
-                let rates = 0;
-                // this.commentMap.filter(item => item.rangeInfo.completeEvaluationFlag != 0).values().forEach(item => {
-                //     rates += item.userRatings;
-                // })
+                let rates = this.value;
                 return rates;
-            },
-            getFilterData() {
-                return this.tableData.filter(item => item.rangeInfo.completeEvaluationFlag != 0)
             },
         },
         mounted() {
-            this.getPageComment();
-            // let commentByOrderNumber = [];
-            // let commentByEvaluationFlagNotEmpty = this.tableData.filter(item => item.rangeInfo.completeEvaluationFlag != 0);
-            // commentByEvaluationFlagNotEmpty.forEach(item => {
-            //     let obj = new Object();
-            //     obj.orderId = item.id;
-            //     obj.rangeInfo = item.rangeInfo;
-            //     commentByOrderNumber.push(obj);
-            // })
-            // this.commitMap = commentByOrderNumber
+            this.initData();
         },
-        watch: {
-            'pageSize': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("每页大小", newValue);
-                    this.getPageComment();
-                },
-            },
-            'currentPage': {
-                immediate: false, //初始化时加载handler
-                deep: true,
-                handler(newValue) {
-                    console.log("当前页码", newValue);
-                    this.getPageComment();
-                },
-            }
-        }
     }
 </script>
 

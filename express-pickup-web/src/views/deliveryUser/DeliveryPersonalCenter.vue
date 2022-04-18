@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading.fullscreen.lock="loading">
         <el-row :gutter="20">
             <el-col :span="6">
                 <div class="grid-content grid-title">
@@ -14,8 +14,8 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.role != '' ">
-                    {{userInfo.role}}
+                <div class="grid-content grid-info" v-if="userInfo.userRoleName">
+                    {{userInfo.userRoleName}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
                     无权限
@@ -29,7 +29,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.userName != ''">
+                <div class="grid-content grid-info" v-if="userInfo.userName">
                     {{userInfo.userName}}
                 </div>
             </el-col>
@@ -46,7 +46,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.phone != ''">
+                <div class="grid-content grid-info" v-if="userInfo.phone">
                     {{userInfo.phone}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -54,7 +54,7 @@
                 </div>
             </el-col>
             <el-col :span="9">
-                <div class="grid-content" v-if="userInfo.phone != ''" @click="dialogPhoneVisible = true">
+                <div class="grid-content" v-if="userInfo.phone" @click="dialogPhoneVisible = true">
                     <el-button type="info" plain class="operate-btn">更改绑定手机号</el-button>
                 </div>
                 <div class="grid-content" v-else @click="dialogPhoneVisible = true">
@@ -70,7 +70,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.sex !=''">
+                <div class="grid-content grid-info" v-if="userInfo.sex">
                     {{userInfo.sex}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -98,7 +98,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.schoolName != ''">
+                <div class="grid-content grid-info" v-if="userInfo.schoolName">
                     {{userInfo.schoolName}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -106,7 +106,7 @@
                 </div>
             </el-col>
             <el-col :span="9">
-                <div class="grid-content" v-if="userInfo.schoolName != '' || userInfo.schoolNumber!=''"
+                <div class="grid-content" v-if="userInfo.schoolName || userInfo.schoolNumber"
                      @click="dialogSchoolVisible = true">
                     <el-button type="info" plain class="operate-btn">更改绑定</el-button>
                 </div>
@@ -124,7 +124,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.schoolNumber !=''">
+                <div class="grid-content grid-info" v-if="userInfo.schoolNumber">
                     {{userInfo.schoolNumber}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -147,7 +147,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.actualName !=''">
+                <div class="grid-content grid-info" v-if="judgePropertyIsNotNull(userInfo.actualName)">
                     {{userInfo.actualName}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -155,13 +155,13 @@
                 </div>
             </el-col>
             <el-col :span="9">
-                <div class="grid-content" v-if="userInfo.actualName =='' || userInfo.idNumber ==''"
+                <div class="grid-content" v-if="!judgePropertyIsNotNull(userInfo.actualName) || !judgePropertyIsNotNull(userInfo.idNumber)"
                      @click="dialogIdCardVisible = true">
                     <el-button type="info" plain style="background-color:#d43f3a;color: #fff">实名认证</el-button>
                 </div>
-                <div class="grid-content" v-else @click="dialogIdCardVisible = true">
-                    <el-button type="info" plain>实名认证</el-button>
-                </div>
+<!--                <div class="grid-content" v-else @click="dialogIdCardVisible = true">-->
+<!--                    <el-button type="info" plain>实名认证</el-button>-->
+<!--                </div>-->
             </el-col>
         </el-row>
         <el-row :gutter="20">
@@ -171,7 +171,7 @@
                 </div>
             </el-col>
             <el-col :span="6">
-                <div class="grid-content grid-info" v-if="userInfo.idNumber!=''">
+                <div class="grid-content grid-info" v-if="userInfo.idNumber">
                     {{userInfo.idNumber}}
                 </div>
                 <div class="grid-content grid-info-not" v-else>
@@ -188,7 +188,8 @@
                     <div>
                         成为普通用户后您将可以进行下单。与此同时您将丧失接单和配送的权利，请确保当前不存在未完成的订单。
                     </div>
-                    <el-button type="danger" :disabled="userInfo.actualName == '' || userInfo.idNumber == ''"
+                    <el-button type="danger"
+                               :disabled="!judgePropertyIsNotNull(userInfo.actualName) || !judgePropertyIsNotNull(userInfo.idNumber)"
                                size="small" @click="toggleUserRole()">立即切换
                     </el-button>
                 </div>
@@ -202,8 +203,8 @@
                 <el-form-item label="新密码" prop="newPwd">
                     <el-input v-model="pwd.newPwd" autocomplete="off" show-password></el-input>
                 </el-form-item>
-                <el-form-item label="确认密码" prop="confirmPwd">
-                    <el-input v-model="pwd.confirmPwd" autocomplete="off" show-password></el-input>
+                <el-form-item label="确认密码" prop="passWord">
+                    <el-input v-model="pwd.passWord" autocomplete="off" show-password></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -216,14 +217,14 @@
                 <el-form-item label="手机号码" prop="inputPhone">
                     <el-input v-model="phone.inputPhone" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="验证码" prop="verificationCode">
-                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>
-                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"
-                               @click="sendVerificationCode()">
-                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>
-                        <span v-else>发送验证码</span>
-                    </el-button>
-                </el-form-item>
+                <!--                <el-form-item label="验证码" prop="verificationCode">-->
+                <!--                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>-->
+                <!--                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"-->
+                <!--                               @click="sendVerificationCode()">-->
+                <!--                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>-->
+                <!--                        <span v-else>发送验证码</span>-->
+                <!--                    </el-button>-->
+                <!--                </el-form-item>-->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="submitForm('phone')">确 定</el-button>
@@ -251,9 +252,9 @@
                     <el-select v-model="school.province" placeholder="请选择省份" @change="provinceChange()">
                         <el-option
                                 v-for="item in provinces"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
+                                :key="item.id"
+                                :label="item.provinceName"
+                                :value="item.id"
                                 :disabled="item.disabled">
                         </el-option>
                     </el-select>
@@ -264,9 +265,9 @@
                                @change="schoolChange()">
                         <el-option
                                 v-for="item in filterSchool"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
+                                :key="item.id"
+                                :label="item.schoolName"
+                                :value="item.id"
                                 :disabled="item.disabled">
                         </el-option>
                     </el-select>
@@ -285,8 +286,8 @@
                 <el-form-item label="姓名" prop="idCardName">
                     <el-input v-model="idCard.idCardName" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="身份证号" prop="idCardNumber">
-                    <el-input v-model="idCard.idCardNumber" autocomplete="off"></el-input>
+                <el-form-item label="身份证号" prop="idNumber">
+                    <el-input v-model="idCard.idNumber" autocomplete="off"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -294,22 +295,22 @@
                 <el-button @click="resetForm('idCard')">取 消</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="信息" :visible.sync="dialogExchagneUserOuterVisible">
+        <el-dialog title="信息" :visible.sync="dialogExchangeUserOuterVisible">
             此操作具有一定危险性，即将校验密码，如未设置密码，请先设置密码。
             <el-dialog
                     width="30%"
                     title="输入密码"
-                    :visible.sync="dialogExchagneUserInnerVisible"
+                    :visible.sync="dialogExchangeUserInnerVisible"
                     append-to-body>
                 <el-input v-model="exchangeUserPwd" placeholder="请输入密码"></el-input>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogExchagneUserInnerVisible = false">取 消</el-button>
+                    <el-button @click="dialogExchangeUserInnerVisible = false">取 消</el-button>
                     <el-button type="primary" @click="closeAll()">确 定</el-button>
                 </div>
             </el-dialog>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogExchagneUserOuterVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogExchagneUserInnerVisible = true">确 定</el-button>
+                <el-button @click="dialogExchangeUserOuterVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogExchangeUserInnerVisible = true">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -317,6 +318,15 @@
 
 <script>
     import {mapGetters} from 'vuex'
+    import {selectAllProvince, selectOneSchool} from '../../request/selectInfo'
+    import {
+        queryUserInfo,
+        updateIdCard,
+        updatePhoneAjax,
+        updatePwd,
+        updateSchoolInfo,
+        updateSexAjax, exchangeRoleToGeneral
+    } from '../../request/user'
 
     export default {
         name: "GeneralPersonalCenter",
@@ -385,6 +395,7 @@
                 }
             };
             return {
+                loading: false,
                 //密码
                 dialogPwdVisible: false,
                 //手机号
@@ -398,25 +409,24 @@
                 dialogSchoolVisible: false,
                 //实名认证
                 dialogIdCardVisible: false,
-                dialogExchagneUserInnerVisible: false,
-                dialogExchagneUserOuterVisible: false,
+                dialogExchangeUserInnerVisible: false,
+                dialogExchangeUserOuterVisible: false,
                 userInfo: {
-                    role: '配送员',
-                    userName: 'courier1',
-                    pwd: '',
+                    userRoleName: '',
+                    userName: '',
                     phone: '',
-                    sex: '男',
-                    schoolName: '湖北工程学院',
-                    schoolNumber: '17321712125',
+                    sex: '',
+                    schoolName: '',
+                    schoolNumber: '',
                     actualName: '',
                     idNumber: ''
                 },
                 pwd: {
                     oldPwd: '',
                     newPwd: '',
-                    confirmPwd: ''
+                    passWord: ''
                 },
-                exchangeUserPwd:'',
+                exchangeUserPwd: '',
                 phone: {
                     inputPhone: '',
                     verificationCode: ''
@@ -428,54 +438,31 @@
                     schoolNumber: '',
                 },
                 provinces:
-                    [{
-                        value: 'HB',
-                        label: '湖北省',
-                        disabled: false
-                    }, {
-                        value: 'HN',
-                        label: '湖南省',
-                        disabled: false
-                    }],
+                    [],
                 schools:
-                    [{
-                        value: '001',
-                        label: '湖北工程学院',
-                        partCode: 'HB',
-                        disabled: false
-                    },
-                        {
-                            value: '002',
-                            label: '武汉大学',
-                            partCode: 'HB',
-                            disabled: false
-                        },
-                        {
-                            value: '003',
-                            label: '湖南大学',
-                            partCode: 'HN',
-                            disabled: false
-                        },
-                    ],
+                    [],
                 idCard: {
                     idCardName: '',
-                    idCardNumber: ''
+                    idNumber: ''
                 },
                 rules: {
                     oldPwd: [{required: true, message: "请输入密码", trigger: 'blur'}],
                     newPwd: [{validator: checknewPwd, trigger: 'blur'}],
-                    confirmPwd: [{validator: checkConfirmPwd, trigger: 'blur'}],
+                    passWord: [{validator: checkConfirmPwd, trigger: 'blur'}],
                     inputPhone: [{validator: checkPhone, trigger: 'blur'}],
                     verificationCode: [{validator: checkCode, trigger: 'blur'}],
                     province: [{required: true, message: "请选择省份", trigger: 'blur'}],
                     schoolName: [{required: true, message: "请选择学校", trigger: 'blur'}],
                     schoolNumber: [{required: true, message: "请输入学号", trigger: 'blur'}],
                     idCardName: [{required: true, message: "请输入姓名", trigger: 'blur'}],
-                    idCardNumber: [{validator: checkIdCard, trigger: 'blur'}]
+                    idNumber: [{validator: checkIdCard, trigger: 'blur'}]
                 }
             }
         },
         methods: {
+            judgePropertyIsNotNull(param) {
+                return param ? true : false;
+            },
             sendVerificationCode() {
                 // todo ajax向后台请求发送验证码，根据用户id
                 this.verificationCodeBtnStatus = true;
@@ -492,9 +479,20 @@
                 }, 1000)
             },
             commitSex() {
-                //todo ajax更新性别
-                this.userInfo.sex = this.sex;
-                this.dialogSexVisible = false;
+                this.loading = true;
+                let sex = {"sex": this.sex};
+                updateSexAjax(sex).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.sex = this.sex;
+                        this.dialogSexVisible = false;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             cancelSex() {
                 this.dialogSexVisible = false;
@@ -516,34 +514,82 @@
                                 this.updateIdCard();
                                 break;
                         }
-                        //更新密码
-                        //更新手机号
-                        //更新学校
-                        //更新身份证
-                        alert('submit!');
                         this.dialogPwdVisible = false
                         this.dialogPhoneVisible = false
                         this.dialogSchoolVisible = false
                         this.dialogIdCardVisible = false
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
             },
             updatePassword() {
-                this.userInfo.pwd = this.pwd.confirmPwd;
+                this.loading = true;
+                updatePwd(this.pwd).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        setTimeout(() => {
+                            this.$message.info('即将重新登录');
+                            this.$router.push({
+                                name: 'Login'
+                            })
+                        }, 2000)
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
+                this.pwd.newPwd = '';
+                this.pwd.oldPwd = '';
+                this.pwd.passWord = '';
             },
             updatePhone() {
-                this.userInfo.phone = this.phone.inputPhone;
+                this.loading = true;
+                updatePhoneAjax(this.phone).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.phone = this.phone.inputPhone;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             updateSchool() {
-                this.userInfo.schoolName = this.school.schoolName;
-                this.userInfo.schoolNumber = this.school.schoolNumber;
+                this.loading = true;
+                updateSchoolInfo(this.school).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.schoolName = rep.data.schoolName;
+                        this.userInfo.schoolNumber = rep.data.schoolNumber;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             updateIdCard() {
+                this.loading = true;
+                updateIdCard(this.idCard).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
+                        this.userInfo.actualName = rep.data.actualName;
+                        this.userInfo.idNumber = rep.data.idNumber;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
                 this.userInfo.actualName = this.idCard.idCardName;
-                this.userInfo.idNumber = this.idCard.idCardNumber;
+                this.userInfo.idNumber = this.idCard.idNumber;
             },
             resetForm(forName) {
                 this.dialogPwdVisible = false
@@ -553,46 +599,85 @@
                 this.$refs[forName].resetFields();
             },
             senAjaxSearchUserInfo() {
-                // todo 查询用户信息
+                this.loading = true;
+                queryUserInfo().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.userInfo = rep.data;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             provinceChange() {
-                console.log('省份改变')
+                this.loading = true;
+                selectOneSchool({"provinceId": this.school.province}).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        // this.$message.success(rep.message);
+                        this.schools = rep.data;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
             schoolChange() {
-                console.log('学校改变')
+
             },
             //切换用户角色
             toggleUserRole() {
-                this.dialogExchagneUserOuterVisible = true;
+                this.dialogExchangeUserOuterVisible = true;
             },
-            closeAll(){
-                //todo ajax更换用户角色
-                this.$message('用户角色切换成功！，即将重新登录');
-                setTimeout(()=>{
-                    this.$router.push({
-                        name: 'DashBoard',
-                    })
-                },2000)
-                //重新登录，进入登录页
-                this.dialogExchagneUserInnerVisible = false;
-                this.dialogExchagneUserOuterVisible = false;
+            closeAll() {
+                this.loading = true;
+                exchangeRoleToGeneral({"passWord": this.exchangeUserPwd}).then(response => {
+                    let rep = response.data;
+                    if (rep.statusCode === 2000) {
+                        this.dialogExchangeUserInnerVisible = false;
+                        this.dialogExchangeUserOuterVisible = false;
+                        this.$message.success(rep.message);
+                        localStorage.removeItem("token");
+                        //重新登录，进入登录页
+                        setTimeout(() => {
+                            this.$router.push({
+                                name: 'Login',
+                            })
+                        }, 2000);
+                    }
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
             },
+            loadProvince() {
+                this.loading = true;
+                selectAllProvince().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        // this.$message.success(rep.message);
+                        this.provinces = rep.data;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                });
+            }
         },
         computed: {
             ...mapGetters({getUserName: 'getUserName'}),
             ...mapGetters({getUserRole: 'getUserRole'}),
             filterSchool() {
-                return this.schools.filter(item => item.partCode == this.school.province);
+                return this.schools.filter(item => item.provinceId == this.school.province);
             }
         },
-        created() {
-            this.senAjaxSearchUserInfo();
-        },
         mounted() {
-            this.sex = this.userInfo.sex;
-            this.userInfo.userName = this.getUserName;
-            this.userInfo.role = this.getUserRole;
-            // todo ajax查询所有省份和大学
+            this.senAjaxSearchUserInfo();
+            this.loadProvince();
         }
     }
 </script>

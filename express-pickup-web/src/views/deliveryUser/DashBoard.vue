@@ -1,103 +1,72 @@
 <template>
-    <div>
-        <el-skeleton :loading="loading" animated>
-            <template slot="template">
-                <el-skeleton-item
-                        variant="rect"
-                        style="width: 100%; height: 125px;"
-                />
-                <div style="width: 33%;float: left;margin: 2px">
-                    <el-skeleton-item variant="text" class="order-overview-top" style="height: 36px"/>
-                    <el-skeleton-item variant="text" class="order-overview-middle" style="height: 36px"/>
-                    <el-skeleton-item variant="text" style="height: 36px"/>
+    <div v-loading.fullscreen.lock="loading">
+        <el-row v-if="getUserName">
+            <el-col :span="24">
+                <div class="grid-content bg-purple-light main-top">
+                    <span>{{getUserName}}</span>，欢迎登录！
                 </div>
-                <div style="width: 33%;float: left;margin: 2px">
-                    <el-skeleton-item variant="text" class="order-overview-top" style="height: 36px"/>
-                    <el-skeleton-item variant="text" class="order-overview-middle" style="height: 36px"/>
-                    <el-skeleton-item variant="text" style="height: 36px"/>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8">
+                <div class="grid-content order-overview main-middle">
+                    <div class="order-overview-top">订单简览</div>
+                    <div class="order-overview-middle">
+                        可以接单数：{{orderOverview.allowOrderNumber}}，需要派送订单数：{{orderOverview.dispatchOrderNumber}}
+                    </div>
+                    <div @click="toOrder()">
+                        <a href="javascript:;">
+                            查看更多
+                            <i class="el-icon-d-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div style="width: 33%;float: left;margin: 2px">
-                    <el-skeleton-item variant="text" class="order-overview-top" style="height: 36px"/>
-                    <el-skeleton-item variant="text" class="order-overview-middle" style="height: 36px"/>
-                    <el-skeleton-item variant="text" style="height: 36px"/>
+            </el-col>
+            <el-col :span="8">
+                <!--                        <div class="grid-content feedback-overview main-bottom">-->
+                <!--                            <div class="feedback-overview-top">反馈简览</div>-->
+                <!--                            <div class="feedback-overview-middle">-->
+                <!--                                正在处理的反馈数：{{feedback.processing}}，未处理的反馈数：{{feedback.notProcessed}}-->
+                <!--                            </div>-->
+                <!--                            <div>-->
+                <!--                                <a href="javascript:;">-->
+                <!--                                    查看更多-->
+                <!--                                    <i class="el-icon-d-arrow-right"></i>-->
+                <!--                                </a>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+            </el-col>
+            <el-col :span="8">
+                <div class="grid-content evaluate-overview">
+                    <div class="evaluate-overview-top">评价简览</div>
+                    <div class="evaluate-overview-middle">
+                        您共收到：{{evaluate.receivedAReviewTotal}}条评价，您的综合评分为：{{getRateFraction}}分
+                    </div>
+                    <div @click="toEvaluate()">
+                        <a href="javascript:;">
+                            查看更多
+                            <i class="el-icon-d-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-            </template>
-            <template>
-                <el-row v-if="getUserName">
-                    <el-col :span="24">
-                        <div class="grid-content bg-purple-light main-top">
-                            <span>{{getUserName}}</span>，欢迎登录！
-                        </div>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
-                        <div class="grid-content order-overview main-middle">
-                            <div class="order-overview-top">订单简览</div>
-                            <div class="order-overview-middle">
-                                未支付订单数：{{orderOverview.unPaid}}，等待接单数：{{orderOverview.waitingOrder}}，正在派送数：{{orderOverview.dispatchingOrders}}
-                            </div>
-                            <div>
-                                <a href="javascript:;">
-                                    查看更多
-                                    <i class="el-icon-d-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </el-col>
-                    <el-col :span="8">
-                        <!--                        <div class="grid-content feedback-overview main-bottom">-->
-                        <!--                            <div class="feedback-overview-top">反馈简览</div>-->
-                        <!--                            <div class="feedback-overview-middle">-->
-                        <!--                                正在处理的反馈数：{{feedback.processing}}，未处理的反馈数：{{feedback.notProcessed}}-->
-                        <!--                            </div>-->
-                        <!--                            <div>-->
-                        <!--                                <a href="javascript:;">-->
-                        <!--                                    查看更多-->
-                        <!--                                    <i class="el-icon-d-arrow-right"></i>-->
-                        <!--                                </a>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
-                    </el-col>
-                    <el-col :span="8">
-                        <div class="grid-content evaluate-overview">
-                            <div class="evaluate-overview-top">评价简览</div>
-                            <div class="evaluate-overview-middle">
-                                您共收到：{{evaluate.receivedAReviewTotal}}条评价，您的综合评分为：{{getRateFraction}}分
-                            </div>
-                            <div>
-                                <a href="javascript:;">
-                                    查看更多
-                                    <i class="el-icon-d-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </el-col>
-                </el-row>
-            </template>
-        </el-skeleton>
+            </el-col>
+        </el-row>
     </div>
 </template>
 
 <script>
+    import {dashBoardDelivery} from '../../request/dashboard'
+
     export default {
         name: "DashBoard",
         data() {
             return {
                 loading: true,
                 orderOverview: {
-                    // 未支付
-                    unPaid: 0,
                     // 等待接单
-                    waitingOrder: 0,
+                    allowOrderNumber: 0,
                     // 正在派送
-                    dispatchingOrders: 0
-                },
-                feedback: {
-                    // 正在处理的反馈
-                    processing: 0,
-                    // 未处理的反馈
-                    notProcessed: 0
+                    dispatchOrderNumber: 0
                 },
                 evaluate: {
                     //收到的评价
@@ -105,6 +74,36 @@
                     //综合评分
                     overallRating: 0
                 }
+            }
+        },
+        methods: {
+            toOrder() {
+                this.$router.push({
+                    name: 'DeliveryOrderList'
+                })
+            },
+            toEvaluate() {
+                this.$router.push({
+                    name: 'EvaluationCenter'
+                })
+            },
+            init() {
+                dashBoardDelivery().then(response => {
+                    this.loading = true;
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        let data = rep.data;
+                        this.orderOverview.allowOrderNumber = data.allowOrderNumber ? data.waitOrderNumber : 0;
+                        this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber ? data.dispatchOrderNumber : 0;
+
+                        this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber ? data.receivedEvaluateNumber : 0;
+                        this.evaluate.overallRating = data.overallRate ? data.overallRate : 0;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
             }
         },
         computed: {
@@ -116,28 +115,7 @@
             }
         },
         mounted() {
-            //todo 发送ajax查询【订单简览，反馈简览，评价简览，根据用户id查询】
-            // let userId = this.$store.state.userId;
-            //axios
-            this.$axios.post('http://localhost:8090/api/dashboard',).then((response) => {
-                if (response.status === 200 && response.data.statusCode === 0) {
-                    let data = response.data.data;
-                    this.orderOverview.unPaid = data.unPaid;
-                    this.orderOverview.waitingOrder = data.waitingOrder;
-                    this.orderOverview.dispatchingOrders = data.dispatchingOrders;
-
-                    this.feedback.feedback = data.feedback;
-                    this.feedback.processing = data.processing;
-
-                    this.evaluate.receivedAReviewTotal = data.dispatchingOrders;
-                    this.evaluate.overallRating = data.overallRating;
-                    this.loading = false;
-                }
-            }).catch((error) => {
-                this.$message.error('连接超时！');
-                this.loading = false;
-                console.log(error);
-            });
+            this.init();
         }
     }
 </script>

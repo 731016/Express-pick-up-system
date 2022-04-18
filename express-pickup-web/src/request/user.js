@@ -14,3 +14,11 @@ export const updatePwd = params => server('post', '/user/updatePwd', params);
 export const updatePhoneAjax = params => server('post', '/user/updatePhoneAjax', params);
 //修改性别
 export const updateSexAjax = params => server('post', '/user/updateSexAjax', params);
+//修改学校信息。包括学校id、学号、学校名称
+export const updateSchoolInfo = params => server('post', '/user/updateSchoolInfo', params);
+//实名认证
+export const updateIdCard =  params => server('post', '/user/updateIdCard', params);
+//验证密码并切换用户,为配送用户
+export const verifyPwdAndChange = params => server('post', '/user/verifyPwdAndChange', params);
+//验证密码并切换用户,为普通用户
+export const exchangeRoleToGeneral = params => server('post', '/user/exchangeRoleToGeneral', params);

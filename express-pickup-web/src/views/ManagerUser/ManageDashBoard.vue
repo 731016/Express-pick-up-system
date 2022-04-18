@@ -45,20 +45,20 @@
                             </div>
                         </div>
                     </el-col>
-                    <el-col :span="8">
-                        <div class="grid-content feedback-overview main-bottom">
-                            <div class="feedback-overview-top">反馈简览</div>
-                            <div class="feedback-overview-middle">
-                                今日新增反馈数：{{feedback.addProcess}}，等待处理数：{{feedback.notProcessed}}
-                            </div>
-                            <div>
-                                <a href="javascript:;">
-                                    查看更多
-                                    <i class="el-icon-d-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </el-col>
+<!--                    <el-col :span="8">-->
+<!--                        <div class="grid-content feedback-overview main-bottom">-->
+<!--                            <div class="feedback-overview-top">反馈简览</div>-->
+<!--                            <div class="feedback-overview-middle">-->
+<!--                                今日新增反馈数：{{feedback.addProcess}}，等待处理数：{{feedback.notProcessed}}-->
+<!--                            </div>-->
+<!--                            <div>-->
+<!--                                <a href="javascript:;">-->
+<!--                                    查看更多-->
+<!--                                    <i class="el-icon-d-arrow-right"></i>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </el-col>-->
                     <el-col :span="8">
                         <div class="grid-content evaluate-overview">
                             <div class="evaluate-overview-top">评价简览</div>

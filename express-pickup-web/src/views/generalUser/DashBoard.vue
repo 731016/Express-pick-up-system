@@ -14,7 +14,7 @@
                     <div class="order-overview-middle">
                         未支付订单数：{{orderOverview.unPaid}}，等待接单数：{{orderOverview.waitingOrder}}，正在派送数：{{orderOverview.dispatchingOrders}}
                     </div>
-                    <div>
+                    <div @click="toPersonalCenter()">
                         <a href="javascript:;">
                             查看更多
                             <i class="el-icon-d-arrow-right"></i>
@@ -42,7 +42,7 @@
                     <div class="evaluate-overview-middle">
                         您共收到：{{evaluate.receivedAReviewTotal}}条评价，您的综合评分为：{{getRateFraction}}分
                     </div>
-                    <div>
+                    <div @click="toEvaluationCenter()">
                         <a href="javascript:;">
                             查看更多
                             <i class="el-icon-d-arrow-right"></i>
@@ -94,26 +94,41 @@
                 } else {
                     return 0.00.toFixed(2);
                 }
-            }
+            },
         },
         mounted() {
-            dashBoardGeneral().then(response => {
-                let rep = response.data;
-                if (response.status === 200 && rep.statusCode === 2000) {
-                    let data = rep.data;
-                    this.orderOverview.unPaid = data.unPaidNumber == null ? 0 : data.unPaidNumber;
-                    this.orderOverview.waitingOrder = data.waitOrderNumber == null ? 0 : data.waitOrderNumber;
-                    this.orderOverview.dispatchingOrders = data.dispatchOrderNumber == null ? 0 : data.dispatchOrderNumber;
-
-                    this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber == null ? 0 : data.receivedEvaluateNumber;
-                    this.evaluate.overallRating = data.overallRate == null ? 0 : data.overallRate;
-                }
-                this.loading = false;
-            }).catch(error => {
-                this.$message.error(error);
-                this.loading = false;
-            })
+            this.init();
         },
+        methods: {
+            init() {
+                dashBoardGeneral().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        let data = rep.data;
+                        this.orderOverview.unPaid = data.unPaidNumber == null ? 0 : data.unPaidNumber;
+                        this.orderOverview.waitingOrder = data.waitOrderNumber == null ? 0 : data.waitOrderNumber;
+                        this.orderOverview.dispatchingOrders = data.dispatchOrderNumber == null ? 0 : data.dispatchOrderNumber;
+
+                        this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber == null ? 0 : data.receivedEvaluateNumber;
+                        this.evaluate.overallRating = data.overallRate == null ? 0 : data.overallRate;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
+            },
+            toPersonalCenter() {
+                this.$router.push({
+                    name: 'PersonalCenter'
+                })
+            },
+            toEvaluationCenter(){
+                this.$router.push({
+                    name: 'EvaluationCenter'
+                })
+            }
+        }
     }
 </script>
 
