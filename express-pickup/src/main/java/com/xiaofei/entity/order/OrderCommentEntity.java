@@ -21,6 +21,10 @@ import java.util.Date;
 public class OrderCommentEntity {
     private String orderId;
     /**
+     * 订单发布人id
+     */
+    private String userId;
+    /**
      * 用户评分
      */
     private Double userRating;

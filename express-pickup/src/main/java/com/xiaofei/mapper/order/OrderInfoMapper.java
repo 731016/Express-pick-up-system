@@ -39,4 +39,8 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfoEntity> {
      * 异常订单
      */
     Integer execptionOrder(List<String> orderIds);
+    /**
+     * 查询订单id根据用户id
+     */
+    List<OrderInfoEntity> selectOrderIdByUserId(List<String> userIds);
 }

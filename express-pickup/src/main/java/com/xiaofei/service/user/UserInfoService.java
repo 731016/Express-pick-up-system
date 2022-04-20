@@ -1,5 +1,7 @@
 package com.xiaofei.service.user;
 
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.user.UserInfoEntity;
 import org.w3c.dom.ls.LSInput;
 
@@ -51,4 +53,12 @@ public interface UserInfoService {
      * 查询配送用户
      */
     List<UserInfoEntity> selectDelivery();
+
+    List<UserInfoEntity> selectAll();
+    /**
+     * 查询所有用户
+     */
+    PageInfo<UserInfoEntity> getAllUser(SearchCondition search);
+
+
 }

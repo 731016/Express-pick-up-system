@@ -109,4 +109,13 @@ public interface OrderInfoService {
 
     Boolean successOrder(List<String> orderIds);
     Boolean execptionOrder(List<String> orderIds);
+
+    /**
+     * 查询订单id根据用户id
+     */
+    List<String> selectOrderIdByUserId(List<String> userIds);
+    /**
+     * 查询所有订单
+     */
+    List<OrderInfoEntity> selectAll();
 }

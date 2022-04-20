@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,7 +38,7 @@ public class UserInfoEntity {
     private String oldPwd;
     private String passWord;
     /**
-     * '角色' [100,普通用户；101,配送用户；102,管理员]
+     * '角色' [C,普通用户；B,配送用户；A,管理员]
      */
     private String userRoleId;
     /**
@@ -57,6 +58,11 @@ public class UserInfoEntity {
      * '身份证号'
      */
     private String idNumber;
+    /**
+     * 实名状态不存储数据库
+     */
+    @TableField(exist = false)
+    private String realNameStatus;
     /**
      * '学校代码'
      */
@@ -82,17 +88,29 @@ public class UserInfoEntity {
      */
     private String signInWithId;
     /**
+     * 用户评分，不存储数据库
+     */
+    @TableField(exist = false)
+    private Double rate;
+    /**
      * '冻结时间'
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date freezeTime;
     /**
      * 注册时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date registerTime;
     /**
      * 是否禁用 【1：启用，0：禁用】
      */
     private Integer disable;
+    /**
+     * 启用状态
+     */
+    @TableField(exist = false)
+    private String disableName;
 }

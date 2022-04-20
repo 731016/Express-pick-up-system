@@ -144,8 +144,23 @@ public class GeneralController {
 
     @ApiOperation("普通用户评价订单")
     @PostMapping("/evaluateOrder")
-    public CommonResponse<String> evaluateOrder(@RequestBody OrderCommentEntity comment) {
-        Boolean insert = orderCommentService.insert(comment);
+    public CommonResponse<String> evaluateOrder(@RequestHeader(value = "Authorization") String token, @RequestBody OrderCommentEntity comment) {
+        String name = JwtUtils.getUserNameByToken(token);
+        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
+
+        String orderId = comment.getOrderId();
+        OrderCommentEntity entity = orderCommentService.selectAllByOrderId(orderId);
+        if (entity == null) {
+            entity.setOrderId(comment.getOrderId());
+            entity.setUserId(userInfo.getUserId());
+            entity.setUserRating(comment.getUserRating());
+            entity.setComment(comment.getComment());
+        }else{
+            entity.setUserId(userInfo.getUserId());
+            entity.setUserRating(comment.getUserRating());
+            entity.setComment(comment.getComment());
+        }
+        Boolean insert = orderCommentService.insert(entity);
         if (insert) {
             return ResultUtils.success("");
         }

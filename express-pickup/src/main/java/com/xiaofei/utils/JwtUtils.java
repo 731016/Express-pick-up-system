@@ -5,6 +5,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -42,7 +43,6 @@ public class JwtUtils {
     }
 
 
-
     /* *
      * @Author lsc
      * <p>生成签名,30min后过期 </p>
@@ -66,9 +66,12 @@ public class JwtUtils {
      * @Param [request]
      * @Return java.lang.String
      */
-    public static String getUserNameByToken(String token)  {
-        DecodedJWT jwt = JWT.decode(token);
-        return jwt.getClaim("userName")
-                .asString();
+    public static String getUserNameByToken(String token) {
+        if (StringUtils.isNotEmpty(token)) {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("userName")
+                    .asString();
+        }
+        return null;
     }
 }

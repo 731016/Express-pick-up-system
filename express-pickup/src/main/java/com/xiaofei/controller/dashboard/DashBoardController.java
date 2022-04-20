@@ -1,5 +1,6 @@
 package com.xiaofei.controller.dashboard;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.common.ResultUtils;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,7 +83,7 @@ public class DashBoardController {
     @PostMapping("/delivery")
     public CommonResponse<DashBoardVo> getDeliveryDashBoard(@RequestHeader(value = "Authorization") String token) {
         //订单信息
-        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectAllOrderByOrderStatus(10,20,30);
+        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectAllOrderByOrderStatus(10, 20, 30);
         /**
          * 组装订单信息：可以接单=>orderStatus，【10：等待接单】paymentStatus，【1：支付成功】，一条订单对应一条支付信息，暂时不存在只有订单信息，没有支付信息的
          * 需要派送订单：【20：派送中】【30：订单异常】
@@ -124,5 +126,52 @@ public class DashBoardController {
             return ResultUtils.error(ActionStatus.REQUESTFAIL.getCode(), ActionStatus.REQUESTFAIL.getMsg(), null);
         }
         return ResultUtils.success(dashBoard);
+    }
+
+    @ApiOperation("管理员仪表盘")
+    @PostMapping("/manager")
+    public CommonResponse<DashBoardVo> getManagerDashBoard() {
+        Date date = new Date();
+        List<OrderInfoEntity> entityList = orderInfoService.selectAll();
+        //总等待接单数
+        Integer waitOrderNumber = 0;
+        //正在派送数
+        Integer dispatchOrderNumber = 0;
+        //今日新增订单数
+        Integer newAddOrders = 0;
+        //今日注册用户数
+        Integer newAddRegister = 0;
+        // 总用户数
+        Integer userTotal = 0;
+        // 其中禁用用户数
+        Integer disableUser = 0;
+        // 冻结用户数：0
+        Integer freezeUser = 0;
+        for (OrderInfoEntity entity : entityList) {
+            Integer orderStatus = entity.getOrderStatus();
+            switch (orderStatus) {
+                case 10:
+                    waitOrderNumber++;
+                    break;
+                case 20:
+                    dispatchOrderNumber++;
+                    break;
+            }
+            Date createTime = entity.getCreateTime();
+
+        }
+        List<UserInfoEntity> entities = userInfoService.selectAll();
+        userTotal = entities.size();
+        for (UserInfoEntity entity : entities) {
+            Integer status = entity.getDisable();
+            if (status == 0) {
+                disableUser++;
+            }
+            Date freezeTime = entity.getFreezeTime();
+            if (freezeTime != null) {
+                freezeUser++;
+            }
+        }
+        return null;
     }
 }

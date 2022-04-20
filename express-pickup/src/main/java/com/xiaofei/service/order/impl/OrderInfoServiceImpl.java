@@ -524,4 +524,31 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         }
         return false;
     }
+
+    /**
+     * 查询订单id根据用户id
+     *
+     * @param userIds
+     */
+    @Override
+    public List<String> selectOrderIdByUserId(List<String> userIds) {
+        List<OrderInfoEntity> list = orderInfoMapper.selectOrderIdByUserId(userIds);
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+        List<String> collect = list.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
+        return collect;
+    }
+
+    /**
+     * 查询所有订单
+     */
+    @Override
+    public List<OrderInfoEntity> selectAll() {
+        List<OrderInfoEntity> entities = orderInfoMapper.selectList(null);
+        if (CollectionUtils.isEmpty(entities)) {
+            return new ArrayList<>();
+        }
+        return entities;
+    }
 }

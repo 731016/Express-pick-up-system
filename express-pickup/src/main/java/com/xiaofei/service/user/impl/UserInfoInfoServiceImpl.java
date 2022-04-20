@@ -1,17 +1,27 @@
 package com.xiaofei.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
+import com.xiaofei.entity.order.OrderCommentEntity;
+import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
+import com.xiaofei.entity.user.UserRoleEntity;
+import com.xiaofei.mapper.order.OrderCommentMapper;
+import com.xiaofei.mapper.order.OrderInfoMapper;
 import com.xiaofei.mapper.user.UserInfoMapper;
+import com.xiaofei.mapper.user.UserRoleMapper;
 import com.xiaofei.service.user.UserInfoService;
+import com.xiaofei.service.user.UserRoleService;
 import com.xiaofei.utils.CodecUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * TODO 类描述
@@ -22,6 +32,12 @@ import java.util.List;
 public class UserInfoInfoServiceImpl implements UserInfoService {
     @Resource
     private UserInfoMapper userInfoMapper;
+    @Resource
+    private OrderInfoMapper orderInfoMapper;
+    @Resource
+    private OrderCommentMapper orderCommentMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     @Override
     public Boolean insertUserInfo(UserInfoEntity userInfoEntity) {
@@ -105,7 +121,7 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfoEntity selectUserById(String userId) {
         QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("userId",userId);
+        wrapper.eq("userId", userId);
         UserInfoEntity entity = userInfoMapper.selectOne(wrapper);
         return entity;
     }
@@ -118,9 +134,9 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
     @Override
     public List<UserInfoEntity> selectUserByIds(List<String> userIds) {
         QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
-        wrapper.in("userId",userIds);
+        wrapper.in("userId", userIds);
         List<UserInfoEntity> entitys = userInfoMapper.selectList(wrapper);
-        if (CollectionUtils.isEmpty(entitys)){
+        if (CollectionUtils.isEmpty(entitys)) {
             return new ArrayList<>();
         }
         return entitys;
@@ -136,21 +152,153 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
 //        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
 //        wrapper.in("userId",userIds);
         Integer integer = userInfoMapper.disableUser(entities);
-        if (integer>0){
+        if (integer > 0) {
             return true;
         }
         return false;
     }
 
     /**
-     * 查询所有用户
+     * 查询配送用户
      */
     @Override
     public List<UserInfoEntity> selectDelivery() {
         QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("userRoleId",101);
+        wrapper.eq("userRoleId", 'B');
         List<UserInfoEntity> entities = userInfoMapper.selectList(wrapper);
-        if (CollectionUtils.isEmpty(entities)){
+        if (CollectionUtils.isEmpty(entities)) {
+            return new ArrayList<>();
+        }
+        return entities;
+    }
+
+    /**
+     * 查询所有用户
+     */
+    @Override
+    public PageInfo<UserInfoEntity> getAllUser(SearchCondition search) {
+        QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
+        Integer enableStatus = search.getEnableStatus();
+        //是否启用
+        if (enableStatus == 1) {
+            wrapper.eq("disable", 1);
+        } else if (enableStatus == -1) {
+            wrapper.eq("disable", 0);
+        }
+        //是否冻结
+        Integer accountStatus = search.getAccountStatus();
+        if (accountStatus == 1) {
+            wrapper.isNotNull("freezeTime");
+        } else if (accountStatus == -1) {
+            wrapper.isNull("freezeTime");
+        }
+        //实名
+        Integer realNameStatus = search.getRealNameStatus();
+        if (realNameStatus == 1) {
+            wrapper.isNotNull("actualName").isNotNull("idNumber");
+        } else if (realNameStatus == -1) {
+            wrapper.isNull("actualName").isNull("idNumber");
+        }
+        //用户角色
+        String userAuth = search.getUserAuth();
+        if (!"0".equals(userAuth)) {
+            wrapper.eq("userRoleId", userAuth);
+        }
+        String id = search.getId();
+        if (StringUtils.isNotEmpty(id)) {
+            wrapper.like("userId", id);
+        }
+        String userName = search.getUserName();
+        if (StringUtils.isNotEmpty(userName)) {
+            wrapper.like("userName", userName);
+        }
+        String phone = search.getPhone();
+        if (StringUtils.isNotEmpty(phone)) {
+            wrapper.like("phone", phone);
+        }
+        wrapper.ne("userRoleId", 'A');
+        Integer curPage = search.getCurrentPage() == 0 ? 1 : search.getCurrentPage();
+        PageHelper.startPage(curPage, search.getPageSize());
+        List<UserInfoEntity> entities = userInfoMapper.selectList(wrapper);
+        if (CollectionUtils.isEmpty(entities)) {
+            return new PageInfo<>();
+        }
+        //普通用户，根据userid查找订单id（自己发起的），计算配送员评分
+        //配送用户，根据userid查找订单配送员id，计算普通用户评分
+        List<String> userIds = new ArrayList<>();
+        Map<String, String> rateMap = new HashMap<>();
+        for (UserInfoEntity entity : entities) {
+            String roleId = entity.getUserRoleId();
+            rateMap.put(entity.getUserId(), roleId);
+            userIds.add(entity.getUserId());
+        }
+        //查询订单id
+        List<OrderInfoEntity> infoEntities = orderInfoMapper.selectOrderIdByUserId(userIds);
+        if (CollectionUtils.isEmpty(infoEntities)) {
+            return new PageInfo<>();
+        }
+        //收集订单id
+        List<String> orderList = infoEntities.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
+        QueryWrapper<OrderCommentEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("orderId", orderList);
+        List<OrderCommentEntity> entityList = orderCommentMapper.selectList(queryWrapper);
+
+        Map<String, List<Double>> evaluateMap = new HashMap<>();
+        //获取用户评分
+        for (OrderCommentEntity entity : entityList) {
+            String userId = entity.getUserId();
+            if (evaluateMap.containsKey(userId)) {
+                List<Double> doubles = evaluateMap.get(userId);
+                doubles.add(entity.getUserRating());
+            } else {
+                List<Double> evalute = new ArrayList<>();
+                evalute.add(entity.getUserRating());
+                evaluateMap.put(userId, evalute);
+            }
+            String deliveryManId = entity.getDeliveryManId();
+            if (evaluateMap.containsKey(deliveryManId)) {
+                List<Double> doubles = evaluateMap.get(deliveryManId);
+                doubles.add(entity.getDeliveryRating());
+            } else {
+                List<Double> evalute = new ArrayList<>();
+                evalute.add(entity.getDeliveryRating());
+                evaluateMap.put(userId, evalute);
+            }
+        }
+        //用户权限
+        List<UserRoleEntity> roleEntities = userRoleMapper.selectList(null);
+        Map<String, String> userRoleMap = new HashMap<>();
+        for (UserRoleEntity entity : roleEntities) {
+            userRoleMap.put(entity.getId(), entity.getRoleName());
+        }
+        for (UserInfoEntity entity : entities) {
+            entity.setUserRoleName("B".equals(entity.getUserRoleId()) ? "配送员" : "普通用户");
+            entity.setDisableName(entity.getDisable() == 1 ? "启用" : "禁用");
+            String actualName = entity.getActualName();
+            String idNumber = entity.getIdNumber();
+            String userRoleId = entity.getUserRoleId();
+            entity.setUserRoleName(userRoleMap.get(userRoleId));
+            if (StringUtils.isNotEmpty(actualName) && StringUtils.isNotEmpty(idNumber)) {
+                entity.setRealNameStatus("已认证");
+            } else {
+                entity.setRealNameStatus("未认证");
+            }
+            if (!CollectionUtils.isEmpty(evaluateMap)) {
+                List<Double> doubles = evaluateMap.get(entity.getUserId());
+                if (!CollectionUtils.isEmpty(doubles)) {
+                    entity.setRate(doubles.stream().reduce(Double::sum).orElse(0.0));
+                }
+            } else {
+                entity.setRate(0.0);
+            }
+        }
+        return new PageInfo<>(entities);
+    }
+
+    @Override
+    public List<UserInfoEntity> selectAll() {
+        List<UserInfoEntity> entities = userInfoMapper.selectList(null);
+        if (CollectionUtils.isEmpty(entities)) {
             return new ArrayList<>();
         }
         return entities;

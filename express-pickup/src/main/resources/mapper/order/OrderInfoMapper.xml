@@ -63,13 +63,11 @@
             where id = #{item}
         </foreach>
     </update>
-<!--    <update id="assignOrder" parameterType="java.util.List">-->
-<!--        <foreach collection="list" item="item" index="index" open="" close="" separator=";">-->
-<!--            update order_info-->
-<!--            <set>-->
-<!--                orderStatus = 40-->
-<!--            </set>-->
-<!--            where id = #{item}-->
-<!--        </foreach>-->
-<!--    </update>-->
+    <select id="selectOrderIdByUserId" resultType="com.xiaofei.entity.order.OrderInfoEntity" parameterType="java.util.List">
+        select id from order_info
+        where userId in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
