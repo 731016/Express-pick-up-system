@@ -1,5 +1,5 @@
 <template>
-    <el-aside style="width: 210px" v-if="showUserRoleMenu" v-loading.fullscreen.lock="loading">
+    <el-aside style="width: 210px" v-show="showUserRoleMenu" v-loading.fullscreen.lock="loading">
         <div v-if="showGeneralMenu">
             <el-menu
                     default-active="1"

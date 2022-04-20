@@ -35,38 +35,38 @@
                         <div class="grid-content order-overview main-middle">
                             <div class="order-overview-top">订单简览</div>
                             <div class="order-overview-middle">
-                                今日新增订单数：{{orderOverview.addOrder}}，总等待接单数：{{orderOverview.totalNumberOrders}}，正在派送数：{{orderOverview.dispatchingOrders}}
+                                今日新增订单数：{{orderOverview.newAddOrders}}，总等待接单数：{{orderOverview.allowOrderNumber}}，正在派送数：{{orderOverview.dispatchOrderNumber}}
                             </div>
                             <div>
-                                <a href="javascript:;">
+                                <a href="javascript:;" @click="toOrderManager()">
                                     查看更多
                                     <i class="el-icon-d-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
                     </el-col>
-<!--                    <el-col :span="8">-->
-<!--                        <div class="grid-content feedback-overview main-bottom">-->
-<!--                            <div class="feedback-overview-top">反馈简览</div>-->
-<!--                            <div class="feedback-overview-middle">-->
-<!--                                今日新增反馈数：{{feedback.addProcess}}，等待处理数：{{feedback.notProcessed}}-->
-<!--                            </div>-->
-<!--                            <div>-->
-<!--                                <a href="javascript:;">-->
-<!--                                    查看更多-->
-<!--                                    <i class="el-icon-d-arrow-right"></i>-->
-<!--                                </a>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </el-col>-->
+                    <!--                    <el-col :span="8">-->
+                    <!--                        <div class="grid-content feedback-overview main-bottom">-->
+                    <!--                            <div class="feedback-overview-top">反馈简览</div>-->
+                    <!--                            <div class="feedback-overview-middle">-->
+                    <!--                                今日新增反馈数：{{feedback.addProcess}}，等待处理数：{{feedback.notProcessed}}-->
+                    <!--                            </div>-->
+                    <!--                            <div>-->
+                    <!--                                <a href="javascript:;">-->
+                    <!--                                    查看更多-->
+                    <!--                                    <i class="el-icon-d-arrow-right"></i>-->
+                    <!--                                </a>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </el-col>-->
                     <el-col :span="8">
                         <div class="grid-content evaluate-overview">
                             <div class="evaluate-overview-top">评价简览</div>
                             <div class="evaluate-overview-middle">
-                                今日注册用数：{{evaluate.registerUserTotal}}，总用户数：{{evaluate.userTotal}},其中禁用用户数：{{evaluate.stopUserTotal}},冻结用户数：{{evaluate.freezeUserTotal}}
+                                今日注册用户数：{{evaluate.newAddRegister}}，总用户数：{{evaluate.userTotal}},其中禁用用户数：{{evaluate.disableUser}},冻结用户数：{{evaluate.freezeUser}}
                             </div>
                             <div>
-                                <a href="javascript:;">
+                                <a href="javascript:;" @click="toUserManager()">
                                     查看更多
                                     <i class="el-icon-d-arrow-right"></i>
                                 </a>
@@ -80,6 +80,8 @@
 </template>
 
 <script>
+    import {dashBoardManager} from '../../request/dashboard'
+
     export default {
         name: "ManageDashBoard",
         data() {
@@ -87,25 +89,19 @@
                 loading: true,
                 orderOverview: {
                     // 今日新增订单
-                    addOrder: 0,
-                    // 总接单数
-                    totalNumberOrders: 0,
+                    newAddOrders: 0,
+                    // 总等待接单数
+                    allowOrderNumber: 0,
                     // 正在派送
-                    dispatchingOrders: 0
-                },
-                feedback: {
-                    // 今日新增反馈
-                    addProcess: 0,
-                    // 等待处理的反馈
-                    notProcessed: 0
+                    dispatchOrderNumber: 0
                 },
                 evaluate: {
                     //今日新增注册
-                    registerUserTotal: 0,
+                    newAddRegister: 0,
                     //用户总数
                     userTotal: 0,
-                    stopUserTotal: 0,
-                    freezeUserTotal: 0
+                    disableUser: 0,
+                    freezeUser: 0
                 }
             }
         },
@@ -114,15 +110,38 @@
                 return this.$store.state.userName;
             },
         },
+        methods: {
+            toUserManager() {
+                this.$router.push({
+                    name: 'UserManager'
+                })
+            },
+            toOrderManager() {
+                this.$router.push({
+                    name: 'OrderManager'
+                })
+            },
+            init() {
+                dashBoardManager().then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        let data = rep.data;
+                        this.orderOverview.newAddOrders = data.newAddOrders == null ? 0 : data.unPaidNumber;
+                        this.orderOverview.waitingOrder = data.waitOrderNumber == null ? 0 : data.waitOrderNumber;
+                        this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber == null ? 0 : data.dispatchOrderNumber;
+
+                        this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber == null ? 0 : data.receivedEvaluateNumber;
+                        this.evaluate.overallRating = data.overallRate == null ? 0 : data.overallRate;
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
+            }
+        },
         mounted() {
-            //todo 发送ajax查询【订单简览，反馈简览，用户简览，根据用户id查询】
-            let userId = this.$store.state.userId;
-            console.log(userId);
-            //axios
-            //赋值
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
+            this.init();
         }
     }
 </script>

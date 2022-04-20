@@ -332,7 +332,7 @@
                 <el-form-item label="配送人员">
                     <el-select v-model="deliveryId" placeholder="请选择配送人员">
                         <el-option
-                                v-for="item in deliverys"
+                                v-for="item in orderIds"
                                 :key="item.userId"
                                 :label="item.userName"
                                 :value="item.userId"
@@ -383,7 +383,7 @@
                     pageSize: 5,
                 },
                 deliveryId: '',
-                deliverys: [],
+                orderIds: [],
                 assignIds: [],
                 successIds: [],
                 execptionIds: [],
@@ -422,9 +422,10 @@
                     type: 'warning'
                 }).then(() => {
                     this.loading = true;
-                    let assignObj = this.assignIds;
-                    assignObj.userId = this.userId;
-                    assignOrder(assignObj).then(response => {
+                    let obj = {};
+                    obj.orderIds = this.assignIds;
+                    obj.deliveryId = this.deliveryId;
+                    assignOrder(obj).then(response => {
                         let rep = response.data;
                         if (response.status === 200 && rep.statusCode === 2000) {
                             this.$message.success(rep.message);
@@ -642,7 +643,7 @@
                 getDeliveryPeople().then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.deliverys = rep.data;
+                        this.orderIds = rep.data;
                     }
                     this.loading = false;
                 }).catch(error => {

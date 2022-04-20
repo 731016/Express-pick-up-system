@@ -11,3 +11,13 @@ export const execptionOrder = params => server('post', '/managerOrder/execptionO
 export const assignOrder = params => server('post', '/managerOrder/assignOrder', params);
 //获取所有的配送人员id和姓名
 export const getDeliveryPeople = params => server('post', '/managerOrder/getDeliveryPeople', params);
+//获取所有用户，除了管理员
+export const getAllUser = params => server('post', '/managerOrder/getAllUser', params);
+//禁用用户
+export const disableUser = params => server('get', '/managerOrder/disableUser', params);
+//启用用户
+export const enableUser = params => server('get', '/managerOrder/enableUser', params);
+//冻结用户
+export const freezeUser = params => server('get', '/managerOrder/freezeUser', params);
+//解冻用户
+export const unfreezeUser = params => server('get', '/managerOrder/unfreezeUser', params);

@@ -84,7 +84,7 @@
                 <el-col :span="4">
                     <div class="grid-content bg-purple">
                         <el-input
-                                v-model="searchConditions.userID"
+                                v-model="searchConditions.userId"
                                 clearable>
                         </el-input>
                     </div>
@@ -117,7 +117,7 @@
                 </el-col>
                 <el-col :span="1">
                     <div class="grid-content">
-                        <el-button type="primary" icon="el-icon-search" plain>搜索</el-button>
+                        <el-button type="primary" icon="el-icon-search" plain @click="initData()">搜索</el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -125,6 +125,7 @@
         <div>
             <el-table :cell-style="drawCells"
                       :data="tableData"
+                      v-loading="loading"
                       ref="tableData"
                       style="width: 100%"
                       max-height="480">
@@ -134,7 +135,7 @@
                         width="240">
                 </el-table-column>
                 <el-table-column
-                        prop="userRole"
+                        prop="userRoleName"
                         label="用户权限"
                         width="120">
                 </el-table-column>
@@ -159,7 +160,7 @@
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="enableStatus"
+                        prop="disableName"
                         label="启用状态"
                         width="120">
                 </el-table-column>
@@ -180,7 +181,7 @@
                         label="操作"
                         width="170">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.enableStatus === '启用'" @click="disable(scope.row)">
+                        <span v-if="scope.row.disable === 1" @click="disable(scope.row)">
                             <el-button icon="el-icon-error" type="danger"
                                        size="small">禁用</el-button>
 
@@ -188,7 +189,8 @@
                         <span v-else @click="enable(scope.row)">
                             <el-button type="success" icon="el-icon-success" size="small">启用</el-button>
                         </span>
-                        <span v-if="scope.row.freezeTime === '未冻结'" @click="freeze(scope.row)">
+                        <span v-if="scope.row.freezeTime === '未冻结' || scope.row.freezeTime === null"
+                              @click="freeze(scope.row)">
                             <el-button icon="el-icon-lightning" type="danger"
                                        size="small">冻结</el-button>
 
@@ -207,8 +209,17 @@
                     :page-sizes="[5, 20, 50]"
                     :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="getOrderDataTotal()">
+                    :total="searchConditions.totalPage">
             </el-pagination>
+            <el-dialog title="冻结小时" :visible.sync="dialogVisible">
+                <el-form :model="freezeTime" status-icon label-width="100px">
+                    <el-input-number v-model="freezeTime" :min="1" :max="72"></el-input-number>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="submitForm()">确 定</el-button>
+                    <el-button @click="resetForm()">取 消</el-button>
+                </div>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -216,64 +227,70 @@
 <script>
     import {mapState} from "vuex";
     import mixin from '../../mixin';
+    import {getAllUser, disableUser, enableUser, freezeUser, unfreezeUser} from "../../request/managerOrder";
 
     export default {
         name: "UserManager",
         mixins: [mixin],
         data() {
             return {
+                loading: false,
+                dialogVisible: false,
+                userId: '',
+                freezeTime: 0,
                 searchConditions: {
-                    enableStatus: '',
-                    accountStatus: '',
-                    realNameStatus: '',
-                    userAuth: '',
+                    enableStatus: 0,
+                    accountStatus: 0,
+                    realNameStatus: 0,
+                    userAuth: '0',
                     orderNumber: '',
-                    userID: '',
+                    userId: '',
                     userName: '',
                     phone: '',
                     //当前页码
                     currentPage: 1,
                     pageSize: 5,
+                    totalPage: 0
                 },
                 enableStatus: [
                     {
-                        value: '0',
+                        value: 0,
                         label: '不筛选'
                     },
                     {
-                        value: '1',
+                        value: 1,
                         label: '启用'
                     },
                     {
-                        value: '-1',
+                        value: -1,
                         label: '禁用'
                     }
                 ],
                 accountStatus: [
                     {
-                        value: '0',
+                        value: 0,
                         label: '不筛选'
                     },
                     {
-                        value: '1',
+                        value: 1,
                         label: '冻结'
                     },
                     {
-                        value: '-1',
+                        value: -1,
                         label: '未冻结'
                     }
                 ],
                 realNameStatus: [
                     {
-                        value: '0',
+                        value: 0,
                         label: '不筛选'
                     },
                     {
-                        value: '1',
+                        value: 1,
                         label: '已认证'
                     },
                     {
-                        value: '-1',
+                        value: -1,
                         label: '未认证'
                     }
                 ],
@@ -283,65 +300,45 @@
                         label: '不筛选'
                     },
                     {
-                        value: '1',
-                        label: '非正式用户'
-                    },
-                    {
-                        value: '2',
+                        value: 'C',
                         label: '普通用户'
                     },
                     {
-                        value: '3',
+                        value: 'B',
                         label: '配送员'
                     },
                     {
-                        value: '4',
+                        value: 'A',
                         label: '系统管理员'
                     }
                 ],
-                tableData: [
-                    {
-                        userId: '123456',
-                        userRole: '普通用户',
-                        userName: 'user1',
-                        phone: '17683866724',
-                        rate: '5.6',
-                        realNameStatus: '未实名',
-                        enableStatus: '启用',
-                        freezeTime: '未冻结',
-                        registerTime: this.formatTime(new Date()),
-                    },
-                    {
-                        userId: '23456',
-                        userRole: '配送员',
-                        userName: 'courser1',
-                        phone: '4895848454',
-                        rate: '8.6',
-                        realNameStatus: '已实名',
-                        enableStatus: '启用',
-                        freezeTime: '未冻结',
-                        registerTime: this.formatTime(new Date()),
-                    },
-                    {
-                        userId: '34567',
-                        userRole: '配送员',
-                        userName: 'courser1',
-                        phone: '4895848454',
-                        rate: '',
-                        realNameStatus: '已实名',
-                        enableStatus: '启用',
-                        freezeTime: '未冻结',
-                        registerTime: this.formatTime(new Date()),
-                    }
-                ]
+                tableData: []
             }
         },
         methods: {
-            getOrderDataTotal() {
-                return this.tableData.length;
+            submitForm(row) {
+                let currentData = row;
+                let obj = {};
+                obj.userId = currentData.userId;
+                obj.freezeTime = this.freezeTime;
+                freezeUser(obj).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData.forEach(item => {
+                            if (item.userId == currentData.userId) {
+                                item.freezeTime = this.formatTime(new Date());
+                            }
+                            this.dialogVisible = false;
+                        })
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
             },
-            getAllUser() {
-                //todo 查询当前页码用户
+            resetForm() {
+                this.dialogVisible = false;
             },
             /**
              * 绘制单元格，判断订单状态
@@ -357,14 +354,14 @@
                 //实名状态
                 if (columnIndex === 5) {
                     let realNameStatus = row.realNameStatus
-                    if (realNameStatus === '未实名') {
+                    if (realNameStatus === '未认证') {
                         return 'color:red';
                     }
                 }
                 //启用状态
                 if (columnIndex === 6) {
-                    let enableStatus = row.enableStatus
-                    if (enableStatus === '禁用') {
+                    let disable = row.disable
+                    if (disable === 0) {
                         return 'color:red';
                     }
                 }
@@ -377,47 +374,89 @@
                 }
             },
             disable(row) {
+                this.loading = true;
                 let currentData = row;
-                //todo 禁用账户
-                this.tableData.forEach(item => {
-                    if (item.userId == currentData.userId) {
-                        item.enableStatus = '禁用'
+                disableUser({"userId": currentData.userId}).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData.forEach(item => {
+                            if (item.userId == currentData.userId) {
+                                item.disable = 0
+                                item.disableName = '禁用'
+                            }
+                        })
                     }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
                 })
             },
             enable(row) {
+                this.loading = true;
                 let currentData = row;
-                //todo 启用账户
-                this.tableData.forEach(item => {
-                    if (item.userId == currentData.userId) {
-                        item.enableStatus = '启用'
+                enableUser({"userId": currentData.userId}).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData.forEach(item => {
+                            if (item.userId == currentData.userId) {
+                                item.disable = 1
+                                item.disableName = '启用'
+                            }
+                        })
                     }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
                 })
             },
             freeze(row) {
-                let currentData = row;
-                //todo 冻结账户
-                this.tableData.forEach(item => {
-                    if (item.userId == currentData.userId) {
-                        item.freezeTime = this.formatTime(new Date());
-                    }
-                })
+                this.userId = row.userId;
+                this.dialogVisible = true;
             },
             unfreeze(row) {
+                this.loading = true;
                 let currentData = row;
-                //todo 解冻账户
-                this.tableData.forEach(item => {
-                    if (item.userId == currentData.userId) {
-                        item.freezeTime = '未冻结'
+                unfreezeUser({"userId": currentData.userId}).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData.forEach(item => {
+                            if (item.userId == currentData.userId) {
+                                item.freezeTime = '未冻结'
+                            }
+                        })
                     }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
                 })
-            }
+            },
+            initData() {
+                this.loading = true;
+                getAllUser(this.searchConditions).then(response => {
+                    let rep = response.data;
+                    if (response.status === 200 && rep.statusCode === 2000) {
+                        this.tableData = JSON.parse(JSON.stringify(rep.data));
+                        this.updatePage(rep.currentPage, rep.totalPage);
+                    }
+                    this.loading = false;
+                }).catch(error => {
+                    this.$message.error(error);
+                    this.loading = false;
+                })
+            },
+            updatePage(currentPage, totalPage) {
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.totalPage = totalPage;
+            },
         },
         computed: {
-            ...mapState({orderStatusOptions: 'orderStatusOptions'})
+            ...mapState({orderStatusOptions: 'orderStatusOptions'}),
         },
         mounted() {
-
+            this.initData();
         }
     }
 </script>
