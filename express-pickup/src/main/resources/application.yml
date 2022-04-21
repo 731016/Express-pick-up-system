@@ -4,8 +4,8 @@ spring:
   application:
     name: express-pickup #应用名称
   datasource:
-    #    数据源
-    url: jdbc:mysql://119.3.104.52:3306/expressPickup?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    #    数据源characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://119.3.104.52:3306/expressPickup?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowMultiQueries=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: MySQL8.0

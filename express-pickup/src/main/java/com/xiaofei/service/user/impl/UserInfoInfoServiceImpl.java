@@ -57,8 +57,7 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
     public Boolean checkUserNameAndPwd(String userName, String passWord) {
         QueryWrapper<UserInfoEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("userName", userName)
-                .eq("passWord", passWord)
-                .eq("disable", 1);
+                .eq("passWord", passWord);
         Integer count = userInfoMapper.selectCount(wrapper);
         if (count == 0) {
             return false;
@@ -217,7 +216,7 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
             wrapper.like("phone", phone);
         }
         wrapper.ne("userRoleId", 'A');
-        Integer curPage = search.getCurrentPage() == 0 ? 1 : search.getCurrentPage();
+        Integer curPage = search.getCurrentPage() == null || search.getCurrentPage() == 0 ? 1 : search.getCurrentPage();
         PageHelper.startPage(curPage, search.getPageSize());
         List<UserInfoEntity> entities = userInfoMapper.selectList(wrapper);
         if (CollectionUtils.isEmpty(entities)) {

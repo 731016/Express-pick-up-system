@@ -83,6 +83,7 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>1.4.0</version>
         </dependency>
+        <!--        redis-->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
@@ -97,6 +98,11 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
             <version>2.5.4</version>
+        </dependency>
+        <!--        定时任务-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
 
         <!--        单元测试-->

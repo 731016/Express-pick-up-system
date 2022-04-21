@@ -12,6 +12,7 @@ import com.xiaofei.service.user.LoginPersistenceService;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.service.user.UserRoleService;
 import com.xiaofei.utils.CodecUtils;
+import com.xiaofei.utils.DateUtils;
 import com.xiaofei.utils.JwtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +21,7 @@ import org.apache.ibatis.jdbc.Null;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,6 +76,16 @@ public class UserController {
             Boolean checkResult = userInfoService.checkUserNameAndPwd(userName, pwd);
             String token = null;
             if (checkResult) {
+                //验证用户是否被禁用或处于冻结状态
+                if (user.getDisable() == 0) {
+                    return ResultUtils.error(ActionStatus.USERDISABLE.getCode(), ActionStatus.USERDISABLE.getMsg(), "");
+                }
+                Date time = user.getFreezeTime();
+                if (time != null) {
+                    if (System.currentTimeMillis() < time.getTime()) {
+                        return ResultUtils.error(ActionStatus.USERFREEZE.getCode(), ActionStatus.USERFREEZE.getMsg() + "解封时间：" + DateUtils.format(user.getFreezeTime()), null);
+                    }
+                }
                 token = JwtUtils.sign(userName, pwd);
                 //设置token
                 Boolean setTokenFlag = loginPersistenceService.updateToken(user.getUserId(), token);

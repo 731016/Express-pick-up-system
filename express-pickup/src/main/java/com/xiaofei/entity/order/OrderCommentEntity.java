@@ -36,7 +36,7 @@ public class OrderCommentEntity {
      * 用户评价时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date commentTime;
     /**
      * 配送员id
@@ -54,6 +54,6 @@ public class OrderCommentEntity {
      * 配送员评价时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date deliveryTime;
 }

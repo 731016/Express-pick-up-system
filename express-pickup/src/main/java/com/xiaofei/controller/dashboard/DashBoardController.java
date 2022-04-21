@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.DateUtils;
 import com.xiaofei.vo.DashBoardVo;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
@@ -147,6 +148,7 @@ public class DashBoardController {
         Integer disableUser = 0;
         // 冻结用户数：0
         Integer freezeUser = 0;
+        userTotal = entityList.size();
         for (OrderInfoEntity entity : entityList) {
             Integer orderStatus = entity.getOrderStatus();
             switch (orderStatus) {
@@ -156,12 +158,15 @@ public class DashBoardController {
                 case 20:
                     dispatchOrderNumber++;
                     break;
+                default:
+                    break;
             }
             Date createTime = entity.getCreateTime();
-
+            if (DateUtils.isNowDay(createTime)) {
+                newAddOrders++;
+            }
         }
         List<UserInfoEntity> entities = userInfoService.selectAll();
-        userTotal = entities.size();
         for (UserInfoEntity entity : entities) {
             Integer status = entity.getDisable();
             if (status == 0) {
@@ -171,7 +176,20 @@ public class DashBoardController {
             if (freezeTime != null) {
                 freezeUser++;
             }
+            Date registerTime = entity.getRegisterTime();
+            if (DateUtils.isNowDay(registerTime)) {
+                newAddRegister++;
+            }
         }
-        return null;
+        DashBoardVo vo = new DashBoardVo();
+        vo.setNewAddOrders(newAddOrders);
+        vo.setWaitOrderNumber(waitOrderNumber);
+        vo.setDispatchOrderNumber(dispatchOrderNumber);
+
+        vo.setNewAddRegister(newAddRegister);
+        vo.setUserTotal(userTotal);
+        vo.setDisableUser(disableUser);
+        vo.setFreezeUser(freezeUser);
+        return ResultUtils.success(vo);
     }
 }
