@@ -211,16 +211,16 @@
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="searchConditions.totalPage">
             </el-pagination>
-            <el-dialog title="冻结小时" :visible.sync="dialogVisible">
-                <el-form :model="freezeTime" status-icon label-width="100px">
-                    <el-input-number v-model="freezeTime" :min="1" :max="72"></el-input-number>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button type="primary" @click="submitForm()">确 定</el-button>
-                    <el-button @click="resetForm()">取 消</el-button>
-                </div>
-            </el-dialog>
         </div>
+        <el-dialog title="冻结小时" :visible.sync="dialogVisible">
+            <el-form :model="freezeTime" status-icon label-width="100px">
+                <el-input-number v-model="freezeTime" :min="1" :max="72"></el-input-number>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="submitForm()">确 定</el-button>
+                <el-button @click="resetForm()">取 消</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -235,8 +235,8 @@
         data() {
             return {
                 loading: false,
+                currentDialog: {},
                 dialogVisible: false,
-                userId: '',
                 freezeTime: 0,
                 searchConditions: {
                     enableStatus: 0,
@@ -316,9 +316,9 @@
             }
         },
         methods: {
-            submitForm(row) {
-                let currentData = row;
+            submitForm() {
                 let obj = {};
+                let currentData = this.currentDialog;
                 obj.userId = currentData.userId;
                 obj.freezeTime = this.freezeTime;
                 freezeUser(obj).then(response => {
@@ -326,7 +326,7 @@
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.tableData.forEach(item => {
                             if (item.userId == currentData.userId) {
-                                item.freezeTime = this.formatTime(new Date());
+                                item.freezeTime = this.formatTime(rep.data);
                             }
                             this.dialogVisible = false;
                         })
@@ -412,7 +412,7 @@
                 })
             },
             freeze(row) {
-                this.userId = row.userId;
+                this.currentDialog = row
                 this.dialogVisible = true;
             },
             unfreeze(row) {
@@ -438,7 +438,7 @@
                 getAllUser(this.searchConditions).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.tableData = JSON.parse(JSON.stringify(rep.data));
+                        this.tableData = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;

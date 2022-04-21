@@ -59,7 +59,7 @@
                     <!--                            </div>-->
                     <!--                        </div>-->
                     <!--                    </el-col>-->
-                    <el-col :span="8">
+                    <el-col :span="10">
                         <div class="grid-content evaluate-overview">
                             <div class="evaluate-overview-top">评价简览</div>
                             <div class="evaluate-overview-middle">
@@ -126,12 +126,14 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         let data = rep.data;
-                        this.orderOverview.newAddOrders = data.newAddOrders == null ? 0 : data.unPaidNumber;
-                        this.orderOverview.waitingOrder = data.waitOrderNumber == null ? 0 : data.waitOrderNumber;
-                        this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber == null ? 0 : data.dispatchOrderNumber;
+                        this.orderOverview.newAddOrders = data.newAddOrders ? data.newAddOrders : 0;
+                        this.orderOverview.waitOrderNumber = data.waitOrderNumber ? data.waitOrderNumber : 0;
+                        this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber ? data.dispatchOrderNumber : 0;
 
-                        this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber == null ? 0 : data.receivedEvaluateNumber;
-                        this.evaluate.overallRating = data.overallRate == null ? 0 : data.overallRate;
+                        this.evaluate.newAddRegister = data.newAddRegister ? data.newAddRegister : 0;
+                        this.evaluate.userTotal = data.userTotal ? data.userTotal : 0;
+                        this.evaluate.disableUser = data.disableUser ? data.disableUser : 0;
+                        this.evaluate.freezeUser = data.freezeUser ? data.freezeUser : 0;
                     }
                     this.loading = false;
                 }).catch(error => {
