@@ -150,18 +150,20 @@ public class GeneralController {
 
         String orderId = comment.getOrderId();
         OrderCommentEntity entity = orderCommentService.selectAllByOrderId(orderId);
+        Boolean insertOrUpdate = false;
         if (entity == null) {
             entity.setOrderId(comment.getOrderId());
             entity.setUserId(userInfo.getUserId());
             entity.setUserRating(comment.getUserRating());
             entity.setComment(comment.getComment());
-        }else{
+            insertOrUpdate = orderCommentService.insert(entity);
+        } else {
             entity.setUserId(userInfo.getUserId());
             entity.setUserRating(comment.getUserRating());
             entity.setComment(comment.getComment());
+            insertOrUpdate = orderCommentService.update(entity, entity.getOrderId());
         }
-        Boolean insert = orderCommentService.insert(entity);
-        if (insert) {
+        if (insertOrUpdate) {
             return ResultUtils.success("");
         }
         return ResultUtils.error("");
@@ -181,7 +183,6 @@ public class GeneralController {
         }
         List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
         return ResultUtils.success(commentEntities);
-
     }
 
     @ApiOperation("查询综合评分")
@@ -197,7 +198,7 @@ public class GeneralController {
             }
         }
         List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
-        List<Double> list = commentEntities.stream().map(OrderCommentEntity::getUserRating).collect(Collectors.toList());
+        List<Double> list = commentEntities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
         Double endResult = 0.00;
         for (Double aDouble : list) {
             endResult += aDouble;
