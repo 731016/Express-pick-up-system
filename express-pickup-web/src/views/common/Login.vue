@@ -62,11 +62,12 @@
                     "passWord": this.param.password
                 }
                 this.loading = true;
+                let vm = this;
                 login(userInfo).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.setItem('token', rep.data);
-                        this.$router.push({
+                        vm.$router.push({
                             name: 'Home'
                         })
                     }

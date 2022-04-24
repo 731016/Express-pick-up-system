@@ -1,5 +1,5 @@
 <template>
-    <div v-show="showUserRoleMenu()">
+    <div v-show="showUserRoleMenu">
         <div>
             <el-row :gutter="24">
                 <el-col :span="2">
@@ -79,7 +79,7 @@
         <div>
             <el-table :cell-style="drawCells"
                       v-loading="loading"
-                      :data="getNotDelData"
+                      :data="getNotDelData()"
                       ref="tableData"
                       @selection-change="rowChange()"
                       style="width: 100%"
@@ -154,14 +154,14 @@
         </div>
         <el-dialog title="订单详情" :visible.sync="dialogTableVisible"
                    :modal-append-to-body='false' @close="closeDialog">
-            <div style="text-align: left" v-if="currentdialog.orderStatus != 30 ">
+            <div style="text-align: left" v-if="currentdialog.orderStatus !== 30 ">
                 <el-steps :active="currentdialog.orderStep" finish-status="success" space="33%">
                     <el-step title="等待接单"></el-step>
                     <el-step title="派送中"></el-step>
                     <el-step title="订单完成"></el-step>
                 </el-steps>
             </div>
-            <div style="text-align: left" v-if="currentdialog.orderStatus == 30 ">
+            <div style="text-align: left" v-if="currentdialog.orderStatus === 30 ">
                 <el-steps :active="currentdialog.orderStep" finish-status="error" space="33%">
                     <el-step title="等待接单"></el-step>
                     <el-step title="派送中"></el-step>
@@ -267,7 +267,7 @@
                             <i class="el-icon-tickets"></i>
                             配送员
                         </template>
-                        {{currentdialog.deliveryManName}}
+                        {{currentdialog.deliveryMainName}}
                     </el-descriptions-item>
                     <el-descriptions-item>
                         <template slot="label">
@@ -300,7 +300,7 @@
                 <el-col :span="20">
                     <div class="grid-content">
                         <el-rate
-                                v-model="rangeInfo.userRatings"
+                                v-model="rangeInfo.userRating"
                                 show-score>
                         </el-rate>
                     </div>
@@ -370,12 +370,21 @@
             ...mapGetters(
                 {getUserRoleId: 'getUserRoleId'},
                 {getUserRoleName: 'getUserRoleName'}),
-        },
-        methods: {
             showUserRoleMenu() {
                 let roleId = this.getUserRoleId;
                 let roleName = this.getUserRoleName;
-                return roleId || roleName;
+                if (roleId || roleName) {
+                    return true;
+                }
+                return false;
+            },
+        },
+        methods: {
+            /**
+             * 是否显示评价按钮 [订单异常||订单完成]
+             */
+            whetherShowReviewsBtn(row) {
+                return ((row.orderStatus === 40 || row.orderStatus === 30) && (row.commentStatus === 0 || row.commentStatus === 2));
             },
             updatePage(currentPage, totalPage) {
                 this.searchConditions.currentPage = currentPage;
@@ -531,12 +540,6 @@
                     this.$message.error(error);
                     this.loading = false;
                 });
-            },
-            /**
-             * 是否显示评价按钮 [订单异常||订单完成]
-             */
-            whetherShowReviewsBtn(row) {
-                return (row.orderStatus == 40 || row.orderStatus == 30) && row.rangeInfo.userRating == 0;
             },
             initData() {
                 //查询所有订单状态

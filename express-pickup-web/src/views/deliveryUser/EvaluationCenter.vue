@@ -51,7 +51,7 @@
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.userRatings}}
+                            {{item.userRating}}
                         </el-tag>
                     </div>
                 </el-col>
@@ -99,7 +99,7 @@
                 selectDeliveryComment().then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.commitMap = JSON.parse(JSON.stringify(rep.dataList));
+                        this.commitMap = JSON.parse(JSON.stringify(rep.data));
                         this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;

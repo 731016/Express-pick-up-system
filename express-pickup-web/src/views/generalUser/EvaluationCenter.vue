@@ -44,14 +44,14 @@
                 <el-col :span="12">
                     <div class="grid-content">
                         <el-tag type="success" class="el-tag-text">
-                            {{item.comment}}
+                            {{item.deliveryComment}}
                         </el-tag>
                     </div>
                 </el-col>
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.userRating}}
+                            {{item.deliveryRating}}
                         </el-tag>
                     </div>
                 </el-col>
@@ -101,7 +101,7 @@
                 selectAllComment().then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.commitList = JSON.parse(JSON.stringify(rep.dataList));
+                        this.commitList = JSON.parse(JSON.stringify(rep.data));
                         this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;
