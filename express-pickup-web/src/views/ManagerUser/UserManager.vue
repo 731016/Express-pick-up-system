@@ -27,7 +27,7 @@
                 </el-col>
                 <el-col :span="2">
                     <div class="grid-content">
-                        <el-select v-model="accountStatus.accountStatus" placeholder="请选择">
+                        <el-select v-model="searchConditions.accountStatus" placeholder="请选择">
                             <el-option
                                     v-for="item in accountStatus"
                                     :key="item.value"
@@ -45,7 +45,7 @@
                 </el-col>
                 <el-col :span="2">
                     <div class="grid-content">
-                        <el-select v-model="accountStatus.realNameStatus" placeholder="请选择">
+                        <el-select v-model="searchConditions.realNameStatus" placeholder="请选择">
                             <el-option
                                     v-for="item in realNameStatus"
                                     :key="item.value"
@@ -63,7 +63,7 @@
                 </el-col>
                 <el-col :span="3">
                     <div class="grid-content">
-                        <el-select v-model="accountStatus.userAuth" placeholder="请选择">
+                        <el-select v-model="searchConditions.userAuth" placeholder="请选择">
                             <el-option
                                     v-for="item in userAuth"
                                     :key="item.value"
@@ -124,7 +124,7 @@
         </div>
         <div>
             <el-table :cell-style="drawCells"
-                      :data="tableData"
+                      :data="fillFreezeTimeName"
                       v-loading="loading"
                       ref="tableData"
                       style="width: 100%"
@@ -348,7 +348,7 @@
                 if (columnIndex === 4) {
                     let payStatus = row.rate;
                     if (payStatus > 0) {
-                        return 'color:orange';
+                        return 'color:orange;font-weight:700';
                     }
                 }
                 //实名状态
@@ -379,6 +379,7 @@
                 disableUser({"userId": currentData.userId}).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
                         this.tableData.forEach(item => {
                             if (item.userId == currentData.userId) {
                                 item.disable = 0
@@ -398,6 +399,7 @@
                 enableUser({"userId": currentData.userId}).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
                         this.tableData.forEach(item => {
                             if (item.userId == currentData.userId) {
                                 item.disable = 1
@@ -421,6 +423,7 @@
                 unfreezeUser({"userId": currentData.userId}).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
+                        this.$message.success(rep.message);
                         this.tableData.forEach(item => {
                             if (item.userId == currentData.userId) {
                                 item.freezeTime = '未冻结'
@@ -454,6 +457,15 @@
         },
         computed: {
             ...mapState({orderStatusOptions: 'orderStatusOptions'}),
+            fillFreezeTimeName() {
+                let newData = this.tableData;
+                newData.forEach(item => {
+                    if (!item.freezeTime) {
+                        item.freezeTime = '未冻结';
+                    }
+                });
+                return newData;
+            }
         },
         mounted() {
             this.initData();

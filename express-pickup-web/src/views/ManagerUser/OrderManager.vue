@@ -373,8 +373,8 @@
                 dialogAssignVisible: false,
                 //查询条件
                 searchConditions: {
-                    orderStatus: '',
-                    paymentStatus: '',
+                    orderStatus: 0,
+                    paymentStatus: -1,
                     id: '',
                     startEndTime: [],
                     totalPage: 0,
@@ -416,7 +416,7 @@
                 }
             },
             assignOrderAjax() {
-                this.$confirm('确认分配订单' + this.assignIds.join(","), '分配操作', {
+                this.$confirm('确认分配订单' + this.assignIds.join("\n"), '分配操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -451,7 +451,7 @@
                     });
                     return false;
                 }
-                this.$confirm('确认完成订单' + this.successIds.join(","), '完成操作', {
+                this.$confirm('确认完成订单' + this.successIds.join("\n"), '完成操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -482,7 +482,7 @@
                     });
                     return false;
                 }
-                this.$confirm('确认异常订单' + this.execptionIds.join(","), '异常操作', {
+                this.$confirm('确认异常订单' + this.execptionIds.join("\n"), '异常操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -513,7 +513,7 @@
                     });
                     return false;
                 }
-                this.$confirm('确认删除订单' + this.deleteIds.join(","), '删除操作', {
+                this.$confirm('确认删除订单' + this.deleteIds.join("\n"), '删除操作', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'

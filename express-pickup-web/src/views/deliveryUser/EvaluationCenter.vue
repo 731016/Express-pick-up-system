@@ -51,7 +51,7 @@
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.userRating}}
+                            {{getUserRating(item.userRating)}}
                         </el-tag>
                     </div>
                 </el-col>
@@ -96,10 +96,15 @@
         methods: {
             initData() {
                 this.loading = true;
-                selectDeliveryComment().then(response => {
+                let search = {
+                    "currentPage": this.currentPage,
+                    "totalPage": this.totalPage,
+                    "pageSize": this.pageSize,
+                };
+                selectDeliveryComment(search).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.commitMap = JSON.parse(JSON.stringify(rep.data));
+                        this.commitMap = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;
@@ -124,6 +129,9 @@
                 this.currentPage = currentPage;
                 this.totalPage = totalPage;
             },
+            getUserRating(userRating){
+                return userRating.toFixed(2);
+            }
         },
         computed: {
             //获取综合评分
@@ -131,6 +139,7 @@
                 let rates = this.value;
                 return rates;
             },
+
         },
         mounted() {
             this.initData();

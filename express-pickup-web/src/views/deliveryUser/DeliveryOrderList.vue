@@ -419,7 +419,17 @@
                 return row.orderStatus == 20;
             },
             showRanging(row) {
-                return ((row.orderStatus == 40 || row.orderStatus == 30) && (row.commentStatus === 2 || row.commentStatus === 0));
+                let flag = false;
+                let orderStatus = row.orderStatus;
+                let commentStatus = row.commentStatus;
+                if (orderStatus === 30 || orderStatus === 40) {
+                    if (commentStatus && (commentStatus === 0 || commentStatus === 1)) {
+                        flag = true;
+                    } else if (!commentStatus) {
+                        flag = true;
+                    }
+                }
+                return flag;
             },
             getNotDelData() {
                 if (this.tableData !== null) {

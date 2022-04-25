@@ -384,7 +384,17 @@
              * 是否显示评价按钮 [订单异常||订单完成]
              */
             whetherShowReviewsBtn(row) {
-                return ((row.orderStatus === 40 || row.orderStatus === 30) && (row.commentStatus === 0 || row.commentStatus === 2));
+                let flag = false;
+                let orderStatus = row.orderStatus;
+                let commentStatus = row.commentStatus;
+                if (orderStatus === 30 || orderStatus === 40) {
+                    if (commentStatus && (commentStatus === 0 || commentStatus === 2)) {
+                        flag = true;
+                    } else if (!commentStatus) {
+                        flag = true;
+                    }
+                }
+                return flag;
             },
             updatePage(currentPage, totalPage) {
                 this.searchConditions.currentPage = currentPage;

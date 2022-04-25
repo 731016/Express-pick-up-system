@@ -51,7 +51,7 @@
                 <el-col :span="4">
                     <div class="grid-content">
                         <el-tag type="danger" style="line-height: 70px;font-weight: 700;font-size: 28px;">
-                            {{item.deliveryRating}}
+                            {{getDeliveryRating(item.deliveryRating)}}
                         </el-tag>
                     </div>
                 </el-col>
@@ -90,18 +90,22 @@
                 pageSize: 5,
                 value: 0,
                 totalPage: 0,
-                commitList: [
-                ]
+                commitList: []
             }
         }
         ,
         methods: {
             initData() {
                 this.loading = true;
-                selectAllComment().then(response => {
+                let search = {
+                    "currentPage": this.currentPage,
+                    "totalPage": this.totalPage,
+                    "pageSize": this.pageSize,
+                };
+                selectAllComment(search).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
-                        this.commitList = JSON.parse(JSON.stringify(rep.data));
+                        this.commitList = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;
@@ -126,6 +130,9 @@
                 this.currentPage = currentPage;
                 this.totalPage = totalPage;
             },
+            getDeliveryRating(deliveryRating) {
+                return deliveryRating.toFixed(2);
+            }
         }
         ,
         computed: {
@@ -133,7 +140,8 @@
             getRating() {
                 let rates = this.value;
                 return rates;
-            }
+            },
+
         }
         ,
         mounted() {

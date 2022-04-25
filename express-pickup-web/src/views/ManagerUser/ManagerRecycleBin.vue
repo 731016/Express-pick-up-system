@@ -188,7 +188,7 @@
                 recycelIds: [],
                 searchConditions: {
                     orderStatus: 0,
-                    paymentStatus: 0,
+                    paymentStatus: -1,
                     id: '',
                     startEndTime: [],
                     //当前页码
