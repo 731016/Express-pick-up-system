@@ -276,6 +276,11 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
             String actualName = entity.getActualName();
             String idNumber = entity.getIdNumber();
             String userRoleId = entity.getUserRoleId();
+            Date freezeTime = entity.getFreezeTime();
+            //查询用户信息时，判断冻结时间是否过期，过期修改为空
+            if (freezeTime != null && System.currentTimeMillis() > freezeTime.getTime()) {
+                entity.setFreezeTime(null);
+            }
             entity.setUserRoleName(userRoleMap.get(userRoleId));
             if (StringUtils.isNotEmpty(actualName) && StringUtils.isNotEmpty(idNumber)) {
                 entity.setRealNameStatus("已认证");

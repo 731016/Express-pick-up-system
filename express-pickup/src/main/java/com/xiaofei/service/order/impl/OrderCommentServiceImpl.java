@@ -1,6 +1,9 @@
 package com.xiaofei.service.order.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.mapper.order.OrderCommentMapper;
 import com.xiaofei.service.order.OrderCommentService;
@@ -29,17 +32,22 @@ public class OrderCommentServiceImpl implements OrderCommentService {
      * @param orderIds
      */
     @Override
-    public List<OrderCommentEntity> selectAllByOrderId(List<String> orderIds) {
+    public PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search) {
+        if (search != null) {
+            Integer currentPage = search.getCurrentPage() != null ? search.getCurrentPage() : 0;
+            Integer pageSize = search.getPageSize() != null ? search.getPageSize() : 5;
+            PageHelper.startPage(currentPage, pageSize);
+        }
         if (CollectionUtils.isEmpty(orderIds)) {
-            return new ArrayList<>();
+            return new PageInfo<>();
         } else {
             QueryWrapper<OrderCommentEntity> wrapper = new QueryWrapper<>();
             wrapper.in("orderId", orderIds);
             List<OrderCommentEntity> list = orderCommentMapper.selectList(wrapper);
             if (CollectionUtils.isEmpty(list)) {
-                return new ArrayList<>();
+                return new PageInfo<>();
             }
-            return list;
+            return new PageInfo<OrderCommentEntity>(list);
         }
     }
 

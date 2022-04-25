@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -152,6 +153,7 @@ public class GeneralController {
         OrderCommentEntity entity = orderCommentService.selectAllByOrderId(orderId);
         Boolean insertOrUpdate = false;
         if (entity == null) {
+            entity = new OrderCommentEntity();
             entity.setOrderId(comment.getOrderId());
             entity.setUserId(userInfo.getUserId());
             entity.setUserRating(comment.getUserRating());
@@ -171,7 +173,8 @@ public class GeneralController {
 
     @ApiOperation("查询所有评价信息，根据用户id,查找订单id")
     @PostMapping("/selectAllComment")
-    public CommonResponse<List<OrderCommentEntity>> selectAllComment(@RequestHeader(value = "Authorization") String token) {
+    public CommonResponse<List<OrderCommentEntity>> selectAllComment(@RequestHeader(value = "Authorization") String token,
+                                                                     @RequestBody SearchCondition search) {
         String name = JwtUtils.getUserNameByToken(token);
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
         List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectOrderByUserId(userInfo.getUserId());
@@ -181,8 +184,9 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
-        return ResultUtils.success(commentEntities);
+        PageInfo<OrderCommentEntity> pageInfo = orderCommentService.selectAllByOrderId(orderIds, search);
+        List<OrderCommentEntity> list = pageInfo.getList();
+        return ResultUtils.success(pageInfo.getPageNum(), (int) pageInfo.getTotal(), list);
     }
 
     @ApiOperation("查询综合评分")
@@ -197,8 +201,9 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        List<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds);
-        List<Double> list = commentEntities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
+        PageInfo<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds,null);
+        List<OrderCommentEntity> entities = commentEntities.getList();
+        List<Double> list = entities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
         Double endResult = 0.00;
         for (Double aDouble : list) {
             endResult += aDouble;

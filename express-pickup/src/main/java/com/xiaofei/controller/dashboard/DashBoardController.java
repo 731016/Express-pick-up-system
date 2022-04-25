@@ -1,6 +1,7 @@
 package com.xiaofei.controller.dashboard;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
 import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
 import com.xiaofei.common.ResultUtils;
@@ -21,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,8 +64,9 @@ public class DashBoardController {
             Integer unPaidNumber = paymentInfoService.filterUnPaidNumber(paymentInfoEntities);
             Map<String, Integer> map = orderInfoService.filterWaitAndDispatchOrderNumber(orderInfoEntityList);
             //查询评价信息
-            List<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds);
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(orderCommentEntityList);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null);
+            List<OrderCommentEntity> list = orderCommentEntityList.getList();
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
             dashBoard.setUnPaidNumber(unPaidNumber);
             if (!CollectionUtils.isEmpty(map)) {
                 dashBoard.setWaitOrderNumber(map.get("wait"));
@@ -113,8 +116,9 @@ public class DashBoardController {
             dispatchOrderNumber = paymentInfoService.filterPaymentSuccess(paymentInfoEntities);
 
             //查询评价信息
-            List<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds);
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(orderCommentEntityList);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null);
+            List<OrderCommentEntity> list = orderCommentEntityList.getList();
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
             dashBoard.setAllowOrderNumber(allowOrderNumber);
             dashBoard.setDispatchOrderNumber(dispatchOrderNumber);
 

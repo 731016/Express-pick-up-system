@@ -1,5 +1,7 @@
 package com.xiaofei.service.order;
 
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.OrderCommentEntity;
 
 import java.util.List;
@@ -14,7 +16,7 @@ public interface OrderCommentService {
     /**
      * 根据订单id，查找评价信息
      */
-    List<OrderCommentEntity> selectAllByOrderId(List<String> orderIds);
+    PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search);
     /**
      * 查询单个评价信息
      */
