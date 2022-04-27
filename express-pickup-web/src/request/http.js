@@ -2,7 +2,7 @@ import axios from "axios";
 import Vue from 'vue'
 // axios.defaults.headers.post['Content-Type'] = 'application/json';
 let server = axios.create({   //新创建一个axios实例
-    baseURL: "http://localhost:8090",  //公共地址
+    baseURL: "http://119.3.104.52:8090",  //公共地址
     timeout: 30000, //延迟时间,
 })
 // 请求拦截
