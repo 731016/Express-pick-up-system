@@ -2,6 +2,6 @@
 
 #### 介绍
 
-**前端** vue2 + element-ui
+**前端** vue2 + element-ui + axios
 <br>
- **后端**  springboot + redis + mysqlPlus
+ **后端**  springboot + redis + mysql-Plus + JSON WEB TOKEN
