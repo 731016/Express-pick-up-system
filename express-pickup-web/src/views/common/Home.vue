@@ -3,7 +3,7 @@
         <Header></Header>
         <el-container>
             <Aside></Aside>
-            <el-main>
+            <el-main style="height: 635px">
                 <keep-alive :include="['OrderNow']">
                     <router-view></router-view>
                 </keep-alive>

@@ -62,11 +62,11 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :hide-on-single-page="false"
-                    :current-page="currentPage"
-                    :page-sizes="[20, 50, 100]"
-                    :page-size="pageSize"
+                    :current-page="searchConditions.currentPage"
+                    :page-sizes="[5, 20, 50]"
+                    :page-size="searchConditions.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="totalPage">
+                    :total="searchConditions.totalPage">
             </el-pagination>
         </div>
         <div v-else>
@@ -85,11 +85,13 @@
         data() {
             return {
                 loading: false,
-                //当前页码
-                currentPage: 1,
-                pageSize: 5,
+                searchConditions: {
+                    //当前页码
+                    currentPage: 1,
+                    pageSize: 5,
+                    totalPage: 0,
+                },
                 value: 0,
-                totalPage: 0,
                 commitList: []
             }
         }
@@ -97,12 +99,7 @@
         methods: {
             initData() {
                 this.loading = true;
-                let search = {
-                    "currentPage": this.currentPage,
-                    "totalPage": this.totalPage,
-                    "pageSize": this.pageSize,
-                };
-                selectAllComment(search).then(response => {
+                selectAllComment(this.searchConditions).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.commitList = JSON.parse(JSON.stringify(rep.dataList));
@@ -117,15 +114,13 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.value = rep.data;
-                        this.updatePage(rep.currentPage, rep.totalPage);
                     }
                     this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
                 })
-            }
-            ,
+            },
             updatePage(currentPage, totalPage) {
                 this.currentPage = currentPage;
                 this.totalPage = totalPage;
@@ -147,7 +142,6 @@
         mounted() {
             this.initData();
         }
-        ,
     }
 </script>
 

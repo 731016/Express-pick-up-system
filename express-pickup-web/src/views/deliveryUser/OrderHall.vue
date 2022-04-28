@@ -93,11 +93,11 @@
                         label="快递寄达地址"
                         width="120">
                 </el-table-column>
-                <el-table-column
+                <!--<el-table-column
                         prop="remark"
                         label="下单备注"
                         width="120">
-                </el-table-column>
+                </el-table-column>-->
                 <el-table-column
                         sortable
                         prop="createTime"

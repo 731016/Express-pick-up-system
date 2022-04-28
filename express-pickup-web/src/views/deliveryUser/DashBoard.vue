@@ -84,7 +84,7 @@
             },
             toEvaluate() {
                 this.$router.push({
-                    name: 'EvaluationCenter'
+                    name: 'DeliveryEvaluation'
                 })
             },
             init() {

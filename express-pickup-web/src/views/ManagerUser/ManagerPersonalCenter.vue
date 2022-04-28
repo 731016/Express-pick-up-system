@@ -102,17 +102,17 @@
         </el-dialog>
         <el-dialog title="设置手机号" :visible.sync="dialogPhoneVisible">
             <el-form :model="phone" status-icon :rules="rules" ref="phone" label-width="100px">
-                <el-form-item label="手机号码" prop="inputPhone">
-                    <el-input v-model="phone.inputPhone" autocomplete="off"></el-input>
+                <el-form-item label="手机号码" prop="phone">
+                    <el-input v-model="phone.phone" autocomplete="off"></el-input>
                 </el-form-item>
-<!--                <el-form-item label="验证码" prop="verificationCode">-->
-<!--                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>-->
-<!--                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"-->
-<!--                               @click="sendVerificationCode()">-->
-<!--                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>-->
-<!--                        <span v-else>发送验证码</span>-->
-<!--                    </el-button>-->
-<!--                </el-form-item>-->
+                <!--                <el-form-item label="验证码" prop="verificationCode">-->
+                <!--                    <el-input style="width: 70%;" v-model="phone.verificationCode" autocomplete="off"></el-input>-->
+                <!--                    <el-button style="width: 20%;margin-left: 2%" type="primary" :disabled="verificationCodeBtnStatus"-->
+                <!--                               @click="sendVerificationCode()">-->
+                <!--                        <span v-if="verificationCodeBtnTime != 0" v-text="verificationCodeBtnTime+'秒'"></span>-->
+                <!--                        <span v-else>发送验证码</span>-->
+                <!--                    </el-button>-->
+                <!--                </el-form-item>-->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="submitForm('phone')">确 定</el-button>
@@ -139,7 +139,7 @@
 
 <script>
     import {mapGetters} from 'vuex'
-    import {updatePwd,updatePhoneAjax,updateSexAjax,queryUserInfo} from "../../request/user";
+    import {updatePwd, updatePhoneAjax, updateSexAjax, queryUserInfo} from "../../request/user";
 
     export default {
         name: "ManagerPersonalCenter",
@@ -194,7 +194,7 @@
                 }
             };
             return {
-                loading:false,
+                loading: false,
                 //密码
                 dialogPwdVisible: false,
                 //手机号
@@ -216,7 +216,7 @@
                     passWord: ''
                 },
                 phone: {
-                    inputPhone: '',
+                    phone: '',
                     verificationCode: ''
                 },
                 sex: '',
@@ -224,7 +224,7 @@
                     oldPwd: [{required: true, message: "请输入密码", trigger: 'blur'}],
                     newPwd: [{validator: checknewPwd, trigger: 'blur'}],
                     passWord: [{validator: checkPassWord, trigger: 'blur'}],
-                    inputPhone: [{validator: checkPhone, trigger: 'blur'}],
+                    phone: [{validator: checkPhone, trigger: 'blur'}],
                     verificationCode: [{validator: checkCode, trigger: 'blur'}]
                 }
             }
@@ -310,7 +310,7 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.$message.success(rep.message);
-                        this.userInfo.phone = this.phone.inputPhone;
+                        this.userInfo.phone = this.phone.phone;
                     }
                     this.loading = false;
                 }).catch(error => {

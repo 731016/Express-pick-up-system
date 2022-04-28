@@ -140,6 +140,9 @@ const router = new VueRouter({
                     name: 'OrderHall',
                     path: 'OrderHall',
                     component: OrderHall,
+                    meta: {
+                        title: '接单大厅'
+                    }
                 }, {
                     name: 'DeliveryPersonalCenter',
                     path: 'DeliveryPersonalCenter',

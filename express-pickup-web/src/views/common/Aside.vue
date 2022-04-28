@@ -99,7 +99,6 @@
 
 <script>
     import {selectOneUserInfo} from "../../request/menu";
-    import {mapGetters} from 'vuex';
     import {logout} from "../../request/user";
 
     export default {
@@ -112,7 +111,9 @@
         methods: {
             exitLogIn() {
                 this.loading = true;
-                logout({"userId": this.getUserId}).then(response => {
+                let userInfoEntity = {};
+                userInfoEntity.userId = this.getUserId;
+                logout(userInfoEntity).then(response => {
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         localStorage.removeItem("token");
@@ -172,11 +173,11 @@
                 }
             },
             toEvaluationCenter() {
-                if (this.getUserRoleId === 'C'){
+                if (this.getUserRoleId === 'C') {
                     this.$router.push({
                         name: 'GeneralEvaluation',
                     })
-                }else if(this.getUserRoleId === 'B'){
+                } else if (this.getUserRoleId === 'B') {
                     this.$router.push({
                         name: 'DeliveryEvaluation',
                     })
@@ -226,9 +227,6 @@
                         });
                     }
                     this.loading = false;
-                    // else if(rep.statusCode === 6001){
-                    //     this.Message.error(rep.message)
-                    // }
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
@@ -236,9 +234,15 @@
             }
         },
         computed: {
-            ...mapGetters(
-                {getUserRoleId: 'getUserRoleId'},
-                {getUserRoleName: 'getUserRoleName'}),
+            getUserRoleId(){
+                return this.$store.getters.getUserRoleId;
+            },
+            getUserRoleName(){
+                return this.$store.getters.getUserRoleName;
+            },
+            getUserId(){
+                return this.$store.getters.getUserId;
+            },
             showUserRoleMenu() {
                 let roleId = this.getUserRoleId;
                 let roleName = this.getUserRoleName;
@@ -269,5 +273,6 @@
 
     .navigation-menu {
         width: 180px;
+        height: 80vm;
     }
 </style>

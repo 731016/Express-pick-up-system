@@ -120,12 +120,12 @@
             },
             toPersonalCenter() {
                 this.$router.push({
-                    name: 'PersonalCenter'
+                    name: 'GeneralOrderList'
                 })
             },
             toEvaluationCenter(){
                 this.$router.push({
-                    name: 'EvaluationCenter'
+                    name: 'GeneralEvaluation'
                 })
             }
         }

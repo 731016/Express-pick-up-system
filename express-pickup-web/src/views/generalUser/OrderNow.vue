@@ -148,7 +148,7 @@
                                 maxlength="120"
                                 rows="4"
                                 show-word-limit
-                                placeholder="如有特殊要求，请填写备注"
+                                placeholder="此处填写快递短信信息，或者其他备注"
                                 v-model="orderInfo.remark"
                                 clearable>
                         </el-input>
