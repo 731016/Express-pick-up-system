@@ -250,7 +250,7 @@ public class UserController {
                 return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
             }
         }
-        return ResultUtils.error("");
+        return ResultUtils.error(ActionStatus.PWDERROR.getCode(), ActionStatus.PWDERROR.getMsg(), "");
     }
 
 
@@ -271,7 +271,7 @@ public class UserController {
                 return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
             }
         }
-        return ResultUtils.error("");
+        return ResultUtils.error(ActionStatus.PWDERROR.getCode(), ActionStatus.PWDERROR.getMsg(), "");
     }
 
     @ApiOperation("个人中心，禁用用户")
@@ -287,24 +287,4 @@ public class UserController {
         }
         return ResultUtils.error("");
     }
-
-//    @ApiOperation("个人中心，冻结用户")
-//    @PostMapping("/freezeUser")
-//    public CommonResponse<String> freezeUser(@RequestHeader(value = "Authorization") String token) {
-//        String name = JwtUtils.getUserNameByToken(token);
-//        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
-//        String roleName = userRoleService.selectRoleNameByUserRoleId("B");
-//        String pwd = CodecUtils.encrypt(userInfoEntity.getPassWord());
-//        String passWord = userInfo.getPassWord();
-//        if (StringUtils.equals(pwd, passWord)) {
-//            UserInfoEntity entity = userInfoService.selectOneUserInfo(userInfo.getUserName());
-//            entity.setUserRoleId("B");
-//            entity.setUserRoleName(roleName);
-//            Boolean update = userInfoService.update(entity);
-//            if (update) {
-//                return ResultUtils.success(ActionStatus.USERROLECHANGESUCCESS.getMsg(), "");
-//            }
-//        }
-//        return ResultUtils.error("");
-//    }
 }

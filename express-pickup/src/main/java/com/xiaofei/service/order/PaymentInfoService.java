@@ -1,5 +1,7 @@
 package com.xiaofei.service.order;
 
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.PaymentInfoEntity;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public interface PaymentInfoService {
     /**
      * 根据用户id，查询支付信息
      */
+    PageInfo<PaymentInfoEntity> selectPaymentInfoByOrderIds(SearchCondition search, List<String> orderIds);
     List<PaymentInfoEntity> selectPaymentInfoByOrderIds(List<String> orderIds);
     /**
      * 过滤未支付订单数量

@@ -1,6 +1,9 @@
 package com.xiaofei.service.order.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.PaymentInfoEntity;
 import com.xiaofei.mapper.order.PaymentInfoMapper;
 import com.xiaofei.service.order.PaymentInfoService;
@@ -25,6 +28,23 @@ public class PaymentInfoServiceImpl implements PaymentInfoService {
     /**
      * 根据订单id，查询支付信息
      */
+    @Override
+    public PageInfo<PaymentInfoEntity> selectPaymentInfoByOrderIds(SearchCondition search,List<String> orderIds) {
+        Integer curPage = search.getCurrentPage() == 0 ? 1 : search.getCurrentPage();
+        PageHelper.startPage(curPage, search.getPageSize());
+        QueryWrapper<PaymentInfoEntity> wrapper = new QueryWrapper<>();
+        if (CollectionUtils.isEmpty(orderIds)) {
+            return new PageInfo<>();
+        } else {
+            wrapper.in("orderId", orderIds);
+            List<PaymentInfoEntity> entityList = paymentInfoMapper.selectList(wrapper);
+            if (CollectionUtils.isEmpty(entityList)) {
+                return new PageInfo<>();
+            }
+            return new PageInfo<>(entityList);
+        }
+    }
+
     @Override
     public List<PaymentInfoEntity> selectPaymentInfoByOrderIds(List<String> orderIds) {
         QueryWrapper<PaymentInfoEntity> wrapper = new QueryWrapper<>();

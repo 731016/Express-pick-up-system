@@ -160,13 +160,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //起始日期
         if (!CollectionUtils.isEmpty(search.getStartEndTime())) {
             List<Date> startEndTime = search.getStartEndTime();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date start = startEndTime.get(0);
             Date end = startEndTime.get(1);
             if (start != null) {
-                queryWrapper
-                        .ge("createTime", format.format(start))
-                        .le("createTime", format.format(end));
+                String formatStart = format.format(start);
+                String formatEnd = format.format(end);
+                if (StringUtils.compare(formatStart, formatEnd) == 0) {
+                    formatEnd = formatEnd + " 23:59:59";
+                } else {
+                    queryWrapper
+                            .ge("createTime", format.format(start))
+                            .le("createTime", format.format(end));
+                }
             }
         }
         List<OrderInfoEntity> entityList = orderInfoMapper.selectList(queryWrapper);
@@ -220,13 +226,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //起始日期
         if (!CollectionUtils.isEmpty(search.getStartEndTime())) {
             List<Date> startEndTime = search.getStartEndTime();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date start = startEndTime.get(0);
             Date end = startEndTime.get(1);
             if (start != null) {
-                queryWrapper
-                        .ge("createTime", format.format(start))
-                        .le("createTime", format.format(end));
+                String formatStart = format.format(start);
+                String formatEnd = format.format(end);
+                if (StringUtils.compare(formatStart, formatEnd) == 0) {
+                    formatEnd = formatEnd + " 23:59:59";
+                } else {
+                    queryWrapper
+                            .ge("createTime", format.format(start))
+                            .le("createTime", format.format(end));
+                }
             }
         }
         List<OrderInfoEntity> entityList = orderInfoMapper.selectList(queryWrapper);
@@ -253,13 +265,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //起始日期
         if (!CollectionUtils.isEmpty(search.getStartEndTime())) {
             List<Date> startEndTime = search.getStartEndTime();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date start = startEndTime.get(0);
             Date end = startEndTime.get(1);
             if (start != null) {
-                queryWrapper
-                        .ge("createTime", format.format(start))
-                        .le("createTime", format.format(end));
+                String formatStart = format.format(start);
+                String formatEnd = format.format(end);
+                if (StringUtils.compare(formatStart, formatEnd) == 0) {
+                    formatEnd = formatEnd + " 23:59:59";
+                } else {
+                    queryWrapper
+                            .ge("createTime", format.format(start))
+                            .le("createTime", format.format(end));
+                }
             }
         }
         List<OrderInfoEntity> entityList = orderInfoMapper.selectList(queryWrapper);
@@ -292,13 +310,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //起始日期
         if (!CollectionUtils.isEmpty(search.getStartEndTime())) {
             List<Date> startEndTime = search.getStartEndTime();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date start = startEndTime.get(0);
             Date end = startEndTime.get(1);
             if (start != null) {
-                queryWrapper
-                        .ge("createTime", format.format(start))
-                        .le("createTime", format.format(end));
+                String formatStart = format.format(start);
+                String formatEnd = format.format(end);
+                if (StringUtils.compare(formatStart, formatEnd) == 0) {
+                    formatEnd = formatEnd + " 23:59:59";
+                } else {
+                    queryWrapper
+                            .ge("createTime", format.format(start))
+                            .le("createTime", format.format(end));
+                }
             }
         }
         List<OrderInfoEntity> entityList = orderInfoMapper.selectList(queryWrapper);

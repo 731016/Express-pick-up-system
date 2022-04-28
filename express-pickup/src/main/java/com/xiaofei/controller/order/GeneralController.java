@@ -90,12 +90,13 @@ public class GeneralController {
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, true);
         List<OrderInfoEntity> orders = ordersPage.getList();
         List<OrderInfoVo> vos = new ArrayList<>();
+        PageInfo<PaymentInfoEntity> paymentInfoEntities = new PageInfo<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
-            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);
-            vos = orderInfoService.poToVo(orders, paymentInfoEntities);
+            paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(searchConditions, ids);
+            vos = orderInfoService.poToVo(orders, paymentInfoEntities.getList());
         }
-        return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
+        return ResultUtils.success(paymentInfoEntities.getPageNum(), (int) paymentInfoEntities.getTotal(), vos);
     }
 
     @ApiOperation("查询普通用户，被删除和撤销的订单")
@@ -105,12 +106,13 @@ public class GeneralController {
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, false);
         List<OrderInfoEntity> orders = ordersPage.getList();
         List<OrderInfoVo> vos = new ArrayList<>();
+        PageInfo<PaymentInfoEntity> paymentInfoEntities = new PageInfo<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
-            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);
-            vos = orderInfoService.poToVo(orders, paymentInfoEntities);
+            paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(searchConditions, ids);
+            vos = orderInfoService.poToVo(orders, paymentInfoEntities.getList());
         }
-        return ResultUtils.success(ordersPage.getPageNum(), (int) ordersPage.getTotal(), vos);
+        return ResultUtils.success(paymentInfoEntities.getPageNum(), (int) paymentInfoEntities.getTotal(), vos);
     }
 
     @ApiOperation("普通用户撤销订单")
@@ -201,12 +203,15 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        PageInfo<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds,null);
+        PageInfo<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds, null);
         List<OrderCommentEntity> entities = commentEntities.getList();
-        List<Double> list = entities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
         Double endResult = 0.00;
-        for (Double aDouble : list) {
-            endResult += aDouble;
+        if (!CollectionUtils.isEmpty(entities)) {
+            List<Double> list = entities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
+            for (Double aDouble : list) {
+                endResult += aDouble;
+            }
+            endResult = endResult / list.size();
         }
         return ResultUtils.success(endResult);
     }
