@@ -18,6 +18,7 @@ import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.JwtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,7 +74,7 @@ public class DashBoardController {
                 dashBoard.setDispatchOrderNumber(map.get("dispatch"));
             }
             if (!CollectionUtils.isEmpty(evaluateAndRateNumber)) {
-                dashBoard.setReceivedEvaluateNumber(Integer.valueOf(String.valueOf(evaluateAndRateNumber.get("evaluate"))));
+                dashBoard.setReceivedEvaluateNumber(evaluateAndRateNumber.get("evaluate").intValue());
                 dashBoard.setOverallRate(evaluateAndRateNumber.get("rate"));
             }
         }
@@ -123,7 +124,7 @@ public class DashBoardController {
             dashBoard.setDispatchOrderNumber(dispatchOrderNumber);
 
             if (!CollectionUtils.isEmpty(evaluateAndRateNumber)) {
-                dashBoard.setReceivedEvaluateNumber(Integer.valueOf(String.valueOf(evaluateAndRateNumber.get("evaluate"))));
+                dashBoard.setReceivedEvaluateNumber(evaluateAndRateNumber.get("evaluate").intValue());
                 dashBoard.setOverallRate(evaluateAndRateNumber.get("rate"));
             }
         }

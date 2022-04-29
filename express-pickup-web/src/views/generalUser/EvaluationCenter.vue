@@ -31,7 +31,7 @@
             </el-col>
         </el-row>
         <el-row>
-            <div v-for="item in commitList" :key="item.id">
+            <div v-for="item in commitList" :key="item.orderId">
                 <el-col :span="8">
                     <div class="grid-content">
                         <el-tag>
@@ -104,8 +104,8 @@
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.commitList = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
+                        this.loading = false;
                     }
-                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
@@ -114,20 +114,20 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.value = rep.data;
+                        this.loading = false;
                     }
-                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
                 })
             },
             updatePage(currentPage, totalPage) {
-                this.currentPage = currentPage;
-                this.totalPage = totalPage;
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.totalPage = totalPage;
             },
             getDeliveryRating(deliveryRating) {
                 return deliveryRating.toFixed(2);
-            }
+            },
         }
         ,
         computed: {

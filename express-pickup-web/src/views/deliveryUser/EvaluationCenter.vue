@@ -31,7 +31,7 @@
             </el-col>
         </el-row>
         <el-row>
-            <div v-for="item in commitMap" :key="item.id">
+            <div v-for="item in commitMap" :key="item.orderId">
                 <el-col :span="8">
                     <div class="grid-content">
                         <el-tag>
@@ -57,7 +57,7 @@
                 </el-col>
             </div>
         </el-row>
-        <div v-if="commitMap?(commitMap.length != 0):false">
+        <div v-if="showPage">
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
@@ -103,6 +103,8 @@
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.commitMap = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
+                        this.commitMap.push({});
+                        this.loading = false;
                     }
                 }).catch(error => {
                     this.$message.error(error);
@@ -113,20 +115,20 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.value = rep.data;
+                        this.loading = false;
                     }
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
                 })
-                this.loading = false;
             },
             updatePage(currentPage, totalPage) {
-                this.currentPage = currentPage;
-                this.totalPage = totalPage;
+                this.searchConditions.currentPage = currentPage;
+                this.searchConditions.totalPage = totalPage;
             },
-            getUserRating(userRating){
+            getUserRating(userRating) {
                 return userRating.toFixed(2);
-            }
+            },
         },
         computed: {
             //获取综合评分
@@ -134,7 +136,9 @@
                 let rates = this.value;
                 return rates;
             },
-
+            showPage() {
+                return this.commitMap ? (this.commitMap.length !== 0) : false;
+            }
         },
         mounted() {
             this.initData();
