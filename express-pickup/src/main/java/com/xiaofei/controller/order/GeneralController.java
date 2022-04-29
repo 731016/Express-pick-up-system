@@ -209,7 +209,9 @@ public class GeneralController {
         if (!CollectionUtils.isEmpty(entities)) {
             List<Double> list = entities.stream().map(OrderCommentEntity::getDeliveryRating).collect(Collectors.toList());
             for (Double aDouble : list) {
-                endResult += aDouble;
+                if (aDouble != null) {
+                    endResult += aDouble;
+                }
             }
             endResult = endResult / list.size();
         }
