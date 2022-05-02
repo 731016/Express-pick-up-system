@@ -21,4 +21,8 @@ public interface UserInfoMapper extends BaseMapper<UserInfoEntity> {
      * 批量禁用用户
      */
     Integer disableUser(List<UserInfoEntity> userIds);
+    /**
+     * 解封用户
+     */
+    Integer unfreezeUser(UserInfoEntity userInfoEntity);
 }

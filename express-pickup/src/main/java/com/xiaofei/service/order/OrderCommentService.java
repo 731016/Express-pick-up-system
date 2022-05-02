@@ -16,7 +16,7 @@ public interface OrderCommentService {
     /**
      * 根据订单id，查找评价信息
      */
-    PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search);
+    PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search,String roleId);
     /**
      * 查询单个评价信息
      */

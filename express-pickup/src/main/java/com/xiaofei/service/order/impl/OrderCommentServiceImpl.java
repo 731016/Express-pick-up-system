@@ -28,11 +28,12 @@ public class OrderCommentServiceImpl implements OrderCommentService {
 
     /**
      * 根据订单id，查找评价信息
+     * 订单id，查询条件，角色
      *
      * @param orderIds
      */
     @Override
-    public PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search) {
+    public PageInfo<OrderCommentEntity> selectAllByOrderId(List<String> orderIds, SearchCondition search, String roleId) {
         if (search != null) {
             Integer currentPage = search.getCurrentPage() != null ? search.getCurrentPage() : 0;
             Integer pageSize = search.getPageSize() != null ? search.getPageSize() : 5;
@@ -43,6 +44,11 @@ public class OrderCommentServiceImpl implements OrderCommentService {
         } else {
             QueryWrapper<OrderCommentEntity> wrapper = new QueryWrapper<>();
             wrapper.in("orderId", orderIds);
+            if ("B".equals(roleId)) {
+                wrapper.isNotNull("deliveryManId");
+            } else if ("C".equals(roleId)) {
+                wrapper.isNotNull("userId");
+            }
             List<OrderCommentEntity> list = orderCommentMapper.selectList(wrapper);
             if (CollectionUtils.isEmpty(list)) {
                 return new PageInfo<>();

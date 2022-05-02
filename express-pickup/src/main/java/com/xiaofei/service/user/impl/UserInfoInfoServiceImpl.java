@@ -307,4 +307,18 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
         }
         return entities;
     }
+
+    /**
+     * 解封用户
+     *
+     * @param userInfoEntity
+     */
+    @Override
+    public Boolean unfreezeUser(UserInfoEntity userInfoEntity) {
+        Integer integer = userInfoMapper.unfreezeUser(userInfoEntity);
+        if (integer > 0) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -65,7 +65,7 @@ public class DashBoardController {
             Integer unPaidNumber = paymentInfoService.filterUnPaidNumber(paymentInfoEntities);
             Map<String, Integer> map = orderInfoService.filterWaitAndDispatchOrderNumber(orderInfoEntityList);
             //查询评价信息
-            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null,null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
             Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
             dashBoard.setUnPaidNumber(unPaidNumber);
@@ -117,7 +117,7 @@ public class DashBoardController {
             dispatchOrderNumber = paymentInfoService.filterPaymentSuccess(paymentInfoEntities);
 
             //查询评价信息
-            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null,null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
             Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
             dashBoard.setAllowOrderNumber(allowOrderNumber);

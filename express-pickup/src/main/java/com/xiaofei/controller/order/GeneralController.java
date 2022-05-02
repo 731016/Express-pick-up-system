@@ -186,7 +186,7 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        PageInfo<OrderCommentEntity> pageInfo = orderCommentService.selectAllByOrderId(orderIds, search);
+        PageInfo<OrderCommentEntity> pageInfo = orderCommentService.selectAllByOrderId(orderIds, search,"B");
         List<OrderCommentEntity> list = pageInfo.getList();
         return ResultUtils.success(pageInfo.getPageNum(), (int) pageInfo.getTotal(), list);
     }
@@ -203,7 +203,7 @@ public class GeneralController {
                 orderIds.add(entity.getId());
             }
         }
-        PageInfo<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds, null);
+        PageInfo<OrderCommentEntity> commentEntities = orderCommentService.selectAllByOrderId(orderIds, null,"B");
         List<OrderCommentEntity> entities = commentEntities.getList();
         Double endResult = 0.00;
         if (!CollectionUtils.isEmpty(entities)) {

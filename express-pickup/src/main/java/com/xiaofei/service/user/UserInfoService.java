@@ -59,6 +59,8 @@ public interface UserInfoService {
      * 查询所有用户
      */
     PageInfo<UserInfoEntity> getAllUser(SearchCondition search);
-
-
+    /**
+     * 解封用户
+     */
+    Boolean unfreezeUser(UserInfoEntity userInfoEntity);
 }
