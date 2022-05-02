@@ -103,7 +103,6 @@
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.commitMap = JSON.parse(JSON.stringify(rep.dataList));
                         this.updatePage(rep.currentPage, rep.totalPage);
-                        this.commitMap.push({});
                         this.loading = false;
                     }
                 }).catch(error => {
@@ -127,7 +126,7 @@
                 this.searchConditions.totalPage = totalPage;
             },
             getUserRating(userRating) {
-                return userRating.toFixed(2);
+                return userRating ? userRating.toFixed(2) : 0.00;
             },
         },
         computed: {

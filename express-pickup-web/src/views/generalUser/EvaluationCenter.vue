@@ -114,8 +114,8 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         this.value = rep.data;
-                        this.loading = false;
                     }
+                    this.loading = false;
                 }).catch(error => {
                     this.$message.error(error);
                     this.loading = false;
@@ -126,7 +126,7 @@
                 this.searchConditions.totalPage = totalPage;
             },
             getDeliveryRating(deliveryRating) {
-                return deliveryRating.toFixed(2);
+                return deliveryRating ? deliveryRating.toFixed(2) : 0.00;
             },
         }
         ,
