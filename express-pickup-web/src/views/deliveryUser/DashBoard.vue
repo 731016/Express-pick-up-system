@@ -14,6 +14,7 @@
                     <div class="order-overview-middle">
                         可以接单数：{{orderOverview.allowOrderNumber}}，需要派送订单数：{{orderOverview.dispatchOrderNumber}}
                     </div>
+                    <DashBoardEcharts :dashBoardData="dashBoardData"></DashBoardEcharts>
                     <div @click="toOrder()">
                         <a href="javascript:;">
                             查看更多
@@ -42,6 +43,7 @@
                     <div class="evaluate-overview-middle">
                         您共收到：{{evaluate.receivedAReviewTotal}}条评价，您的综合评分为：{{getRateFraction}}分
                     </div>
+                    <RateEcharts :rateData="rateData"></RateEcharts>
                     <div @click="toEvaluate()">
                         <a href="javascript:;">
                             查看更多
@@ -55,10 +57,16 @@
 </template>
 
 <script>
-    import {dashBoardDelivery} from '../../request/dashboard'
+    import {dashBoardDelivery} from '../../request/dashboard';
+    import DashBoardEcharts from "../../components/DashBoardEcharts";
+    import RateEcharts from "../../components/RateEcharts";
 
     export default {
         name: "DashBoard",
+        components: {
+            DashBoardEcharts: DashBoardEcharts,
+            RateEcharts:RateEcharts
+        },
         data() {
             return {
                 loading: true,
@@ -73,7 +81,9 @@
                     receivedAReviewTotal: 0,
                     //综合评分
                     overallRating: 0
-                }
+                },
+                dashBoardData: [],
+                rateData:[]
             }
         },
         methods: {
@@ -96,8 +106,13 @@
                         this.orderOverview.allowOrderNumber = data.allowOrderNumber ? data.waitOrderNumber : 0;
                         this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber ? data.dispatchOrderNumber : 0;
 
+                        this.dashBoardData.push({value: this.orderOverview.allowOrderNumber, name: '可以接单'});
+                        this.dashBoardData.push({value: this.orderOverview.dispatchOrderNumber, name: '需要派送'});
+
                         this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber ? data.receivedEvaluateNumber : 0;
                         this.evaluate.overallRating = data.overallRate ? data.overallRate : 0;
+
+                        this.rateData.push({value: this.evaluate.overallRating, name: '综合评分'});
                     }
                     this.loading = false;
                 }).catch(error => {
@@ -169,7 +184,7 @@
     .order-overview,
     .feedback-overview,
     .evaluate-overview {
-        text-align: left;
+        text-align: center;
     }
 
     .order-overview a:hover,

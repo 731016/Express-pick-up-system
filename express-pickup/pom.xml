@@ -72,6 +72,12 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.72</version>
         </dependency>
+        <!--        htool工具类-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.0.M3</version>
+        </dependency>
         <!--引入JWT-->
         <dependency>
             <groupId>com.auth0</groupId>
@@ -118,6 +124,13 @@
             <artifactId>commons-logging</artifactId>
             <version>1.1.3</version>
         </dependency>
+        <!-- 发送请求 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.9.1</version>
+        </dependency>
+
         <!--        test类-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

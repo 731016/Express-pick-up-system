@@ -29,10 +29,13 @@ public class AllRequestInterceptor implements HandlerInterceptor {
         if (token != null) {
             String userName = JwtUtils.getUserNameByToken(token);
             UserInfoEntity userInfoEntity = userInfoService.selectOneUserInfo(userName);
-            String passWord = userInfoEntity.getPassWord();
-            boolean verifyResult = JwtUtils.verify(token, userName, passWord);
-            if (verifyResult) {
-                return true;
+            //可能token解析不出name
+            if (userInfoEntity != null) {
+                String passWord = userInfoEntity.getPassWord();
+                boolean verifyResult = JwtUtils.verify(token, userName, passWord);
+                if (verifyResult) {
+                    return true;
+                }
             }
             response.setStatus(ActionStatus.TOKENINVALID.getCode());
         }

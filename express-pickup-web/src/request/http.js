@@ -21,7 +21,7 @@ server.interceptors.response.use(function (response) {
     if (response && response.data) {
         let statusCode = response.data.statusCode;
         let message = response.data.message;
-        let errcode = [4000, 4001, 4004, 6001, 6002, 6003, 6004, 6005, 6006, 7001, 7002];
+        let errcode = [4000, 4001, 4004, 6001, 6002, 6003, 6004, 6005, 6006, 7001, 7002, 8001];
         if (errcode.some(item => item === statusCode)) {
             Vue.prototype.$message.error(message);
         }

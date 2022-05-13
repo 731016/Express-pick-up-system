@@ -28,7 +28,8 @@ public enum ActionStatus {
     GETDELIVERYERR(6005,"获取配送人员信息失败"),
     NOEXISTUSER(6006,"无法查询到用户信息"),
     USERDISABLE(7001,"用户被禁用，无法登录!"),
-    USERFREEZE(7002,"用户被冻结");
+    USERFREEZE(7002,"用户被冻结"),
+    USERSTATUSEXCEPTION(8001,"用户状态异常，请联系管理员！");
     /**
      * 状态码
      */
