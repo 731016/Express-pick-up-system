@@ -564,6 +564,17 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return collect;
     }
 
+    @Override
+    public List<OrderInfoEntity> selectOrderBydeliveryManId(String deliveryManId) {
+        QueryWrapper<OrderInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("deliveryManId", deliveryManId);
+        List<OrderInfoEntity> list = orderInfoMapper.selectList(wrapper);
+        if (CollectionUtils.isEmpty(list)) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
+
     /**
      * 查询所有订单
      */

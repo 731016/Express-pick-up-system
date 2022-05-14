@@ -62,6 +62,8 @@ public interface OrderInfoService {
      */
     PageInfo<OrderInfoEntity> selectOrderBydeliveryManId(SearchCondition search, String deliveryManId);
 
+    List<OrderInfoEntity> selectOrderBydeliveryManId(String deliveryManId);
+
     /**
      * 将实体类转换为前台需要展示对象
      */
