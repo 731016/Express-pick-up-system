@@ -103,7 +103,7 @@
                     let rep = response.data;
                     if (response.status === 200 && rep.statusCode === 2000) {
                         let data = rep.data;
-                        this.orderOverview.allowOrderNumber = data.allowOrderNumber ? data.waitOrderNumber : 0;
+                        this.orderOverview.allowOrderNumber = data.allowOrderNumber ? data.allowOrderNumber : 0;
                         this.orderOverview.dispatchOrderNumber = data.dispatchOrderNumber ? data.dispatchOrderNumber : 0;
 
                         this.dashBoardData.push({value: this.orderOverview.allowOrderNumber, name: '可以接单'});
