@@ -23,8 +23,9 @@ public interface OrderCommentService {
     OrderCommentEntity selectAllByOrderId(String orderId);
     /**
      * 收集所有评价的数量和综合评分
+     * sign :true用于普通用户，false用于配送用户
      */
-    Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list);
+    Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list,Boolean sign);
     /**
      * 插入评价信息
      */

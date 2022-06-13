@@ -67,7 +67,7 @@ public class DashBoardController {
             //查询评价信息
             PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds, null, null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list,true);
             dashBoard.setUnPaidNumber(unPaidNumber);
             if (!CollectionUtils.isEmpty(map)) {
                 dashBoard.setWaitOrderNumber(map.get("wait"));
@@ -136,7 +136,7 @@ public class DashBoardController {
             //查询评价信息
             PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(deliveryOrderIds, null, null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list);
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list,false);
 
             if (!CollectionUtils.isEmpty(evaluateAndRateNumber)) {
                 dashBoard.setReceivedEvaluateNumber(evaluateAndRateNumber.get("evaluate").intValue());

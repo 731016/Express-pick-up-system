@@ -90,9 +90,11 @@
     .login-wrap {
         position: relative;
         width: 100%;
-        height: 100%;
-        background-image: url(../../assets/img/login.jpg);
+        height: 710px;
+        background-image: url(../../assets/img/login1.jpg);
         background-size: 100%;
+        background-position: center;
+        box-shadow: #99a9bf;
     }
 
     .ms-title {
@@ -109,7 +111,7 @@
         left: 50%;
         top: 50%;
         width: 350px;
-        margin: 175px 0 0 -175px;
+        margin: -150px 0 0 -200px;
         border-radius: 5px;
         background: rgba(255, 255, 255, 0.3);
         overflow: hidden;

@@ -1,6 +1,6 @@
 <template>
-    <div class="Echarts">
-        <div id="dashboard" style="width: 430px;height:400px;"></div>
+    <div class="RateEcharts">
+        <div id="dashboard" style="width: 430px;height:400px;left: 25%"></div>
     </div>
 </template>
 

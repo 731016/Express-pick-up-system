@@ -71,14 +71,18 @@ public class OrderCommentServiceImpl implements OrderCommentService {
      * @param list
      */
     @Override
-    public Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list) {
+    public Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list,Boolean sign) {
         Map<String, Double> map = new HashMap<>();
         if (!CollectionUtils.isEmpty(list)) {
             map.put("evaluate", (double) list.size());
             map.put("rate", 0.00);
             Double rateTotal = 0.00;
             for (OrderCommentEntity entity : list) {
-                rateTotal += entity.getUserRating();
+                if (sign){
+                    rateTotal += entity.getDeliveryRating();
+                }else{
+                    rateTotal += entity.getUserRating();
+                }
             }
             map.put("rate", rateTotal / list.size());
         }
