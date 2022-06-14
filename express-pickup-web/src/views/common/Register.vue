@@ -104,7 +104,7 @@
     .login-wrap {
         position: relative;
         width: 100%;
-        height: 710px;
+        height: 100vh;
         background-image: url(../../assets/img/register2.jpg);
         background-size: 100%;
     }
