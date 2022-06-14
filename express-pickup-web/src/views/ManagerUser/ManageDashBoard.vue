@@ -73,8 +73,8 @@
                             </div>
                         </div>
                     </el-col>
-                    <DashBoardEcharts :dashBoardData="managerEchartsData"></DashBoardEcharts>
                 </el-row>
+                <DashBoardEcharts :dashBoardData="managerEchartsData"></DashBoardEcharts>
             </template>
         </el-skeleton>
     </div>
