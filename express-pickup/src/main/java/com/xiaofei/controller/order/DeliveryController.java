@@ -2,7 +2,7 @@ package com.xiaofei.controller.order;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
@@ -13,7 +13,7 @@ import com.xiaofei.service.order.OrderInfoService;
 import com.xiaofei.service.order.PaymentInfoService;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.JwtUtils;
-import com.xiaofei.vo.OrderInfoVo;
+import com.xiaofei.dto.OrderInfoDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +61,7 @@ public class DeliveryController {
 
     @ApiOperation("查询可以接单的订单")
     @PostMapping("/selectAllowAcceptOrder")
-    public CommonResponse<List<OrderInfoVo>> selectAllowAcceptOrder(@RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectAllowAcceptOrder(@RequestBody SearchCondition searchConditions) {
         /**
          * 订单状态10.支付状态1,isDel 0
          */
@@ -72,13 +72,13 @@ public class DeliveryController {
             orders = ordersPage.getList().stream().filter(item -> item.getOrderStatus() == 10).collect(Collectors.toList());
         }
         PageInfo<PaymentInfoEntity> paymentInfoEntities = new PageInfo<>();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
             paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(searchConditions, ids);
             vos = orderInfoService.poToVo(orders, paymentInfoEntities.getList());
             //接单大厅不能看到短信
-            for (OrderInfoVo vo : vos) {
+            for (OrderInfoDto vo : vos) {
                 vo.setRemark("");
             }
         }
@@ -87,13 +87,13 @@ public class DeliveryController {
 
     @ApiOperation("查询配送用户，没有被删除和撤销的订单")
     @PostMapping("/selectDeliveryOrder")
-    public CommonResponse<List<OrderInfoVo>> selectDeliveryOrder(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectDeliveryOrder(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
         //查询订单的deliveryManId等于用户id
         String name = JwtUtils.getUserNameByToken(token);
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(name);
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBydeliveryManId(searchConditions, userInfo.getUserId());
         List<OrderInfoEntity> orders = ordersPage.getList();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         PageInfo<PaymentInfoEntity> paymentInfoEntityPageInfo = new PageInfo<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());

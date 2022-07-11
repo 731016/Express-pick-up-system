@@ -1,12 +1,11 @@
 package com.xiaofei.controller.dashboard;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
-import com.xiaofei.common.ActionStatus;
+import com.xiaofei.constant.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.utils.DateUtils;
-import com.xiaofei.vo.DashBoardVo;
+import com.xiaofei.dto.DashBoardDto;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
@@ -18,17 +17,14 @@ import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.JwtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 仪表盘
@@ -50,13 +46,13 @@ public class DashBoardController {
 
     @ApiOperation("普通用户仪表盘")
     @PostMapping("/general")
-    public CommonResponse<DashBoardVo> getGeneralDashBoard(@RequestHeader(value = "Authorization") String token) {
+    public CommonResponse<DashBoardDto> getGeneralDashBoard(@RequestHeader(value = "Authorization") String token) {
         String userName = JwtUtils.getUserNameByToken(token);
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(userName);
         String userId = userInfo.getUserId();
         //订单信息
         List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectOrderByUserId(userId);
-        DashBoardVo dashBoard = new DashBoardVo();
+        DashBoardDto dashBoard = new DashBoardDto();
         if (!CollectionUtils.isEmpty(orderInfoEntityList)) {
             //所有订单的id
             List<String> orderIds = orderInfoService.collectOrderIds(orderInfoEntityList);
@@ -86,7 +82,7 @@ public class DashBoardController {
 
     @ApiOperation("配送用户仪表盘")
     @PostMapping("/delivery")
-    public CommonResponse<DashBoardVo> getDeliveryDashBoard(@RequestHeader(value = "Authorization") String token) {
+    public CommonResponse<DashBoardDto> getDeliveryDashBoard(@RequestHeader(value = "Authorization") String token) {
         /**
          * 可以接单 等待接单、支付完成、未删除、撤销
          * 需要派送 接单用户id，派送中
@@ -98,7 +94,7 @@ public class DashBoardController {
         //需要派送
         Integer dispatchOrderNumber = 0;
 
-        DashBoardVo dashBoard = new DashBoardVo();
+        DashBoardDto dashBoard = new DashBoardDto();
 
         //订单状态为10，等待接单
         List<String> orderIds = new ArrayList<>();
@@ -151,7 +147,7 @@ public class DashBoardController {
 
     @ApiOperation("管理员仪表盘")
     @PostMapping("/manager")
-    public CommonResponse<DashBoardVo> getManagerDashBoard() {
+    public CommonResponse<DashBoardDto> getManagerDashBoard() {
         Date date = new Date();
         List<OrderInfoEntity> entityList = orderInfoService.selectAll();
         //总等待接单数
@@ -201,7 +197,7 @@ public class DashBoardController {
                 newAddRegister++;
             }
         }
-        DashBoardVo vo = new DashBoardVo();
+        DashBoardDto vo = new DashBoardDto();
         vo.setNewAddOrders(newAddOrders);
         vo.setWaitOrderNumber(waitOrderNumber);
         vo.setDispatchOrderNumber(dispatchOrderNumber);

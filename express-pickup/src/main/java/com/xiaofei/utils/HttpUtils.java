@@ -1,9 +1,8 @@
 package com.xiaofei.utils;
 
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.xiaofei.common.IdCardResponseStatus;
-import com.xiaofei.vo.IdCardVo;
+import com.xiaofei.constant.IdCardResponseStatus;
+import com.xiaofei.dto.IdCardDto;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,7 +24,13 @@ public class HttpUtils {
     private static final String APPCODE = "82b144c8ab854143a23452b72b8703bf";
     private static final String URL = "https://eid.shumaidata.com/eid/check";
 
-    public static IdCardVo postForm(Map<String, String> params) throws IOException {
+    /**
+     * 验证身份证信息
+     * @param params
+     * @return
+     * @throws IOException
+     */
+    public static IdCardDto postForm(Map<String, String> params) throws IOException {
         OkHttpClient client = new OkHttpClient.Builder().build();
         FormBody.Builder formbuilder = new FormBody.Builder();
         Iterator<String> it = params.keySet().iterator();
@@ -39,13 +44,12 @@ public class HttpUtils {
         logger.info("返回状态码" + response.code() + ",message:" + response.message());
         String dataObj = response.body().string();
         logger.info(dataObj);
-        IdCardVo idCardVo = new IdCardVo();
+        IdCardDto idCardDto = new IdCardDto();
         if (IdCardResponseStatus.isSuccess(response.code())) {
-            idCardVo = JSONUtil.toBean(dataObj, IdCardVo.class);
-//            idCardVo = JSONObject.parseObject(dataObj, IdCardVo.class);
+            idCardDto = JSONUtil.toBean(dataObj, IdCardDto.class);
         }
-        idCardVo.setCode(response.code());
-        idCardVo.setMessage(response.message());
-        return idCardVo;
+        idCardDto.setCode(response.code());
+        idCardDto.setMessage(response.message());
+        return idCardDto;
     }
 }

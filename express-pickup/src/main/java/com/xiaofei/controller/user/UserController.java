@@ -1,12 +1,11 @@
 package com.xiaofei.controller.user;
 
-import com.auth0.jwt.JWTVerifier;
-import com.xiaofei.common.ActionStatus;
+import com.xiaofei.constant.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.IdCardResponseStatus;
+import com.xiaofei.constant.IdCardResponseStatus;
 import com.xiaofei.entity.base.SchoolEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.service.base.ProvinceService;
 import com.xiaofei.service.base.SchoolService;
 import com.xiaofei.service.user.LoginPersistenceService;
@@ -16,11 +15,10 @@ import com.xiaofei.utils.CodecUtils;
 import com.xiaofei.utils.DateUtils;
 import com.xiaofei.utils.HttpUtils;
 import com.xiaofei.utils.JwtUtils;
-import com.xiaofei.vo.IdCardVo;
+import com.xiaofei.dto.IdCardDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -242,12 +240,12 @@ public class UserController {
             params.put("idcard", userInfoEntity.getIdNumber());
             params.put("name", userInfoEntity.getActualName());
             try {
-                IdCardVo idCardVo = HttpUtils.postForm(params);
-                int code = idCardVo.getCode();
+                IdCardDto idCardDto = HttpUtils.postForm(params);
+                int code = idCardDto.getCode();
                 //状态码“0”，请求成功
                 Boolean success = IdCardResponseStatus.isSuccess(code);
                 if (success) {
-                    String res = idCardVo.getResult().getRes();
+                    String res = idCardDto.getResult().getRes();
                     //核验结果“1”，身份证号一致
                     switch (res) {
                         case "1":
@@ -261,12 +259,12 @@ public class UserController {
                         //不一致
                         case "2":
                             //无记录
-                            return ResultUtils.error("身份证" + idCardVo.getResult().getDescription(), null);
+                            return ResultUtils.error("身份证" + idCardDto.getResult().getDescription(), null);
                         case "3":
-                            return ResultUtils.error("身份证" + idCardVo.getResult().getDescription(), null);
+                            return ResultUtils.error("身份证" + idCardDto.getResult().getDescription(), null);
                     }
                 } else {
-                    return ResultUtils.error(idCardVo.getMessage(), null);
+                    return ResultUtils.error(idCardDto.getMessage(), null);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

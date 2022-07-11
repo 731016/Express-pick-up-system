@@ -8,10 +8,11 @@ import org.apache.commons.codec.digest.Md5Crypt;
  * @date 2022/4/2 22:57
  */
 public class CodecUtils {
+
     /**
      * 盐值，格式：$*$*******
      */
-    private static final String salt = "$1$731016";
+    private static final String salt = FileReadUtils.readProperties();
 
     /**
      * 获取盐值
@@ -26,6 +27,7 @@ public class CodecUtils {
     public static String encrypt(String pwd) {
         return Md5Crypt.md5Crypt(pwd.getBytes(), salt);
     }
+
     /**
      * 登录时，查询数据库的salt
      */

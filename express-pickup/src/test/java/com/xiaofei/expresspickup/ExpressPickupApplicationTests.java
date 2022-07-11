@@ -1,14 +1,12 @@
 package com.xiaofei.expresspickup;
 
-import com.xiaofei.common.IdCardResponseStatus;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.constant.IdCardResponseStatus;
 import com.xiaofei.utils.HttpUtils;
-import com.xiaofei.vo.IdCardVo;
+import com.xiaofei.dto.IdCardDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,12 +19,12 @@ class ExpressPickupApplicationTests {
         params.put("idcard", "429006200001115733");
         params.put("name", "涂鏊飞");
         try {
-            IdCardVo idCardVo = HttpUtils.postForm(params);
-            int code = idCardVo.getCode();
+            IdCardDto idCardDto = HttpUtils.postForm(params);
+            int code = idCardDto.getCode();
             //状态码“0”，请求成功
             Boolean success = IdCardResponseStatus.isSuccess(code);
             if (success) {
-                String res = idCardVo.getResult().getRes();
+                String res = idCardDto.getResult().getRes();
                 //核验结果“1”，身份证号一致
                 switch (res) {
                     case "1":
@@ -35,12 +33,12 @@ class ExpressPickupApplicationTests {
                     //不一致
                     case "2":
                         //无记录
-                        System.out.println(idCardVo.getResult().getDescription());
+                        System.out.println(idCardDto.getResult().getDescription());
                     case "3":
-                        System.out.println(idCardVo.getResult().getDescription());
+                        System.out.println(idCardDto.getResult().getDescription());
                 }
             } else {
-                System.out.println(idCardVo.getMessage());
+                System.out.println(idCardDto.getMessage());
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,10 +1,11 @@
 package com.xiaofei.controller.base;
 
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.entity.base.SchoolEntity;
 import com.xiaofei.service.base.SchoolService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,8 @@ public class SchoolController {
         List<SchoolEntity> entities = schoolService.selectAll();
         return ResultUtils.success(entities);
     }
+
+    @ApiImplicitParam(name = "schoolEntity", value = "学校实体信息", required = true)
     @ApiOperation(value = "查询单个学校信息")
     @PostMapping("/selectOneSchool")
     public CommonResponse<List<SchoolEntity>> selectOneSchool(@RequestBody SchoolEntity schoolEntity) {

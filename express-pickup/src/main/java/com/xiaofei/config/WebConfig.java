@@ -21,13 +21,15 @@ import java.util.List;
 public class WebConfig extends WebMvcConfigurationSupport {
 
     @Bean
-    public  HandlerInterceptor interceptor(){
+    public HandlerInterceptor interceptor() {
         return new AllRequestInterceptor();
-    };
+    }
+
+    ;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        List<String> patterns=new ArrayList<>();
+        List<String> patterns = new ArrayList<>();
         patterns.add("/user/login");
         patterns.add("/user/register");
         patterns.add("/user/logout");
@@ -35,10 +37,12 @@ public class WebConfig extends WebMvcConfigurationSupport {
         patterns.add("/webjars/**");
         patterns.add("/v2/**");
         patterns.add("/swagger-resources/**");
+        patterns.add("/doc.html/**");
         //注册拦截器类，添加黑名单(addPathPatterns("/**")),‘/*’只拦截一个层级，'/**'拦截全部
         // 和白名单(excludePathPatterns("List类型参数"))，将不必拦截的路径添加到List列表中
         registry.addInterceptor(interceptor()).addPathPatterns("/**").excludePathPatterns(patterns);
     }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         // 跨域相关配置, 并让 authorization 可在响应头中出现
@@ -57,6 +61,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
                 "classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         super.addResourceHandlers(registry);
     }
 }

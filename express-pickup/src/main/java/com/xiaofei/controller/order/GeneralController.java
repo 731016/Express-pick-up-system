@@ -1,9 +1,8 @@
 package com.xiaofei.controller.order;
 
 import com.github.pagehelper.PageInfo;
-import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
@@ -15,8 +14,8 @@ import com.xiaofei.service.order.PaymentInfoService;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.JwtUtils;
 import com.xiaofei.utils.OrderUtils;
-import com.xiaofei.vo.OrderInfoVo;
-import com.xiaofei.vo.PaymentVo;
+import com.xiaofei.dto.OrderInfoDto;
+import com.xiaofei.dto.PaymentDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,25 +47,25 @@ public class GeneralController {
 
     @ApiOperation("发布订单")
     @PostMapping("/publishOrder")
-    public CommonResponse<String> pulishOrder(@RequestHeader(value = "Authorization") String token, @RequestBody OrderInfoVo orderInfoVo) {
+    public CommonResponse<String> pulishOrder(@RequestHeader(value = "Authorization") String token, @RequestBody OrderInfoDto orderInfoDto) {
         OrderInfoEntity orderInfoEntity = new OrderInfoEntity();
         //查询用户id
         String userNameByToken = JwtUtils.getUserNameByToken(token);
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(userNameByToken);
         //设置订单信息
         orderInfoEntity.setUserId(userInfo.getUserId());
-        orderInfoEntity.setTrackCompanyId(orderInfoVo.getTrackCompanyId());
-        orderInfoEntity.setTrackNumber(orderInfoVo.getTrackNumber());
-        orderInfoEntity.setPickupName(orderInfoVo.getPickupName());
-        orderInfoEntity.setContactNumber(orderInfoVo.getContactNumber());
-        orderInfoEntity.setShipAddress(orderInfoVo.getShipAddress());
-        orderInfoEntity.setTrackDeliveryAddress(orderInfoVo.getTrackDeliveryAddress());
-        orderInfoEntity.setRemark(orderInfoVo.getRemark());
+        orderInfoEntity.setTrackCompanyId(orderInfoDto.getTrackCompanyId());
+        orderInfoEntity.setTrackNumber(orderInfoDto.getTrackNumber());
+        orderInfoEntity.setPickupName(orderInfoDto.getPickupName());
+        orderInfoEntity.setContactNumber(orderInfoDto.getContactNumber());
+        orderInfoEntity.setShipAddress(orderInfoDto.getShipAddress());
+        orderInfoEntity.setTrackDeliveryAddress(orderInfoDto.getTrackDeliveryAddress());
+        orderInfoEntity.setRemark(orderInfoDto.getRemark());
         //返回插入的订单主键
         String id = orderInfoService.insertOrder(orderInfoEntity);
         if (StringUtils.isNotEmpty(id)) {
             PaymentInfoEntity paymentInfoEntity = new PaymentInfoEntity();
-            PaymentVo pay = orderInfoVo.getPaymentInfo();
+            PaymentDto pay = orderInfoDto.getPaymentInfo();
             paymentInfoEntity.setOrderid(id);
             paymentInfoEntity.setPaymentMethod(pay.getPaymentMethod());
             paymentInfoEntity.setPaymentAmount(pay.getPaymentAmount());
@@ -85,11 +83,11 @@ public class GeneralController {
 
     @ApiOperation("查询普通用户，没有被删除和撤销的订单")
     @PostMapping("/selectAllOrder")
-    public CommonResponse<List<OrderInfoVo>> selectOrderBelongGeneral(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectOrderBelongGeneral(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
         String name = JwtUtils.getUserNameByToken(token);
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, true);
         List<OrderInfoEntity> orders = ordersPage.getList();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         PageInfo<PaymentInfoEntity> paymentInfoEntities = new PageInfo<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
@@ -101,11 +99,11 @@ public class GeneralController {
 
     @ApiOperation("查询普通用户，被删除和撤销的订单")
     @PostMapping("/selectDelAndRevokeOrder")
-    public CommonResponse<List<OrderInfoVo>> selectDelAndRevokeOrder(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectDelAndRevokeOrder(@RequestHeader(value = "Authorization") String token, @RequestBody SearchCondition searchConditions) {
         String name = JwtUtils.getUserNameByToken(token);
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectOrderBelongGeneral(searchConditions, name, false);
         List<OrderInfoEntity> orders = ordersPage.getList();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         PageInfo<PaymentInfoEntity> paymentInfoEntities = new PageInfo<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());

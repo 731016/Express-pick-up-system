@@ -19,13 +19,12 @@ public class JwtUtils {
     // Token过期时间1分钟
     public static final long EXPIRE_TIME = 10 * 60 * 1000;
 
-    /* *
-     * @Author lsc
-     * <p> 校验token是否正确 </p>
-     * @Param token
-     * @Param username
-     * @Param secret
-     * @Return boolean
+    /**
+     * 校验token是否正确
+     * @param token
+     * @param username
+     * @param secret
+     * @return
      */
     public static boolean verify(String token, String username, String secret) {
         try {
@@ -42,12 +41,11 @@ public class JwtUtils {
         }
     }
 
-
-    /* *
-     * @Author lsc
-     * <p>生成签名,30min后过期 </p>
-     * @Param [username, secret]
-     * @Return java.lang.String
+    /**
+     * 生成签名,30min后过期
+     * @param username
+     * @param secret
+     * @return
      */
     public static String sign(String username, String secret) {
         Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
@@ -60,11 +58,10 @@ public class JwtUtils {
 
     }
 
-    /* *
-     * @Author lsc
-     * <p> 获得用户名 </p>
-     * @Param [request]
-     * @Return java.lang.String
+    /**
+     * 获得用户名
+     * @param token
+     * @return
      */
     public static String getUserNameByToken(String token) {
         if (StringUtils.isNotEmpty(token)) {

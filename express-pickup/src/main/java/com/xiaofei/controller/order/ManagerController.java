@@ -1,11 +1,10 @@
 package com.xiaofei.controller.order;
 
 import com.github.pagehelper.PageInfo;
-import com.xiaofei.common.ActionStatus;
+import com.xiaofei.constant.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.common.ResultUtils;
+import com.xiaofei.utils.ResultUtils;
 import com.xiaofei.common.SearchCondition;
-import com.xiaofei.controller.user.UserController;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
@@ -13,9 +12,8 @@ import com.xiaofei.service.order.OrderInfoService;
 import com.xiaofei.service.order.PaymentInfoService;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.DateUtils;
-import com.xiaofei.utils.JwtUtils;
-import com.xiaofei.vo.AssignOrderVo;
-import com.xiaofei.vo.OrderInfoVo;
+import com.xiaofei.dto.AssignOrderDto;
+import com.xiaofei.dto.OrderInfoDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -24,10 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,9 +46,9 @@ public class ManagerController {
 
     @ApiOperation("管理员分配订单")
     @PostMapping("/assignOrder")
-    public CommonResponse<String> assignOrder(@RequestBody AssignOrderVo assignOrderVo) {
-        List<OrderInfoEntity> entities = orderInfoService.selectOrderByOrderId(assignOrderVo.getOrderIds());
-        String deliveryId = assignOrderVo.getDeliveryId();
+    public CommonResponse<String> assignOrder(@RequestBody AssignOrderDto assignOrderDto) {
+        List<OrderInfoEntity> entities = orderInfoService.selectOrderByOrderId(assignOrderDto.getOrderIds());
+        String deliveryId = assignOrderDto.getDeliveryId();
         for (OrderInfoEntity entity : entities) {
             entity.setOrderStatus(20);
             entity.setDeliveryManId(deliveryId);
@@ -87,10 +82,10 @@ public class ManagerController {
 
     @ApiOperation("查询所有用户，被删除和撤销的订单")
     @PostMapping("/selectAllAndRevokeOrder")
-    public CommonResponse<List<OrderInfoVo>> selectAllAndRevokeOrder(@RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectAllAndRevokeOrder(@RequestBody SearchCondition searchConditions) {
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectAllOrder(searchConditions, false);
         List<OrderInfoEntity> orders = ordersPage.getList();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
             List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);
@@ -101,10 +96,10 @@ public class ManagerController {
 
     @ApiOperation("查询所有用户，没有删除和撤销的订单")
     @PostMapping("/selectAllUnDelAndRevokeOrder")
-    public CommonResponse<List<OrderInfoVo>> selectAllUnDelAndRevokeOrder(@RequestBody SearchCondition searchConditions) {
+    public CommonResponse<List<OrderInfoDto>> selectAllUnDelAndRevokeOrder(@RequestBody SearchCondition searchConditions) {
         PageInfo<OrderInfoEntity> ordersPage = orderInfoService.selectAllOrder(searchConditions, true);
         List<OrderInfoEntity> orders = ordersPage.getList();
-        List<OrderInfoVo> vos = new ArrayList<>();
+        List<OrderInfoDto> vos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(orders)) {
             List<String> ids = orders.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());
             List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(ids);

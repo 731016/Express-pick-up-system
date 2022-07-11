@@ -3,7 +3,7 @@ package com.xiaofei.service.order.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xiaofei.common.OrderStatus;
+import com.xiaofei.constant.OrderStatus;
 import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.base.TrackCompanyEntity;
 import com.xiaofei.entity.order.OrderCommentEntity;
@@ -17,8 +17,8 @@ import com.xiaofei.mapper.user.UserInfoMapper;
 import com.xiaofei.service.base.TrackCompanyService;
 import com.xiaofei.service.order.OrderInfoService;
 import com.xiaofei.utils.OrderUtils;
-import com.xiaofei.vo.OrderInfoVo;
-import com.xiaofei.vo.PaymentVo;
+import com.xiaofei.dto.OrderInfoDto;
+import com.xiaofei.dto.PaymentDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -334,8 +334,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * 将订单，支付 => 订单对象
      */
     @Override
-    public List<OrderInfoVo> poToVo(List<OrderInfoEntity> orders, List<PaymentInfoEntity> payments) {
-        List<OrderInfoVo> vos = new ArrayList<>();
+    public List<OrderInfoDto> poToVo(List<OrderInfoEntity> orders, List<PaymentInfoEntity> payments) {
+        List<OrderInfoDto> vos = new ArrayList<>();
         //查询对应的快递公司名称(jedis)
         Map<String, String> compNameMap = new HashMap<>();
         List<String> compIds = new ArrayList<>();
@@ -381,7 +381,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             }
         }
         for (OrderInfoEntity order : orders) {
-            OrderInfoVo vo = new OrderInfoVo();
+            OrderInfoDto vo = new OrderInfoDto();
             BeanUtils.copyProperties(order, vo);
             vo.setTrackCompanyName(compNameMap.get(order.getTrackCompanyId()));
             if (StringUtils.isNotBlank(order.getDeliveryManId())) {
@@ -390,9 +390,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             vo.setOrderStatusName(OrderStatus.getNameByStatus(order.getOrderStatus()));
             PaymentInfoEntity pay = payMap.get(order.getId());
             if (pay != null) {
-                PaymentVo paymentVo = new PaymentVo();
-                BeanUtils.copyProperties(pay, paymentVo);
-                vo.setPaymentInfo(paymentVo);
+                PaymentDto paymentDto = new PaymentDto();
+                BeanUtils.copyProperties(pay, paymentDto);
+                vo.setPaymentInfo(paymentDto);
                 vo.getPaymentInfo().setPaymentStatusName(OrderStatus.getNameByStatus(pay.getPaymentStatus()));
             }
             if (order.getOrderStatus() != null) {

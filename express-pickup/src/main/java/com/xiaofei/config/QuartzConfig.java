@@ -1,6 +1,6 @@
 package com.xiaofei.config;
 
-import com.xiaofei.quartz.UserQuartzJob;
+import com.xiaofei.task.UserQuartzJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
