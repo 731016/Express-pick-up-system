@@ -1,6 +1,7 @@
 package com.xiaofei.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -42,7 +43,7 @@ public class Swagger2Config {
                  * // withMethodAnnotation(GetMapping.class))
                  * withClassAnnotation:通过类的注解扫描
                  */
-                .apis(RequestHandlerSelectors.basePackage("com.xiaofei.expresspickup.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.xiaofei.controller"))
                 // .paths()过滤,不扫描哪些接口
                 .paths(PathSelectors.any())
                 .build();
@@ -65,7 +66,7 @@ public class Swagger2Config {
                 // API版本号
                 "1.0",
                 // 配置URL(公司官网/blog地址)
-                "https://www.xiaofei.work",
+                "http://www.xiaofei.work",
                 // 作者信息
                 contact,
                 // 以下内容默认即可
