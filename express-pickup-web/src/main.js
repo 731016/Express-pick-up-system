@@ -90,7 +90,6 @@ import store from './store/index'
 import router from './router'
 import VueRouter from 'vue-router'
 import axios from 'axios'
-import * as echarts from 'echarts';
 
 Vue.config.productionTip = false
 Vue.use(Pagination);
@@ -192,6 +191,5 @@ new Vue({
         Vue.prototype.$notify = Notification;
         Vue.prototype.$message = Message;
         Vue.prototype.$axios = axios;
-        Vue.prototype.$echarts = echarts;
     }
 }).$mount('#app')

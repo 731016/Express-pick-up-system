@@ -1,11 +1,11 @@
 package com.xiaofei.controller.user;
 
-import com.xiaofei.constant.ActionStatus;
+import com.auth0.jwt.JWTVerifier;
+import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.constant.IdCardResponseStatus;
 import com.xiaofei.entity.base.SchoolEntity;
 import com.xiaofei.entity.user.UserInfoEntity;
-import com.xiaofei.utils.ResultUtils;
+import com.xiaofei.common.ResultUtils;
 import com.xiaofei.service.base.ProvinceService;
 import com.xiaofei.service.base.SchoolService;
 import com.xiaofei.service.user.LoginPersistenceService;
@@ -13,22 +13,16 @@ import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.service.user.UserRoleService;
 import com.xiaofei.utils.CodecUtils;
 import com.xiaofei.utils.DateUtils;
-import com.xiaofei.utils.HttpUtils;
 import com.xiaofei.utils.JwtUtils;
-import com.xiaofei.dto.IdCardDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户注册
@@ -39,7 +33,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Resource
     private UserInfoService userInfoService;
     @Resource
@@ -59,6 +52,8 @@ public class UserController {
         if (userInfo != null) {
             return ResultUtils.error(ActionStatus.USERNAMEEXIST.getCode(), ActionStatus.USERNAMEEXIST.getMsg(), "");
         }
+        userInfoEntity.setDisable(1);
+        userInfoEntity.setRegisterTime(new Date());
         Boolean insertFlag = userInfoService.insertUserInfo(userInfoEntity);
         String userId = userInfoService.selectOneUserInfo(userInfoEntity.getUserName()).getUserId();
         Boolean addFlag = loginPersistenceService.add(userId, userInfoEntity.getUserName(), CodecUtils.getSalt());
@@ -78,11 +73,6 @@ public class UserController {
         if (user != null) {
             //获取注册时的盐值
             String salt = loginPersistenceService.querySalt(user.getUserId());
-            logger.info("获取用户注册时的盐值 -> " + salt);
-            if (StringUtils.isEmpty(salt)) {
-                logger.info("无法获取用户注册时加密的密钥，请检查login_persistence表中，用户id -> 【" + user.getUserId() + "】数据是否存在！");
-                return ResultUtils.error(ActionStatus.USERSTATUSEXCEPTION.getCode(), ActionStatus.USERSTATUSEXCEPTION.getMsg(), null);
-            }
             //加密后，验证
             String pwd = CodecUtils.loginEncrypt(passWord, salt);
             Boolean checkResult = userInfoService.checkUserNameAndPwd(userName, pwd);
@@ -233,41 +223,13 @@ public class UserController {
         //收集所有的身份证号，查询是否已绑定
         Boolean flag = userInfoService.selectAllIdNumber(userInfoEntity.getActualName(), userInfoEntity.getIdNumber());
         if (flag) {
-            return ResultUtils.error(ActionStatus.IDNUMBEREXIST.getCode(), ActionStatus.IDNUMBEREXIST.getMsg(), null);
+            return ResultUtils.success(ActionStatus.IDNUMBEREXIST.getCode(), ActionStatus.IDNUMBEREXIST.getMsg(), null);
         } else {
-            //校验身份证是否可用发送ajax
-            Map<String, String> params = new HashMap<>();
-            params.put("idcard", userInfoEntity.getIdNumber());
-            params.put("name", userInfoEntity.getActualName());
-            try {
-                IdCardDto idCardDto = HttpUtils.postForm(params);
-                int code = idCardDto.getCode();
-                //状态码“0”，请求成功
-                Boolean success = IdCardResponseStatus.isSuccess(code);
-                if (success) {
-                    String res = idCardDto.getResult().getRes();
-                    //核验结果“1”，身份证号一致
-                    switch (res) {
-                        case "1":
-                            userInfo.setIdNumber(userInfoEntity.getIdNumber());
-                            userInfo.setActualName(userInfoEntity.getActualName());
-                            Boolean update = userInfoService.update(userInfo);
-                            if (update) {
-                                return ResultUtils.success(userInfo);
-                            }
-                            break;
-                        //不一致
-                        case "2":
-                            //无记录
-                            return ResultUtils.error("身份证" + idCardDto.getResult().getDescription(), null);
-                        case "3":
-                            return ResultUtils.error("身份证" + idCardDto.getResult().getDescription(), null);
-                    }
-                } else {
-                    return ResultUtils.error(idCardDto.getMessage(), null);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            userInfo.setIdNumber(userInfoEntity.getIdNumber());
+            userInfo.setActualName(userInfoEntity.getActualName());
+            Boolean update = userInfoService.update(userInfo);
+            if (update) {
+                return ResultUtils.success(userInfo);
             }
             return ResultUtils.error(null);
         }

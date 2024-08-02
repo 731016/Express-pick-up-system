@@ -1,6 +1,6 @@
 package com.xiaofei.filter;
 
-import com.xiaofei.constant.ActionStatus;
+import com.xiaofei.common.ActionStatus;
 import com.xiaofei.entity.user.UserInfoEntity;
 import com.xiaofei.service.user.UserInfoService;
 import com.xiaofei.utils.JwtUtils;

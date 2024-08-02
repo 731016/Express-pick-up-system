@@ -8,13 +8,12 @@
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="12">
+            <el-col :span="8">
                 <div class="grid-content order-overview main-middle">
                     <div class="order-overview-top">订单简览</div>
                     <div class="order-overview-middle">
                         未支付订单数：{{orderOverview.unPaid}}，等待接单数：{{orderOverview.waitingOrder}}，正在派送数：{{orderOverview.dispatchingOrders}}
                     </div>
-                    <DashBoardEcharts :dashBoardData="dashBoardData"></DashBoardEcharts>
                     <div @click="toPersonalCenter()">
                         <a href="javascript:;">
                             查看更多
@@ -23,27 +22,26 @@
                     </div>
                 </div>
             </el-col>
-            <!--            <el-col :span="8">-->
-            <!--                        <div class="grid-content feedback-overview main-bottom">-->
-            <!--                            <div class="feedback-overview-top">反馈简览</div>-->
-            <!--                            <div class="feedback-overview-middle">-->
-            <!--                                正在处理的反馈数：{{feedback.processing}}，未处理的反馈数：{{feedback.notProcessed}}-->
-            <!--                            </div>-->
-            <!--                            <div>-->
-            <!--                                <a href="javascript:;">-->
-            <!--                                    查看更多-->
-            <!--                                    <i class="el-icon-d-arrow-right"></i>-->
-            <!--                                </a>-->
-            <!--                            </div>-->
-            <!--                        </div>-->
-            <!--            </el-col>-->
-            <el-col :span="12">
+            <el-col :span="8">
+                <!--                        <div class="grid-content feedback-overview main-bottom">-->
+                <!--                            <div class="feedback-overview-top">反馈简览</div>-->
+                <!--                            <div class="feedback-overview-middle">-->
+                <!--                                正在处理的反馈数：{{feedback.processing}}，未处理的反馈数：{{feedback.notProcessed}}-->
+                <!--                            </div>-->
+                <!--                            <div>-->
+                <!--                                <a href="javascript:;">-->
+                <!--                                    查看更多-->
+                <!--                                    <i class="el-icon-d-arrow-right"></i>-->
+                <!--                                </a>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+            </el-col>
+            <el-col :span="8">
                 <div class="grid-content evaluate-overview">
                     <div class="evaluate-overview-top">评价简览</div>
                     <div class="evaluate-overview-middle">
                         您共收到：{{evaluate.receivedAReviewTotal}}条评价，您的综合评分为：{{getRateFraction}}分
                     </div>
-                    <RateEcharts :rateData="rateData"></RateEcharts>
                     <div @click="toEvaluationCenter()">
                         <a href="javascript:;">
                             查看更多
@@ -58,15 +56,9 @@
 
 <script>
     import {dashBoardGeneral} from "../../request/dashboard";
-    import DashBoardEcharts from "../../components/DashBoardEcharts";
-    import RateEcharts from "../../components/RateEcharts";
 
     export default {
         name: "DashBoard",
-        components: {
-            DashBoardEcharts: DashBoardEcharts,
-            RateEcharts:RateEcharts
-        },
         data() {
             return {
                 loading: true,
@@ -89,9 +81,7 @@
                     receivedAReviewTotal: 0,
                     //综合评分
                     overallRating: 0
-                },
-                dashBoardData: [],
-                rateData:[]
+                }
             }
         },
         computed: {
@@ -106,11 +96,8 @@
                 }
             },
         },
-        created() {
-            this.init();
-        },
         mounted() {
-
+            this.init();
         },
         methods: {
             init() {
@@ -122,14 +109,8 @@
                         this.orderOverview.waitingOrder = data.waitOrderNumber == null ? 0 : data.waitOrderNumber;
                         this.orderOverview.dispatchingOrders = data.dispatchOrderNumber == null ? 0 : data.dispatchOrderNumber;
 
-                        this.dashBoardData.push({value: this.orderOverview.unPaid, name: '未支付'});
-                        this.dashBoardData.push({value: this.orderOverview.waitingOrder, name: '等待接单'});
-                        this.dashBoardData.push({value: this.orderOverview.dispatchingOrders, name: '正在派送'});
-
                         this.evaluate.receivedAReviewTotal = data.receivedEvaluateNumber == null ? 0 : data.receivedEvaluateNumber;
                         this.evaluate.overallRating = data.overallRate == null ? 0 : data.overallRate;
-
-                        this.rateData.push({value: this.evaluate.overallRating, name: '综合评分'});
                     }
                     this.loading = false;
                 }).catch(error => {
@@ -142,12 +123,12 @@
                     name: 'GeneralOrderList'
                 })
             },
-            toEvaluationCenter() {
+            toEvaluationCenter(){
                 this.$router.push({
                     name: 'GeneralEvaluation'
                 })
-            },
-        },
+            }
+        }
     }
 </script>
 
@@ -200,7 +181,7 @@
     .order-overview,
     .feedback-overview,
     .evaluate-overview {
-        text-align: center;
+        text-align: left;
     }
 
     .order-overview a:hover,

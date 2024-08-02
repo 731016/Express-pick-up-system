@@ -74,7 +74,6 @@
                         </div>
                     </el-col>
                 </el-row>
-                <DashBoardEcharts :dashBoardData="managerEchartsData"></DashBoardEcharts>
             </template>
         </el-skeleton>
     </div>
@@ -82,13 +81,9 @@
 
 <script>
     import {dashBoardManager} from '../../request/dashboard'
-    import DashBoardEcharts from "../../components/DashBoardEcharts";
 
     export default {
         name: "ManageDashBoard",
-        components: {
-            DashBoardEcharts
-        },
         data() {
             return {
                 loading: true,
@@ -107,8 +102,7 @@
                     userTotal: 0,
                     disableUser: 0,
                     freezeUser: 0
-                },
-                managerEchartsData: []
+                }
             }
         },
         computed: {
@@ -140,15 +134,6 @@
                         this.evaluate.userTotal = data.userTotal ? data.userTotal : 0;
                         this.evaluate.disableUser = data.disableUser ? data.disableUser : 0;
                         this.evaluate.freezeUser = data.freezeUser ? data.freezeUser : 0;
-
-                        this.managerEchartsData.push({value: this.orderOverview.newAddOrders, name: '今日新增订单'});
-                        this.managerEchartsData.push({value: this.orderOverview.waitOrderNumber, name: '等待接单'});
-                        this.managerEchartsData.push({value: this.orderOverview.dispatchOrderNumber, name: '正在派送'});
-
-                        this.managerEchartsData.push({value: this.evaluate.newAddRegister, name: '今日注册用户'});
-                        this.managerEchartsData.push({value: this.evaluate.userTotal, name: '总用户'});
-                        this.managerEchartsData.push({value: this.evaluate.disableUser, name: '禁用用户'});
-                        this.managerEchartsData.push({value: this.evaluate.freezeUser, name: '冻结用户'});
                     }
                     this.loading = false;
                 }).catch(error => {
@@ -212,7 +197,7 @@
     .order-overview,
     .feedback-overview,
     .evaluate-overview {
-        text-align: center;
+        text-align: left;
     }
 
     .order-overview a:hover,

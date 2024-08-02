@@ -1,18 +1,9 @@
 package com.xiaofei.utils;
 
-import cn.hutool.json.JSONUtil;
-import com.xiaofei.constant.IdCardResponseStatus;
-import com.xiaofei.dto.IdCardDto;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * 发送ajax请求
@@ -30,26 +21,26 @@ public class HttpUtils {
      * @return
      * @throws IOException
      */
-    public static IdCardDto postForm(Map<String, String> params) throws IOException {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        FormBody.Builder formbuilder = new FormBody.Builder();
-        Iterator<String> it = params.keySet().iterator();
-        while (it.hasNext()) {
-            String key = it.next();
-            formbuilder.add(key, params.get(key));
-        }
-        FormBody body = formbuilder.build();
-        Request request = new Request.Builder().url(URL).addHeader("Authorization", "APPCODE " + APPCODE).post(body).build();
-        Response response = client.newCall(request).execute();
-        logger.info("返回状态码" + response.code() + ",message:" + response.message());
-        String dataObj = response.body().string();
-        logger.info(dataObj);
-        IdCardDto idCardDto = new IdCardDto();
-        if (IdCardResponseStatus.isSuccess(response.code())) {
-            idCardDto = JSONUtil.toBean(dataObj, IdCardDto.class);
-        }
-        idCardDto.setCode(response.code());
-        idCardDto.setMessage(response.message());
-        return idCardDto;
-    }
+//    public static IdCardDto postForm(Map<String, String> params) throws IOException {
+//        OkHttpClient client = new OkHttpClient.Builder().build();
+//        FormBody.Builder formbuilder = new FormBody.Builder();
+//        Iterator<String> it = params.keySet().iterator();
+//        while (it.hasNext()) {
+//            String key = it.next();
+//            formbuilder.add(key, params.get(key));
+//        }
+//        FormBody body = formbuilder.build();
+//        Request request = new Request.Builder().url(URL).addHeader("Authorization", "APPCODE " + APPCODE).post(body).build();
+//        Response response = client.newCall(request).execute();
+//        logger.info("返回状态码" + response.code() + ",message:" + response.message());
+//        String dataObj = response.body().string();
+//        logger.info(dataObj);
+//        IdCardDto idCardDto = new IdCardDto();
+//        if (IdCardResponseStatus.isSuccess(response.code())) {
+//            idCardDto = JSONUtil.toBean(dataObj, IdCardDto.class);
+//        }
+//        idCardDto.setCode(response.code());
+//        idCardDto.setMessage(response.message());
+//        return idCardDto;
+//    }
 }

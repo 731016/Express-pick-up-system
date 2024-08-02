@@ -1,11 +1,10 @@
 package com.xiaofei.controller.dashboard;
 
 import com.github.pagehelper.PageInfo;
-import com.xiaofei.constant.ActionStatus;
+import com.xiaofei.common.ActionStatus;
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.utils.ResultUtils;
-import com.xiaofei.utils.DateUtils;
-import com.xiaofei.dto.DashBoardDto;
+import com.xiaofei.common.OrderStatus;
+import com.xiaofei.common.ResultUtils;
 import com.xiaofei.entity.order.OrderCommentEntity;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
@@ -14,11 +13,16 @@ import com.xiaofei.service.order.OrderCommentService;
 import com.xiaofei.service.order.OrderInfoService;
 import com.xiaofei.service.order.PaymentInfoService;
 import com.xiaofei.service.user.UserInfoService;
+import com.xiaofei.utils.DateUtils;
 import com.xiaofei.utils.JwtUtils;
+import com.xiaofei.vo.DashBoardVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -46,13 +50,13 @@ public class DashBoardController {
 
     @ApiOperation("普通用户仪表盘")
     @PostMapping("/general")
-    public CommonResponse<DashBoardDto> getGeneralDashBoard(@RequestHeader(value = "Authorization") String token) {
+    public CommonResponse<DashBoardVo> getGeneralDashBoard(@RequestHeader(value = "Authorization") String token) {
         String userName = JwtUtils.getUserNameByToken(token);
         UserInfoEntity userInfo = userInfoService.selectOneUserInfo(userName);
         String userId = userInfo.getUserId();
         //订单信息
         List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectOrderByUserId(userId);
-        DashBoardDto dashBoard = new DashBoardDto();
+        DashBoardVo dashBoard = new DashBoardVo();
         if (!CollectionUtils.isEmpty(orderInfoEntityList)) {
             //所有订单的id
             List<String> orderIds = orderInfoService.collectOrderIds(orderInfoEntityList);
@@ -61,9 +65,9 @@ public class DashBoardController {
             Integer unPaidNumber = paymentInfoService.filterUnPaidNumber(paymentInfoEntities);
             Map<String, Integer> map = orderInfoService.filterWaitAndDispatchOrderNumber(orderInfoEntityList);
             //查询评价信息
-            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds, null, null);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null,null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list,true);
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectCEvaluateAndRateNumber(list);
             dashBoard.setUnPaidNumber(unPaidNumber);
             if (!CollectionUtils.isEmpty(map)) {
                 dashBoard.setWaitOrderNumber(map.get("wait"));
@@ -82,57 +86,43 @@ public class DashBoardController {
 
     @ApiOperation("配送用户仪表盘")
     @PostMapping("/delivery")
-    public CommonResponse<DashBoardDto> getDeliveryDashBoard(@RequestHeader(value = "Authorization") String token) {
+    public CommonResponse<DashBoardVo> getDeliveryDashBoard(@RequestHeader(value = "Authorization") String token) {
+        //订单信息
+        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectAllOrderByOrderStatus(
+                OrderStatus.WAIT_ACCEPT.getOrderStatus(),
+                OrderStatus.WAIT_DISPAT.getOrderStatus(),
+                OrderStatus.WAIT_FAIL.getOrderStatus(),
+                OrderStatus.WAIT_SUCCESS.getOrderStatus());
         /**
-         * 可以接单 等待接单、支付完成、未删除、撤销
-         * 需要派送 接单用户id，派送中
-         * 评价 接单用户id，订单完成、异常。存在评价信息且用户评价不为空
+         * 组装订单信息：可以接单=>orderStatus，【10：等待接单】paymentStatus，【1：支付成功】，一条订单对应一条支付信息，暂时不存在只有订单信息，没有支付信息的
+         * 需要派送订单：【20：派送中】【30：订单异常】
+         * 评价信息：deliveryManId=>orderid，评价信息
          */
-        //允许接单
-        Integer allowOrderNumber = 0;
-
-        //需要派送
-        Integer dispatchOrderNumber = 0;
-
-        DashBoardDto dashBoard = new DashBoardDto();
-
-        //订单状态为10，等待接单
-        List<String> orderIds = new ArrayList<>();
-
-        List<OrderInfoEntity> orderInfoEntityList = orderInfoService.selectAllOrderByOrderStatus(10);
-        for (OrderInfoEntity entity : orderInfoEntityList) {
-            if (entity.getIsDel() == 0) {
+        DashBoardVo dashBoard = new DashBoardVo();
+        if (!CollectionUtils.isEmpty(orderInfoEntityList)) {
+            //允许接单
+            Integer allowOrderNumber = 0;
+            //订单状态为10，等待接单
+            List<String> orderIds = new ArrayList<>();
+            //需要派送
+            Integer dispatchOrderNumber = 0;
+            for (OrderInfoEntity entity : orderInfoEntityList) {
+                if (entity.getOrderStatus() == 20 || entity.getOrderStatus() == 30) {
+                    dispatchOrderNumber++;
+                }
                 orderIds.add(entity.getId());
             }
-        }
-        //支付信息
-        List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(orderIds);
-        //过滤支付完成的
-        allowOrderNumber = paymentInfoService.filterPaymentSuccess(paymentInfoEntities);
+            //支付信息
+            List<PaymentInfoEntity> paymentInfoEntities = paymentInfoService.selectPaymentInfoByOrderIds(orderIds);
+            //过滤支付完成的
+            dispatchOrderNumber = paymentInfoService.filterPaymentSuccess(paymentInfoEntities);
 
-        String userName = JwtUtils.getUserNameByToken(token);
-        UserInfoEntity userInfo = userInfoService.selectOneUserInfo(userName);
-        String userId = userInfo.getUserId();
-
-        List<String> deliveryOrderIds = new ArrayList<>();
-        List<OrderInfoEntity> entities = orderInfoService.selectOrderBydeliveryManId(userId);
-        for (OrderInfoEntity entity : entities) {
-            deliveryOrderIds.add(entity.getId());
-            Integer isDel = entity.getIsDel();
-            Integer orderStatus = entity.getOrderStatus();
-            if (isDel == 0 && orderStatus == 20) {
-                dispatchOrderNumber++;
-            }
-        }
-
-        dashBoard.setAllowOrderNumber(allowOrderNumber == null ? 0 : allowOrderNumber);
-        dashBoard.setDispatchOrderNumber(dispatchOrderNumber);
-
-        if (!CollectionUtils.isEmpty(entities)) {
             //查询评价信息
-            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(deliveryOrderIds, null, null);
+            PageInfo<OrderCommentEntity> orderCommentEntityList = orderCommentService.selectAllByOrderId(orderIds,null,null);
             List<OrderCommentEntity> list = orderCommentEntityList.getList();
-            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectEvaluateAndRateNumber(list,false);
+            Map<String, Double> evaluateAndRateNumber = orderCommentService.collectBEvaluateAndRateNumber(list);
+            dashBoard.setAllowOrderNumber(allowOrderNumber);
+            dashBoard.setDispatchOrderNumber(dispatchOrderNumber);
 
             if (!CollectionUtils.isEmpty(evaluateAndRateNumber)) {
                 dashBoard.setReceivedEvaluateNumber(evaluateAndRateNumber.get("evaluate").intValue());
@@ -147,7 +137,7 @@ public class DashBoardController {
 
     @ApiOperation("管理员仪表盘")
     @PostMapping("/manager")
-    public CommonResponse<DashBoardDto> getManagerDashBoard() {
+    public CommonResponse<DashBoardVo> getManagerDashBoard() {
         Date date = new Date();
         List<OrderInfoEntity> entityList = orderInfoService.selectAll();
         //总等待接单数
@@ -197,7 +187,7 @@ public class DashBoardController {
                 newAddRegister++;
             }
         }
-        DashBoardDto vo = new DashBoardDto();
+        DashBoardVo vo = new DashBoardVo();
         vo.setNewAddOrders(newAddOrders);
         vo.setWaitOrderNumber(waitOrderNumber);
         vo.setDispatchOrderNumber(dispatchOrderNumber);

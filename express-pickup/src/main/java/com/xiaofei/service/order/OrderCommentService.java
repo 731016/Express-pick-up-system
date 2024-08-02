@@ -22,10 +22,15 @@ public interface OrderCommentService {
      */
     OrderCommentEntity selectAllByOrderId(String orderId);
     /**
-     * 收集所有评价的数量和综合评分
-     * sign :true用于普通用户，false用于配送用户
+     * 收集所有评价的数量和综合评分（普通用户）
      */
-    Map<String, Double> collectEvaluateAndRateNumber(List<OrderCommentEntity> list,Boolean sign);
+    Map<String, Double> collectCEvaluateAndRateNumber(List<OrderCommentEntity> list);
+
+
+    /**
+     * 收集所有评价的数量和综合评分(配送用户)
+     */
+    Map<String, Double> collectBEvaluateAndRateNumber(List<OrderCommentEntity> list);
     /**
      * 插入评价信息
      */

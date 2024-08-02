@@ -1,16 +1,16 @@
 package com.xiaofei.utils;
 
-import javax.xml.crypto.Data;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
- * TODO 类描述
- *
- * @date 2022/4/21 20:58
+ * @author tuaofei
+ * @description TODO
+ * @date 2024/7/31
  */
 public class DateUtils {
+
     // 默认的年月日的格式. yyyy-MM-dd
     public static final String PATTEN_DEFAULT_YMD = "yyyy-MM-dd";
     public static final String FORMAT_DATETIME = "yyyy-MM-dd HH:mm:ss";
@@ -70,5 +70,4 @@ public class DateUtils {
         Date newDate = c.getTime();
         return newDate;
     }
-
 }

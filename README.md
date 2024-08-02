@@ -7,6 +7,68 @@
 
 **后端**  springboot + redis + mysql-Plus + JSON WEB TOKEN
 
+
+
+#### 系统运行环境
+前后端分开运行：前端：可运行在Node和Nginx上后端：运行在springboot内置的tomcat上，可运行在windows和linux上
+
+#### 安装配置说明
+本地Windows运行
+
+##### 前端
+安装Node.js 
+下载地址：http://nodejs.cn/download/
+![输入图片说明](images/node.png)
+安装参考地址：https://blog.csdn.net/qq_40712862/article/details/120231621 
+安装完成后。
+配置环境变量
+复制安装地址里面的node.exe的目录 
+
+我的电脑->属性
+![输入图片说明](images/1.png)
+
+高级系统设置->环境变量
+![输入图片说明](images/2.png)
+
+在系统变量里面找到path
+![输入图片说明](images/3.png)
+
+添加一行，复制刚刚复制的目录
+![输入图片说明](images/4.png)
+
+运行cmd，测试node环境变量是否配置完成
+![输入图片说明](images/5.png)
+
+修改src->request->http.js里面的baseURL: "http://localhost:8090" 进入项目根目录，运行npm install命令安装项目所需要的依赖 安装完成后，运行npm run serve启动项目
+
+##### 后端
+安装MySQL数据库 
+http://xiaofei.work/#/MySQL/MySql%E5%AE%89%E8%A3%85  
+连接数据库，运行sql文件，初始化数据  
+修改resources里面的application.yml文件的数据库连接配置  
+进入idea编辑器，运行springboot启动类
+
+Linux运行：
+
+前端
+安装nginx
+http://xiaofei.work/#/linux/%E5%B8%B8%E7%94%A8linux%E5%91%BD%E4%BB%A4?id=%e5%ae%89%e8%a3%85%e5%b9%b6%e6%b5%8b%e8%af%95nginx%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1  
+本地打包使用npm run build 复制到nginx目录,设置网站根目录
+```shell
+#运行
+./nginx
+```
+
+后端
+安装java
+http://xiaofei.work/#/linux/%E5%B8%B8%E7%94%A8linux%E5%91%BD%E4%BB%A4?id=%e5%ae%89%e8%a3%85java  
+本地使用maven打成jar包，上传到服务器
+```shell
+#运行 
+nohup java -jar 包名.jar > 日志路径 1>2& &
+```
+
+
 #### 三层架构应用图
 ![输入图片说明](images/%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8%E5%9B%BE.png)
 
@@ -137,6 +199,5 @@ paymentStatus_cnName
 ```
 token存储键唯一，在同一个浏览器开两个网页，一个用户登录，另一个用其他账号登陆后，之前登录的token会被覆盖，前一个用户不会自动刷新页面退出，还可以操作，但是用户以及切换，页面还没变。
 ```
-2. 初始访问速度过慢，有一个js文件过大,11MB左右。
 
   

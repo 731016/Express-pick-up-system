@@ -1,7 +1,7 @@
 package com.xiaofei.controller.base;
 
 import com.xiaofei.common.CommonResponse;
-import com.xiaofei.utils.ResultUtils;
+import com.xiaofei.common.ResultUtils;
 import com.xiaofei.entity.base.SchoolEntity;
 import com.xiaofei.service.base.SchoolService;
 import io.swagger.annotations.Api;

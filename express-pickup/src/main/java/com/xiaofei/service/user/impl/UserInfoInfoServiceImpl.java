@@ -234,7 +234,7 @@ public class UserInfoInfoServiceImpl implements UserInfoService {
         //查询订单id
         List<OrderInfoEntity> infoEntities = orderInfoMapper.selectOrderIdByUserId(userIds);
         if (CollectionUtils.isEmpty(infoEntities)) {
-            return new PageInfo<>();
+            return new PageInfo<>(entities);
         }
         //收集订单id
         List<String> orderList = infoEntities.stream().map(OrderInfoEntity::getId).collect(Collectors.toList());

@@ -4,7 +4,9 @@ import com.github.pagehelper.PageInfo;
 import com.xiaofei.common.SearchCondition;
 import com.xiaofei.entity.order.OrderInfoEntity;
 import com.xiaofei.entity.order.PaymentInfoEntity;
-import com.xiaofei.dto.OrderInfoDto;
+import com.xiaofei.entity.user.UserInfoEntity;
+import com.xiaofei.vo.OrderInfoVo;
+import io.swagger.models.auth.In;
 
 import java.util.List;
 import java.util.Map;
@@ -60,12 +62,10 @@ public interface OrderInfoService {
      */
     PageInfo<OrderInfoEntity> selectOrderBydeliveryManId(SearchCondition search, String deliveryManId);
 
-    List<OrderInfoEntity> selectOrderBydeliveryManId(String deliveryManId);
-
     /**
      * 将实体类转换为前台需要展示对象
      */
-    List<OrderInfoDto> poToVo(List<OrderInfoEntity> orders, List<PaymentInfoEntity> payments);
+    List<OrderInfoVo> poToVo(List<OrderInfoEntity> orders, List<PaymentInfoEntity> payments);
 
     /**
      * 撤销订单

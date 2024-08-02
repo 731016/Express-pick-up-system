@@ -21,11 +21,9 @@ import java.util.List;
 public class WebConfig extends WebMvcConfigurationSupport {
 
     @Bean
-    public HandlerInterceptor interceptor() {
+    public  HandlerInterceptor interceptor(){
         return new AllRequestInterceptor();
-    }
-
-    ;
+    };
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -42,7 +40,6 @@ public class WebConfig extends WebMvcConfigurationSupport {
         // 和白名单(excludePathPatterns("List类型参数"))，将不必拦截的路径添加到List列表中
         registry.addInterceptor(interceptor()).addPathPatterns("/**").excludePathPatterns(patterns);
     }
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         // 跨域相关配置, 并让 authorization 可在响应头中出现

@@ -2,7 +2,7 @@ import axios from "axios";
 import Vue from 'vue'
 // axios.defaults.headers.post['Content-Type'] = 'application/json';
 let server = axios.create({   //新创建一个axios实例
-    baseURL: "http://119.3.104.52:8090",  //公共地址
+    baseURL: "http://localhost:8090",  //公共地址
     timeout: 30000, //延迟时间,
 })
 // 请求拦截
@@ -21,7 +21,7 @@ server.interceptors.response.use(function (response) {
     if (response && response.data) {
         let statusCode = response.data.statusCode;
         let message = response.data.message;
-        let errcode = [4000, 4001, 4004, 6001, 6002, 6003, 6004, 6005, 6006, 7001, 7002, 8001];
+        let errcode = [4000, 4001, 4004, 6001, 6002, 6003, 6004, 6005, 6006, 7001, 7002];
         if (errcode.some(item => item === statusCode)) {
             Vue.prototype.$message.error(message);
         }

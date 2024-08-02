@@ -1,25 +1,19 @@
-package com.xiaofei.entity.order;
+package com.xiaofei.vo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 支付信息
+ * TODO 类描述
  *
- * @date 2022/4/9 14:33
+ * @date 2022/4/10 15:49
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("payment_info")
-public class PaymentInfoEntity {
-    private String orderid;
-    /**
-     * 支付方式
-     */
+public class PaymentVo {
     private String paymentMethod;
     /**
      * 支付金额
@@ -36,19 +30,17 @@ public class PaymentInfoEntity {
      */
     private Integer paymentStatus;
     @TableField(exist = false)
-    private Integer paymentStatusName;
+    private String paymentStatusName;
     /**
      * 收款方姓名
      */
-    private String beneficiaryName;
+    private Integer beneficiaryName;
     /**
      * 包裹数量
      */
-    @TableField(exist = false)
     private Integer boxNumber;
     /**
      * 总重量
      */
-    @TableField(exist = false)
     private Double weightTotal;
 }
