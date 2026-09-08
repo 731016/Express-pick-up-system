@@ -17,25 +17,25 @@
 
 ##### 管理员
 
-![image-20260908114028317](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114028317.png)
+![image-20260908114028317](images/image-20260908114028317.png)
 
-![image-20260908114104477](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114104477.png)
+![image-20260908114104477](images/image-20260908114104477.png)
 
-![image-20260908114124961](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114124961.png)
+![image-20260908114124961](images/image-20260908114124961.png)
 
-![image-20260908114146598](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114146598.png)
+![image-20260908114146598](images/image-20260908114146598.png)
 
-![image-20260908114158054](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114158054.png)
+![image-20260908114158054](images/image-20260908114158054.png)
 
 ##### 普通用户
 
-![image-20260908114408553](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114408553.png)
+![image-20260908114408553](images/image-20260908114408553.png)
 
 ##### 配送用户
 
-![image-20260908114430472](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114430472.png)
+![image-20260908114430472](images/image-20260908114430472.png)
 
-![image-20260908114450920](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114450920.png)
+![image-20260908114450920](images/image-20260908114450920.png)
 
 #### 系统运行环境
 
