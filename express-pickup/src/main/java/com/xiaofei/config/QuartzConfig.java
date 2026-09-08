@@ -1,6 +1,6 @@
 package com.xiaofei.config;
 
-import com.xiaofei.task.UserQuartzJob;
+//import com.xiaofei.task.UserQuartzJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
  *
  * @date 2022/4/21 22:15
  */
-@Configuration
+//@Configuration
 public class QuartzConfig {
     @Bean
     public JobDetail getJobDetail() {
         // 对应定时任务类
-        return JobBuilder.newJob(UserQuartzJob.class).withIdentity("quartz").storeDurably().build();
+        return JobBuilder.newJob().withIdentity("quartz").storeDurably().build();
     }
     @Bean
     public CronTrigger scheduleJob() {
