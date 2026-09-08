@@ -1,5 +1,7 @@
 # 快递代取系统
 
+此项目最新版本：https://github.com/731016/Express-pick-up-system
+
 #### 介绍
 
 **前端** vue2 + element-ui + axios
@@ -9,13 +11,42 @@
 
 
 
+#### 运行效果
+
+
+
+##### 管理员
+
+![image-20260908114028317](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114028317.png)
+
+![image-20260908114104477](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114104477.png)
+
+![image-20260908114124961](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114124961.png)
+
+![image-20260908114146598](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114146598.png)
+
+![image-20260908114158054](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114158054.png)
+
+##### 普通用户
+
+![image-20260908114408553](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114408553.png)
+
+##### 配送用户
+
+![image-20260908114430472](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114430472.png)
+
+![image-20260908114450920](D:\projects\开源项目源码\Express-pick-up-system\images\image-20260908114450920.png)
+
 #### 系统运行环境
+
 前后端分开运行：前端：可运行在Node和Nginx上后端：运行在springboot内置的tomcat上，可运行在windows和linux上
 
 #### 安装配置说明
+
 本地Windows运行
 
 ##### 前端
+
 安装Node.js 
 下载地址：http://nodejs.cn/download/
 ![输入图片说明](images/node.png)
@@ -42,8 +73,10 @@
 修改src->request->http.js里面的baseURL: "http://localhost:8090" 进入项目根目录，运行npm install命令安装项目所需要的依赖 安装完成后，运行npm run serve启动项目
 
 ##### 后端
+
 安装MySQL数据库 
-http://xiaofei.work/#/MySQL/MySql%E5%AE%89%E8%A3%85  
+
+[MySql安装 | notes | 计算机知识杂货铺](https://xiaofei.site/notes/my-sql/my-sql-安装/)  
 连接数据库，运行sql文件，初始化数据  
 修改resources里面的application.yml文件的数据库连接配置  
 进入idea编辑器，运行springboot启动类
@@ -52,8 +85,9 @@ Linux运行：
 
 前端
 安装nginx
-http://xiaofei.work/#/linux/%E5%B8%B8%E7%94%A8linux%E5%91%BD%E4%BB%A4?id=%e5%ae%89%e8%a3%85%e5%b9%b6%e6%b5%8b%e8%af%95nginx%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1  
+[常用linux命令 | notes | 计算机知识杂货铺](https://xiaofei.site/notes/linux/常用linux命令/#安装并测试nginx负载均衡)  
 本地打包使用npm run build 复制到nginx目录,设置网站根目录
+
 ```shell
 #运行
 ./nginx
@@ -61,27 +95,34 @@ http://xiaofei.work/#/linux/%E5%B8%B8%E7%94%A8linux%E5%91%BD%E4%BB%A4?id=%e5%ae%
 
 后端
 安装java
-http://xiaofei.work/#/linux/%E5%B8%B8%E7%94%A8linux%E5%91%BD%E4%BB%A4?id=%e5%ae%89%e8%a3%85java  
+[常用linux命令 | notes | 计算机知识杂货铺](https://xiaofei.site/notes/linux/常用linux命令/#安装java)  
 本地使用maven打成jar包，上传到服务器
+
 ```shell
 #运行 
 nohup java -jar 包名.jar > 日志路径 1>2& &
 ```
 
 
+
 #### 三层架构应用图
+
 ![输入图片说明](images/%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8%E5%9B%BE.png)
 
 #### 系统架构流程图
+
 ![输入图片说明](images/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 #### 系统结构功能图
+
 ![输入图片说明](images/%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84%E5%8A%9F%E8%83%BD%E5%9B%BE.png)
 
 #### 数据模型 E-R 图
+
 ![输入图片说明](images/%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%20E-R%20%E5%9B%BE.png)
 
 #### E-R图
+
 ![输入图片说明](images/er%E5%9B%BE.png)
 
 #### 详细设计（部分不完整）
@@ -196,6 +237,7 @@ paymentStatus_cnName
 ###### 未解决
 
 1. 多用户的登录
+
 ```
 token存储键唯一，在同一个浏览器开两个网页，一个用户登录，另一个用其他账号登陆后，之前登录的token会被覆盖，前一个用户不会自动刷新页面退出，还可以操作，但是用户以及切换，页面还没变。
 ```
